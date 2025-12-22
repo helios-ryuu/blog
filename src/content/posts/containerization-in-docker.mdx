@@ -1,0 +1,85 @@
+---
+author: "Helios"
+authorTitle: "DevOps Engineer"
+title: "Containerization in Docker"
+description: "A comprehensive guide to containerization concepts and Docker fundamentals for modern application deployment"
+date: "2025-12-22"
+image: "/post-images/post_3.jpg"
+tags: ["docker", "containerization", "devops"]
+---
+
+Docker has revolutionized the way we develop, ship, and run applications. In this guide, we'll explore the fundamentals of containerization and how Docker makes it accessible.
+
+## What is Containerization?
+
+Containerization is a lightweight form of virtualization that packages an application and its dependencies together in a container. Unlike virtual machines, containers share the host OS kernel, making them more efficient.
+
+### Key Benefits
+
+- **Consistency**: Same environment from development to production
+- **Isolation**: Applications run in isolated environments
+- **Portability**: Run anywhere Docker is installed
+- **Efficiency**: Lightweight compared to VMs
+
+## Docker Fundamentals
+
+### Images and Containers
+
+- **Image**: A read-only template with instructions for creating a container
+- **Container**: A runnable instance of an image
+
+### Creating a Dockerfile
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### Essential Docker Commands
+
+```bash
+# Build an image
+docker build -t my-app .
+
+# Run a container
+docker run -p 3000:3000 my-app
+
+# List running containers
+docker ps
+
+# Stop a container
+docker stop <container_id>
+```
+
+## Docker Compose
+
+For multi-container applications, Docker Compose simplifies orchestration:
+
+```yaml
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: secret
+```
+
+## Best Practices
+
+1. **Use multi-stage builds** to reduce image size
+2. **Don't run as root** inside containers
+3. **Use .dockerignore** to exclude unnecessary files
+4. **Tag images properly** for versioning
+
+## Conclusion
+
+Docker containers have become essential for modern DevOps workflows. Understanding containerization fundamentals will help you build more reliable and scalable applications.

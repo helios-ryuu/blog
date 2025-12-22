@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fcfcfc;
+  --background-hover: #e2e2e2;
+  --foreground: #171717;
+  --accent: #f56325;
+  --accent-hover: #ff7033;
+  --border-color: #e6e6e6;
+  --border-color-hover: #cccccc;
+  --foreground-dim: #aaaaaa;
+  --post-card: #f5f5f5;
+  --post-card-hover: #e8e8e8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-hover: var(--background-hover);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --font-sans: var(--font-lexend);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #171717;
+    --background-hover: #252525;
+    --foreground: #fcfcfc;
+    --accent: #f56325;
+    --accent-hover: #fc7b44;
+    --border-color: #2d2d2d;
+    --border-color-hover: #363636;
+    --foreground-dim: #595959;
+    --post-card: #1f1f1f;
+    --post-card-hover: #212121;
+  }
+}
+
+:root.light {
+  --background: #fcfcfc;
+  --background-hover: #e2e2e2;
+  --foreground: #171717;
+  --accent: #f56325;
+  --accent-hover: #f85007;
+  --border-color: #e6e6e6;
+  --border-color-hover: #cccccc;
+  --foreground-dim: #aaaaaa;
+  --post-card: #f5f5f5;
+  --post-card-hover: #e8e8e8;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-lexend), Arial, Helvetica, sans-serif;
+}
