@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import Footer from "@/components/layout/Footer";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import { Button } from "./ui";
 
@@ -12,7 +13,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     const isHomePage = pathname === "/";
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden">
+        <div className="flex min-h-dvh h-dvh flex-col overflow-hidden">
             <Header
                 noBorder={isHomePage}
                 showMobileMenu={!isHomePage}
@@ -39,7 +40,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 {!isHomePage && <Sidebar />}
                 {/* Main content - no margin on mobile, margin on desktop when sidebar not pinned */}
                 <main className={`flex-1 overflow-auto bg-background transition-[margin,background-color] duration-200 ease-out ml-0 ${!isHomePage && !isPinned ? "md:ml-13" : ""}`}>
-                    {children}
+                    <div className="min-h-full flex flex-col">
+                        <div className="flex-1">{children}</div>
+                        <Footer />
+                    </div>
                 </main>
             </div>
         </div>

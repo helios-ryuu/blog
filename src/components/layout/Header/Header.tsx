@@ -5,11 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
-import { PanelRightOpenIcon, PanelRightCloseIcon, X, Sun, Moon, ChevronRight, Slash } from "lucide-react";
+import { PanelRightOpenIcon, PanelRightCloseIcon, X, Sun, Moon, ChevronRight, Slash, SquareChevronDown, SquareChevronUp } from "lucide-react";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { usePathname } from "next/navigation";
-
-
+import MobileDropdown from "@/components/layout/MobileDropdown";
 
 interface HeaderProps {
     noBorder?: boolean;
@@ -70,19 +69,21 @@ export default function Header({ noBorder = false, showMobileMenu = true, banner
 
             {/* Header */}
             <header className={`flex h-14 items-center justify-start bg-background border-b transition-[background-color,border-color] duration-200 ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
-                {/* Mobile menu button - only visible on mobile */}
+                {/* Mobile menu button with dropdown - only visible on mobile */}
                 {showMobileMenu && (
-                    <div className="md:hidden flex items-center justify-center h-full px-3">
+                    <div className="md:hidden relative flex items-center justify-center h-full px-3">
                         <IconButton onClick={toggleMobileSidebar}>
-                            {isMobileOpen ? <PanelRightOpenIcon strokeWidth={3} /> : <PanelRightCloseIcon strokeWidth={3} />}
+                            {isMobileOpen ? <SquareChevronUp strokeWidth={3} /> : <SquareChevronDown strokeWidth={3} />}
                         </IconButton>
+                        <MobileDropdown />
                     </div>
                 )}
 
                 {/* Logo & Breadcrumb */}
-                <div className="flex flex-none items-center h-full w-auto text-accent">
-                    <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6 md:ml-20 ml-4" />
-                    <Link href="/" className="pl-4 pr-2 hover:text-accent-hover transition-colors">Helios</Link>
+                <div className="flex flex-none items-center h-full w-auto text-foreground">
+                    <Link href="/" className="md:ml-16 ml-4 mr-2">
+                        <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6" />
+                    </Link>
                     {(() => {
                         const pathname = usePathname();
                         const routes = [
@@ -106,7 +107,29 @@ export default function Header({ noBorder = false, showMobileMenu = true, banner
                 </div>
 
                 {/* Right side */}
-                <div className="flex flex-1 items-center justify-end h-full pr-4">
+                <div className="flex flex-1 items-center justify-end h-full pr-6 gap-1">
+                    <button
+                        onClick={() => {
+                            const linkedinUrl = "https://www.linkedin.com/in/helios-nts/";
+                            const linkedinAppUrl = "linkedin://in/helios-nts";
+
+                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                            if (isMobile) {
+                                window.location.href = linkedinAppUrl;
+                                setTimeout(() => window.open(linkedinUrl, "_blank"), 100);
+                            } else {
+                                window.open(linkedinUrl, "_blank");
+                            }
+                        }}
+                        className="p-2 rounded-[7px] cursor-pointer hover:bg-background-hover transition-colors duration-200"
+                    >
+                        <Image
+                            src={theme === "light" ? "/InBug-Black.png" : "/InBug-White.png"}
+                            alt="LinkedIn"
+                            width={20}
+                            height={20}
+                        />
+                    </button>
                     <button
                         onClick={() => {
                             const githubUrl = "https://github.com/helios-ryuu";
@@ -120,7 +143,7 @@ export default function Header({ noBorder = false, showMobileMenu = true, banner
                                 window.open(githubUrl, "_blank");
                             }
                         }}
-                        className="p-2 rounded-[7px] cursor-pointer hover:bg-background-hover transition-colors duration-200 mr-10"
+                        className="p-2 rounded-[7px] cursor-pointer hover:bg-background-hover transition-colors duration-200 mr-6"
                     >
                         <Image
                             src={theme === "light" ? "/github-mark.svg" : "/github-mark-white.svg"}

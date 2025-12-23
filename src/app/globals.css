@@ -74,10 +74,17 @@ body {
 
 /* Global transition for theme switching - prevents flash on production */
 header,
+footer,
 main,
 article,
+button,
 div[class*="rounded"] {
   transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+/* Sidebar needs width and transform for expand animation */
+aside {
+  transition: width 0.2s ease-out, transform 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
 }
 
 /* Custom scrollbar styling */

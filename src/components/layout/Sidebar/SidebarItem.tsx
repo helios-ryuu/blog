@@ -20,7 +20,7 @@ export default function SidebarItem({ icon, label, href, className = "", onClick
         <Link
             href={href}
             onClick={onClick}
-            className={`flex flex-row items-center justify-start gap-x-2 pl-2 py-1 mt-0.5 mx-2 rounded-md transition-colors ${isActive ? "bg-accent/20 text-accent" : "text-(--foreground-dim) hover:text-foreground hover:bg-foreground/5"
+            className={`flex flex-row items-center justify-start gap-x-2 pl-2 py-1 mt-0.5 mx-2 rounded-md transition-[background-color] duration-200 ${isActive ? "bg-accent/20 text-accent" : "text-(--foreground-dim) hover:text-foreground hover:bg-foreground/5"
                 } ${className}`}
         >
             {icon && <span className="flex-none w-5 h-5 flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5">{icon}</span>}
