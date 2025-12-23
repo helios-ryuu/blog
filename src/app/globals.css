@@ -68,6 +68,15 @@ body {
   transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
+/* Global transition for theme switching - prevents flash */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color !important;
+  transition-duration: 0.2s !important;
+  transition-timing-function: ease-out !important;
+}
+
 /* Custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
@@ -76,11 +85,13 @@ body {
 
 ::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
+  transition: background-color 0.2s ease-out;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 4px;
+  transition: background-color 0.2s ease-out;
 }
 
 ::-webkit-scrollbar-thumb:hover {

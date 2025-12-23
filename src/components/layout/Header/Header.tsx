@@ -27,11 +27,14 @@ export default function Header({ noBorder = false, showMobileMenu = true, banner
 
     useEffect(() => {
         const html = document.documentElement;
-        if (theme === "light") {
-            html.classList.add("light");
-        } else {
-            html.classList.remove("light");
-        }
+        // Use requestAnimationFrame to ensure smooth transition
+        requestAnimationFrame(() => {
+            if (theme === "light") {
+                html.classList.add("light");
+            } else {
+                html.classList.remove("light");
+            }
+        });
     }, [theme]);
 
     const toggleTheme = () => {
