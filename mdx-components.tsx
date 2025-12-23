@@ -29,7 +29,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             // Inline code styling
             return (
                 <code
-                    className="bg-(--post-card) px-1.5 py-0.5 rounded text-sm"
+                    className="bg-(--code-block) text-gray-100 px-1.5 py-0.5 rounded text-sm"
                     style={{ fontFamily: 'var(--font-fira-code), monospace' }}
                 >
                     {children}
@@ -38,7 +38,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         },
         pre: ({ children }) => (
             <pre
-                className="bg-(--post-card) border border-(--border-color)/70 p-4 rounded-lg overflow-x-auto my-4 [&>code]:p-0 [&>code]:bg-transparent [&>code]:rounded-none"
+                className="bg-(--code-block) text-gray-100 border border-(--code-block-border) p-4 rounded-lg overflow-x-auto my-4 [&>code]:p-0 [&>code]:bg-transparent [&>code]:rounded-none"
                 style={{ fontFamily: 'var(--font-fira-code), monospace' }}
             >
                 {children}

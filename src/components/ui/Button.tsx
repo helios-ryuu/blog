@@ -21,7 +21,7 @@ export default function Button({
     return (
         <button
             onClick={onClick}
-            className={`rounded-[7px] border px-4 py-1 text-[14px] cursor-pointer transition-colors duration-200 ${variants[variant]} ${className}`}
+            className={`rounded-[7px] border px-4 py-1 text-[14px] cursor-pointer transition-[background-color,border-color] duration-200 ${variants[variant]} ${className}`}
         >
             {children}
         </button>

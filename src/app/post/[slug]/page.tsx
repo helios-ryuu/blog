@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { useMDXComponents } from "../../../../mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
+import { PostMeta, TagList } from "@/components/ui";
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -33,23 +34,8 @@ export default async function BlogPostPage({ params }: Props) {
             <header className="mb-8">
                 <h1 className="text-4xl font-bold">{post.title}</h1>
                 <p className="mt-2 text-foreground/70">{post.description}</p>
-                <div className="flex items-center gap-2 mt-4 text-sm text-foreground/50">
-                    <span>{post.date}</span>
-                    <span>•</span>
-                    <span>{post.readingTime}</span>
-                </div>
-                {post.tags && (
-                    <div className="flex gap-2 mt-4 flex-wrap">
-                        {post.tags.map((tag) => (
-                            <span
-                                key={tag}
-                                className="px-3 py-1 text-sm bg-accent/20 text-accent rounded-full"
-                            >
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-                )}
+                <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} className="mt-4" />
+                {post.tags && <TagList tags={post.tags} />}
             </header>
 
             <div className="prose prose-lg dark:prose-invert max-w-none">

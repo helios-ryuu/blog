@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import FadeText from "./FadeText";
+import TagList from "./TagList";
+import StatColumns from "./StatColumns";
+import type { Level } from "@/types/post";
 
 interface PostCardProps {
     image?: string;
@@ -11,6 +14,7 @@ interface PostCardProps {
     description: string;
     date?: string;
     readingTime?: string;
+    level?: Level;
     tags?: string[];
     onClick?: () => void;
     className?: string;
@@ -24,6 +28,7 @@ export default function PostCard({
     description,
     date,
     readingTime,
+    level,
     tags,
     onClick,
     className = ""
@@ -31,19 +36,34 @@ export default function PostCard({
     return (
         <div
             onClick={onClick}
-            className={`flex flex-col h-135 w-90 rounded-[22px] border border-(--border-color) p-6 bg-(--post-card) cursor-pointer hover:border-(--border-color-hover) hover:bg-(--post-card-hover) active:border-accent transition-[border-color,background-color] duration-200 ${className}`}
+            className={`flex flex-col h-150 w-95 rounded-[22px] border border-(--border-color) p-5 bg-(--post-card) cursor-pointer hover:border-(--border-color-hover) hover:bg-(--post-card-hover) active:border-accent transition-[border-color,background-color] duration-200 ${className}`}
         >
             {/* Top Section - floats to top */}
             <div className="flex-none">
                 {/* Image */}
                 {image && (
-                    <div className="relative w-full h-70 rounded-[17px] overflow-hidden mb-4">
-                        <Image
-                            src={image}
-                            alt={title}
-                            fill
-                            className="object-cover"
-                        />
+                    <div className="relative w-full h-70 mb-6">
+                        {/* Glow layer - blurred duplicate behind (outside overflow-hidden) */}
+                        <div className="absolute -inset-1 blur-xl opacity-16">
+                            <Image
+                                src={image}
+                                alt=""
+                                fill
+                                className="object-cover rounded-[17px]"
+                            />
+                        </div>
+
+                        {/* Image container with overflow-hidden */}
+                        <div className="relative w-full h-full rounded-[17px] overflow-hidden z-10">
+                            <Image
+                                src={image}
+                                alt={title}
+                                fill
+                                className="object-cover"
+                            />
+                            {/* Color overlay */}
+                            <div className="absolute inset-0 bg-linear-to-t from-background/32 via-transparent to-transparent" />
+                        </div>
                     </div>
                 )}
 
@@ -56,12 +76,19 @@ export default function PostCard({
 
                 {/* Title */}
                 {title && (
-                    <h2 className="font-semibold text-[18px] tracking-wide line-clamp-2">{title}</h2>
+                    <h2 className="font-semibold text-[18px] tracking-wide line-clamp-2 leading-tight">{title}</h2>
                 )}
 
                 {/* Description */}
                 {description && (
-                    <p className="text-[12px] text-foreground/70 mt-1 line-clamp-3">{description}</p>
+                    <p className="text-[12px] text-foreground/70 mt-2 line-clamp-4">{description}</p>
+                )}
+
+                {/* Tags */}
+                {tags && (
+                    <div className="mt-4">
+                        <TagList tags={tags} variant="compact" />
+                    </div>
                 )}
             </div>
 
@@ -71,30 +98,14 @@ export default function PostCard({
             {/* Bottom Section - floats to bottom */}
             <div className="flex-none">
                 {/* Delimiter */}
-                <div className="w-full border-t border-(--border-color) mt-4 mb-4" />
+                <div className="w-full border-t border-(--border-color) mt-4 mb-3 transition-[border-color] duration-200" />
 
-                {/* Meta info */}
-                {(date || readingTime) && (
-                    <div className="flex items-center gap-2 text-xs text-foreground/50">
-                        {date && <span>{date}</span>}
-                        {date && readingTime && <span>•</span>}
-                        {readingTime && <span>{readingTime}</span>}
-                    </div>
-                )}
-
-                {/* Tags */}
-                {tags && tags.length > 0 && (
-                    <div className="flex gap-1 mt-3 flex-wrap">
-                        {tags.map((tag) => (
-                            <span
-                                key={tag}
-                                className="px-2 py-0.5 text-xs bg-accent/20 text-accent rounded"
-                            >
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-                )}
+                {/* Stats - includes meta info */}
+                <StatColumns stats={[
+                    ...(date ? [{ label: "Date", value: date }] : []),
+                    ...(readingTime ? [{ label: "Read", value: readingTime }] : []),
+                    ...(level ? [{ label: "Level", value: level.charAt(0).toUpperCase() + level.slice(1) }] : []),
+                ]} />
             </div>
         </div>
     );

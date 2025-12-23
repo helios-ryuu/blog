@@ -1,19 +1,17 @@
 import Link from "next/link";
+import { Button } from "@/components/ui";
 
 export default function Home() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Home</h1>
-      <p className="mt-2 text-foreground/70">Welcome to Helios Blog</p>
+    <div className="flex flex-col items-center justify-center h-full">
+      <h1 className="text-4xl font-bold mb-2">Helios Blog</h1>
+      <p className="text-foreground/60 mb-8">Sharing my thoughts with the world</p>
 
-      <div className="mt-6">
-        <Link
-          href="/blog"
-          className="text-accent hover:underline"
-        >
-          View all posts →
-        </Link>
-      </div>
+      <Link href="/post">
+        <Button>
+          Go to posts
+        </Button>
+      </Link>
     </div>
   );
 }

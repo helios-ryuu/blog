@@ -1,3 +1,5 @@
+export type Level = "beginner" | "intermediate" | "advanced";
+
 export interface PostFrontmatter {
     author?: string;
     authorTitle?: string;
@@ -6,6 +8,7 @@ export interface PostFrontmatter {
     date: string;
     image?: string;
     tags?: string[];
+    level?: Level;
 }
 
 export interface Post extends PostFrontmatter {
