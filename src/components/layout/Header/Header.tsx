@@ -78,7 +78,7 @@ export default function Header({ noBorder = false, showMobileMenu = true, banner
 
                 {/* Logo & Breadcrumb */}
                 <div className="flex flex-none items-center h-full w-auto text-accent">
-                    <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6 md:ml-20 ml-4"/>
+                    <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6 md:ml-20 ml-4" />
                     <Link href="/" className="pl-4 pr-2 hover:text-accent-hover transition-colors">Helios</Link>
                     {(() => {
                         const pathname = usePathname();
@@ -112,6 +112,7 @@ export default function Header({ noBorder = false, showMobileMenu = true, banner
                             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                             if (isMobile) {
                                 window.location.href = githubAppUrl;
+                                setTimeout(() => window.open(githubUrl, "_blank"), 100);
                             } else {
                                 window.open(githubUrl, "_blank");
                             }
