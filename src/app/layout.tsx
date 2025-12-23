@@ -18,6 +18,29 @@ const firaCode = Fira_Code({
 export const metadata: Metadata = {
   title: "Helios - Blog",
   description: "Helios personal blog for sharing my thoughts and experiences",
+  metadataBase: new URL("https://blog.helios.id.vn"), // Update with your actual domain
+  openGraph: {
+    title: "Helios - Blog",
+    description: "Helios personal blog for sharing my thoughts and experiences",
+    url: "https://blog.helios.id.vn",
+    siteName: "Helios Blog",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 512,
+        height: 512,
+        alt: "Helios Blog",
+      },
+    ],
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Helios - Blog",
+    description: "Helios personal blog for sharing my thoughts and experiences",
+    images: ["/favicon.ico"],
+  },
 };
 
 export default function RootLayout({

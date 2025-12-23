@@ -4,6 +4,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { useMDXComponents } from "../../../../mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
 import { PostMeta, TagList } from "@/components/ui";
+import { Metadata } from "next";
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -14,6 +15,47 @@ export async function generateStaticParams() {
     return slugs.map((slug) => ({
         slug: slug.replace(/\.mdx$/, ""),
     }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params;
+    const post = getPostBySlug(slug);
+
+    if (!post) {
+        return {
+            title: "Post Not Found",
+        };
+    }
+
+    const baseUrl = "https://blog.helios.id.vn"; // Update with your actual domain
+
+    return {
+        title: `${post.title} - Helios Blog`,
+        description: post.description,
+        openGraph: {
+            title: post.title,
+            description: post.description,
+            url: `${baseUrl}/post/${slug}`,
+            siteName: "Helios Blog",
+            images: post.image ? [
+                {
+                    url: post.image,
+                    width: 1200,
+                    height: 630,
+                    alt: post.title,
+                },
+            ] : [],
+            locale: "vi_VN",
+            type: "article",
+            publishedTime: post.date,
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: post.title,
+            description: post.description,
+            images: post.image ? [post.image] : [],
+        },
+    };
 }
 
 const rehypePrettyCodeOptions = {
