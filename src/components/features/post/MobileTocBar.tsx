@@ -108,8 +108,8 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
                 <>
                     {/* Dim overlay */}
                     <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setIsOpen(false)}
+                        className="absolute top-0 left-0 w-screen h-screen z-40"
+                        onTouchStart={() => setIsOpen(false)}
                     />
 
                     {/* TOC Panel */}
