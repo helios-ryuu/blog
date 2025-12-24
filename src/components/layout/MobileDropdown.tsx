@@ -22,10 +22,7 @@ export default function MobileDropdown() {
         <>
             {/* Dim overlay */}
             <div
-                className={`
-                    fixed inset-0 z-40 bg-black/40
-                    ${isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
-                `}
+                className={`fixed inset-0 z-40 ${isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
                 onClick={handleClose}
             />
 

@@ -88,9 +88,9 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
             <div className="flex items-center h-10 px-3.5 gap-2">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="p-1.5 rounded hover:bg-background-hover"
+                    className="p-1.5 mr-1.5 rounded hover:bg-background-hover"
                 >
-                    {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    {isOpen ? <X strokeWidth={2.5} className="w-5 h-5" /> : <Menu strokeWidth={2.5} className="w-5 h-5 text-(--foreground-dim)" />}
                 </button>
 
                 {/* Breadcrumb */}
@@ -106,10 +106,9 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
             {/* Dropdown TOC */}
             {isOpen && (
                 <>
-                    {/* Overlay */}
+                    {/* Dim overlay */}
                     <div
-                        className="fixed inset-0 bg-black/40 z-40"
-                        style={{ top: "calc(3.5rem + 2.5rem)" }}
+                        className="fixed inset-0 z-40"
                         onClick={() => setIsOpen(false)}
                     />
 

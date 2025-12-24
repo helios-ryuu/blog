@@ -80,7 +80,7 @@ export default async function BlogPostPage({ params }: Props) {
             {/* Mobile TOC Bar */}
             <MobileTocBar title={post.title} content={post.content} />
 
-            <div className="flex gap-14 px-4 md:px-6 lg:px-8 py-8 max-w-dvw mx-auto">
+            <div className="flex gap-10 px-4 md:px-6 lg:px-8 py-8 max-w-dvw mx-auto">
                 {/* Left Sidebar - Table of Contents */}
                 <aside className="hidden lg:block w-64 flex-none">
                     <TableOfContents content={post.content} />

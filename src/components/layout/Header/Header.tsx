@@ -60,7 +60,7 @@ export default function Header({ noBorder = false, showMobileMenu = true }: Head
             {/* Mobile menu button with dropdown */}
             {showMobileMenu && (
                 <div className="md:hidden relative flex items-center justify-center h-full px-3">
-                    <IconButton onClick={toggleMobileSidebar}>
+                    <IconButton onClick={toggleMobileSidebar} className={` ${isMobileOpen ? "text-accent bg-accent-hover/20" : "text-(--foreground-dim)"}`}>
                         {isMobileOpen ? <SquareChevronUp strokeWidth={3} /> : <SquareChevronDown strokeWidth={3} />}
                     </IconButton>
                     <MobileDropdown />
@@ -69,7 +69,7 @@ export default function Header({ noBorder = false, showMobileMenu = true }: Head
 
             {/* Logo & Breadcrumb */}
             <div className="flex flex-none items-center h-full text-foreground">
-                <Link href="/" className="md:ml-16 ml-4 mr-2">
+                <Link href="/" className="md:ml-16 ml-3 mr-2">
                     <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6" />
                 </Link>
                 {currentRoute && (
