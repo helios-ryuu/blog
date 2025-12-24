@@ -49,7 +49,7 @@ export default function Header({ noBorder = false, showMobileMenu = true }: Head
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile) {
             window.location.href = appUrl;
-            setTimeout(() => window.open(webUrl, "_blank"), 100);
+            setTimeout(() => window.open(webUrl, "_blank"), 500);
         } else {
             window.open(webUrl, "_blank");
         }
