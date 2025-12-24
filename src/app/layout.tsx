@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Lexend, Fira_Code } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
@@ -14,6 +14,10 @@ const firaCode = Fira_Code({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Helios - Blog",

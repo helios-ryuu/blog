@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
-import { PanelRightOpenIcon, PanelRightCloseIcon, X, Sun, Moon, ChevronRight, Slash, SquareChevronDown, SquareChevronUp } from "lucide-react";
+import { Sun, Moon, Slash, SquareChevronDown, SquareChevronUp } from "lucide-react";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { usePathname } from "next/navigation";
 import MobileDropdown from "@/components/layout/MobileDropdown";
@@ -13,20 +12,15 @@ import MobileDropdown from "@/components/layout/MobileDropdown";
 interface HeaderProps {
     noBorder?: boolean;
     showMobileMenu?: boolean;
-    banner?: {
-        content: React.ReactNode;
-        dismissible?: boolean;
-    };
 }
 
-export default function Header({ noBorder = false, showMobileMenu = true, banner }: HeaderProps) {
+export default function Header({ noBorder = false, showMobileMenu = true }: HeaderProps) {
     const [theme, setTheme] = useState<"light" | "dark">("dark");
-    const [showBanner, setShowBanner] = useState(true);
     const { isMobileOpen, setIsMobileOpen } = useSidebar();
+    const pathname = usePathname();
 
     useEffect(() => {
         const html = document.documentElement;
-        // Use requestAnimationFrame to ensure smooth transition
         requestAnimationFrame(() => {
             if (theme === "light") {
                 html.classList.add("light");
@@ -44,119 +38,78 @@ export default function Header({ noBorder = false, showMobileMenu = true, banner
         setIsMobileOpen(!isMobileOpen);
     };
 
-    const dismissBanner = () => {
-        setShowBanner(false);
+    const routes = [
+        { path: "/post", label: "Post" },
+        { path: "/journey", label: "Journey" },
+        { path: "/project", label: "Project" }
+    ];
+    const currentRoute = routes.find(r => pathname.startsWith(r.path));
+
+    const openSocialLink = (appUrl: string, webUrl: string) => {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            window.location.href = appUrl;
+            setTimeout(() => window.open(webUrl, "_blank"), 100);
+        } else {
+            window.open(webUrl, "_blank");
+        }
     };
 
     return (
-        <div className="sticky top-0 z-50">
-            {/* Banner */}
-            {banner && showBanner && (
-                <div className="flex items-center justify-center bg-accent text-white/90 text-sm py-1.5 px-4">
-                    <div className="flex-1 text-center">
-                        {banner.content}
-                    </div>
-                    {banner.dismissible !== false && (
-                        <button
-                            onClick={dismissBanner}
-                            className="p-1 hover:bg-white/20 rounded transition-colors"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    )}
+        <header className={`flex-none flex h-14 items-center bg-background border-b ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
+            {/* Mobile menu button with dropdown */}
+            {showMobileMenu && (
+                <div className="md:hidden relative flex items-center justify-center h-full px-3">
+                    <IconButton onClick={toggleMobileSidebar}>
+                        {isMobileOpen ? <SquareChevronUp strokeWidth={3} /> : <SquareChevronDown strokeWidth={3} />}
+                    </IconButton>
+                    <MobileDropdown />
                 </div>
             )}
 
-            {/* Header */}
-            <header className={`flex h-14 items-center justify-start bg-background border-b transition-[background-color,border-color] duration-200 ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
-                {/* Mobile menu button with dropdown - only visible on mobile */}
-                {showMobileMenu && (
-                    <div className="md:hidden relative flex items-center justify-center h-full px-3">
-                        <IconButton onClick={toggleMobileSidebar}>
-                            {isMobileOpen ? <SquareChevronUp strokeWidth={3} /> : <SquareChevronDown strokeWidth={3} />}
-                        </IconButton>
-                        <MobileDropdown />
-                    </div>
+            {/* Logo & Breadcrumb */}
+            <div className="flex flex-none items-center h-full text-foreground">
+                <Link href="/" className="md:ml-16 ml-4 mr-2">
+                    <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6" />
+                </Link>
+                {currentRoute && (
+                    <>
+                        <Slash className="w-4 h-4 text-(--foreground-dim)" />
+                        <Link href={currentRoute.path} className="px-2 text-foreground hover:text-accent transition-colors">
+                            {currentRoute.label}
+                        </Link>
+                    </>
                 )}
+            </div>
 
-                {/* Logo & Breadcrumb */}
-                <div className="flex flex-none items-center h-full w-auto text-foreground">
-                    <Link href="/" className="md:ml-16 ml-4 mr-2">
-                        <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6" />
-                    </Link>
-                    {(() => {
-                        const pathname = usePathname();
-                        const routes = [
-                            { path: "/post", label: "Post" },
-                            { path: "/journey", label: "Journey" },
-                            { path: "/project", label: "Project" }
-                        ];
-                        const currentRoute = routes.find(r => pathname.startsWith(r.path));
-                        if (currentRoute) {
-                            return (
-                                <>
-                                    <Slash className="w-4 h-4 text-(--foreground-dim)" />
-                                    <Link href={currentRoute.path} className="px-2 text-foreground hover:text-accent transition-colors">
-                                        {currentRoute.label}
-                                    </Link>
-                                </>
-                            );
-                        }
-                        return null;
-                    })()}
-                </div>
-
-                {/* Right side */}
-                <div className="flex flex-1 items-center justify-end h-full pr-6 gap-1">
-                    <button
-                        onClick={() => {
-                            const linkedinUrl = "https://www.linkedin.com/in/helios-nts/";
-                            const linkedinAppUrl = "linkedin://in/helios-nts";
-
-                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                            if (isMobile) {
-                                window.location.href = linkedinAppUrl;
-                                setTimeout(() => window.open(linkedinUrl, "_blank"), 100);
-                            } else {
-                                window.open(linkedinUrl, "_blank");
-                            }
-                        }}
-                        className="p-2 rounded-[7px] cursor-pointer hover:bg-background-hover transition-colors duration-200"
-                    >
-                        <Image
-                            src={theme === "light" ? "/InBug-Black.png" : "/InBug-White.png"}
-                            alt="LinkedIn"
-                            width={20}
-                            height={20}
-                        />
-                    </button>
-                    <button
-                        onClick={() => {
-                            const githubUrl = "https://github.com/helios-ryuu";
-                            const githubAppUrl = "github://user?username=helios-ryuu";
-
-                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                            if (isMobile) {
-                                window.location.href = githubAppUrl;
-                                setTimeout(() => window.open(githubUrl, "_blank"), 100);
-                            } else {
-                                window.open(githubUrl, "_blank");
-                            }
-                        }}
-                        className="p-2 rounded-[7px] cursor-pointer hover:bg-background-hover transition-colors duration-200 mr-6"
-                    >
-                        <Image
-                            src={theme === "light" ? "/github-mark.svg" : "/github-mark-white.svg"}
-                            alt="GitHub"
-                            width={20}
-                            height={20}
-                        />
-                    </button>
-                    <IconButton onClick={toggleTheme} className={`text-(--foreground-dim) bg-background-hover ${theme === "light" ? "hover:text-blue-500" : "hover:text-yellow-500"}`}>
-                        {theme === "light" ? <Moon strokeWidth={3} /> : <Sun strokeWidth={3} />}
-                    </IconButton>
-                </div>
-            </header>
-        </div>
+            {/* Right side */}
+            <div className="flex flex-1 items-center justify-end h-full pr-6 gap-1">
+                <button
+                    onClick={() => openSocialLink("linkedin://in/helios-nts", "https://www.linkedin.com/in/helios-nts/")}
+                    className="p-2 rounded-md cursor-pointer hover:bg-background-hover"
+                >
+                    <Image
+                        src={theme === "light" ? "/InBug-Black.png" : "/InBug-White.png"}
+                        alt="LinkedIn"
+                        width={20}
+                        height={20}
+                    />
+                </button>
+                <button
+                    onClick={() => openSocialLink("github://user?username=helios-ryuu", "https://github.com/helios-ryuu")}
+                    className="p-2 rounded-md cursor-pointer hover:bg-background-hover mr-6"
+                >
+                    <Image
+                        src={theme === "light" ? "/github-mark.svg" : "/github-mark-white.svg"}
+                        alt="GitHub"
+                        width={20}
+                        height={20}
+                    />
+                </button>
+                <IconButton onClick={toggleTheme} className={`text-(--foreground-dim) bg-background-hover ${theme === "light" ? "hover:text-blue-500" : "hover:text-yellow-500"}`}>
+                    {theme === "light" ? <Moon strokeWidth={3} /> : <Sun strokeWidth={3} />}
+                </IconButton>
+            </div>
+        </header>
     );
 }

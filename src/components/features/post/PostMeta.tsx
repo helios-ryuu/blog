@@ -44,4 +44,3 @@ export default function PostMeta({ date, readingTime, level, size = "sm", classN
         </div>
     );
 }
-

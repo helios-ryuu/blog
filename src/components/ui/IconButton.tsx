@@ -10,10 +10,9 @@ export default function IconButton({ children, onClick, className = "" }: IconBu
     return (
         <button
             onClick={onClick}
-            className={`rounded-[7px] px-2 py-2 cursor-pointer hover:bg-background-hover transition-colors duration-200 [&>svg]:w-5 [&>svg]:h-5 ${className}`}
+            className={`rounded-md p-2 cursor-pointer hover:bg-background-hover [&>svg]:size-5 ${className}`}
         >
             {children}
         </button>
     );
 }
-

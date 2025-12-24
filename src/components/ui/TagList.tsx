@@ -16,7 +16,7 @@ export default function TagList({ tags, variant = "default", className = "" }: T
 
     const tagStyles = {
         compact: "px-2 py-0.5 text-xs rounded",
-        default: "px-3 py-1 text-sm rounded-[6px]"
+        default: "px-3 py-1 text-sm rounded-md"
     };
 
     return (

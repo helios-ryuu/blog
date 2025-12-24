@@ -1,0 +1,148 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Menu, X, Slash } from "lucide-react";
+import Link from "next/link";
+
+interface TocItem {
+    id: string;
+    text: string;
+    level: number;
+}
+
+interface MobileTocBarProps {
+    title: string;
+    content: string;
+}
+
+export default function MobileTocBar({ title, content }: MobileTocBarProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [headings, setHeadings] = useState<TocItem[]>([]);
+    const [activeId, setActiveId] = useState<string>("");
+    const isClickNavigating = useRef(false);
+
+    useEffect(() => {
+        // Extract headings from markdown content
+        const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+        const matches: TocItem[] = [];
+        let match;
+
+        while ((match = headingRegex.exec(content)) !== null) {
+            const level = match[1].length;
+            const text = match[2].trim();
+            const id = text
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, "");
+
+            matches.push({ id, text, level });
+        }
+
+        setHeadings(matches);
+    }, [content]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (isClickNavigating.current) return;
+
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveId(entry.target.id);
+                    }
+                });
+            },
+            { rootMargin: "-100px 0% -80% 0%" }
+        );
+
+        headings.forEach(({ id }) => {
+            const element = document.getElementById(id);
+            if (element) observer.observe(element);
+        });
+
+        return () => observer.disconnect();
+    }, [headings]);
+
+    const handleTocClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+        e.preventDefault();
+        setActiveId(id);
+        setIsOpen(false);
+        isClickNavigating.current = true;
+
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+        }
+
+        setTimeout(() => {
+            isClickNavigating.current = false;
+        }, 800);
+    }, []);
+
+    // Truncate title for mobile
+    const truncatedTitle = title.length > 25 ? title.substring(0, 25) + "..." : title;
+
+    return (
+        <div className="lg:hidden sticky z-40 bg-background border-b border-(--border-color)">
+            {/* Bar */}
+            <div className="flex items-center h-10 px-3.5 gap-2">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="p-1.5 rounded hover:bg-background-hover"
+                >
+                    {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
+
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-1 text-sm overflow-hidden">
+                    <Link href="/post" className="text-foreground/50 hover:text-foreground shrink-0">
+                        Posts
+                    </Link>
+                    <Slash className="w-3 h-3 text-foreground/30 shrink-0" />
+                    <span className="text-foreground truncate">{truncatedTitle}</span>
+                </div>
+            </div>
+
+            {/* Dropdown TOC */}
+            {isOpen && (
+                <>
+                    {/* Overlay */}
+                    <div
+                        className="fixed inset-0 bg-black/40 z-40"
+                        style={{ top: "calc(3.5rem + 2.5rem)" }}
+                        onClick={() => setIsOpen(false)}
+                    />
+
+                    {/* TOC Panel */}
+                    <div className="absolute left-0 right-0 bg-background border-b border-(--border-color) z-50 max-h-[60vh] overflow-y-auto">
+                        <nav className="p-4">
+                            <h4 className="text-sm font-semibold text-foreground/70 mb-3 uppercase tracking-wider">
+                                On this page
+                            </h4>
+                            <ul className="space-y-1">
+                                {headings.map(({ id, text, level }) => (
+                                    <li key={id}>
+                                        <a
+                                            href={`#${id}`}
+                                            onClick={(e) => handleTocClick(e, id)}
+                                            className={`
+                                                block text-sm py-2 px-3 rounded-md
+                                                ${level === 3 ? "ml-4" : ""}
+                                                ${activeId === id
+                                                    ? "bg-accent/20 text-accent"
+                                                    : "text-foreground/70 hover:bg-foreground/5"
+                                                }
+                                            `}
+                                        >
+                                            {text}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}

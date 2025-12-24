@@ -1,4 +1,4 @@
-import { PostCard } from "@/components/ui";
+import { PostCard } from "@/components/features/post";
 import { getAllPostsMeta } from "@/lib/posts";
 import Link from "next/link";
 

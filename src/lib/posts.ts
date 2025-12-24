@@ -88,3 +88,26 @@ export function getAllTags(): string[] {
 
     return Array.from(tags).sort();
 }
+
+/**
+ * Get related posts based on matching tags
+ */
+export function getRelatedPosts(currentSlug: string, tags: string[] = [], limit: number = 3): PostMeta[] {
+    if (tags.length === 0) return [];
+
+    const allPosts = getAllPostsMeta();
+
+    // Score posts by number of matching tags
+    const scoredPosts = allPosts
+        .filter(post => post.slug !== currentSlug)
+        .map(post => {
+            const matchingTags = post.tags?.filter(tag =>
+                tags.some(t => t.toLowerCase() === tag.toLowerCase())
+            ) || [];
+            return { post, score: matchingTags.length };
+        })
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score);
+
+    return scoredPosts.slice(0, limit).map(item => item.post);
+}

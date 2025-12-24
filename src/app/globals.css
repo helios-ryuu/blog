@@ -1,50 +1,25 @@
 @import "tailwindcss";
 
+/* Dark theme (default) */
 :root {
-  --background: #fcfcfc;
-  --background-hover: #e2e2e2;
-  --foreground: #171717;
+  --background: #151515;
+  --background-hover: #252525;
+  --foreground: #fcfcfc;
   --accent: #f56325;
-  --accent-hover: #ff7033;
-  --border-color: #dcdcdc;
-  --border-color-hover: #cccccc;
-  --foreground-dim: #aaaaaa;
-  --post-card: #f5f5f5;
-  --post-card-hover: #e8e8e8;
-  --code-block: #1e1e1e;
+  --accent-hover: #f76f35;
+  --border-color: #2d2d2d;
+  --border-color-hover: #363636;
+  --foreground-dim: #595959;
+  --post-card: #1f1f1f;
+  --post-card-hover: #212121;
+  --code-block: #1c1c1c;
   --code-block-border: #333333;
-  --scrollbar-track: #f0f0f0;
-  --scrollbar-thumb: #c0c0c0;
-  --scrollbar-thumb-hover: #a0a0a0;
+  --scrollbar-track: #1a1a1a;
+  --scrollbar-thumb: #3a3a3a;
+  --scrollbar-thumb-hover: #4a4a4a;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-background-hover: var(--background-hover);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --font-sans: var(--font-lexend);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: rgb(21, 21, 21);
-    --background-hover: #252525;
-    --foreground: #fcfcfc;
-    --accent: #f56325;
-    --accent-hover: #f76f35;
-    --border-color: #2d2d2d;
-    --border-color-hover: #363636;
-    --foreground-dim: #595959;
-    --post-card: #1f1f1f;
-    --post-card-hover: #212121;
-    --scrollbar-track: #1a1a1a;
-    --scrollbar-thumb: #3a3a3a;
-    --scrollbar-thumb-hover: #4a4a4a;
-  }
-}
-
+/* Light theme */
 :root.light {
   --background: #fcfcfc;
   --background-hover: #e2e2e2;
@@ -61,33 +36,47 @@
   --scrollbar-thumb-hover: #a0a0a0;
 }
 
+/* Tailwind theme tokens */
+@theme inline {
+  --color-background: var(--background);
+  --color-background-hover: var(--background-hover);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --font-sans: var(--font-lexend);
+  /* Border radius tokens */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+}
+
+/* Base styles */
 html {
+  height: 100%;
   transition: background-color 0.2s ease-out;
 }
 
 body {
+  height: 100%;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-lexend), Arial, Helvetica, sans-serif;
-  transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
-/* Global transition for theme switching - prevents flash on production */
-header,
-footer,
-main,
-article,
-button,
-div[class*="rounded"] {
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+/* Global transitions for theme switching */
+* {
+  transition-property: background-color, border-color;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-out;
 }
 
-/* Sidebar needs width and transform for expand animation */
+/* Sidebar width transition */
 aside {
   transition: width 0.2s ease-out, transform 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
 }
 
-/* Custom scrollbar styling */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -95,13 +84,11 @@ aside {
 
 ::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
-  transition: background-color 0.2s ease-out;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 4px;
-  transition: background-color 0.2s ease-out;
 }
 
 ::-webkit-scrollbar-thumb:hover {

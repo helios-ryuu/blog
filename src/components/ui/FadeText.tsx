@@ -36,14 +36,13 @@ export default function FadeText({ text, isVisible, duration = 200, className = 
 
     return (
         <span
-            className={`whitespace-nowrap text-[14px] overflow-hidden transition-all duration-200 ${className}`}
+            className={`whitespace-nowrap text-sm overflow-hidden ${className}`}
             style={{ width: visibleCount > 0 ? 'auto' : 0 }}
         >
             {text.split("").map((char, index) => (
                 <span
                     key={index}
-                    className="transition-opacity duration-200"
-                    style={{ opacity: index < visibleCount ? 1 : 0 }}
+                    style={{ opacity: index < visibleCount ? 1 : 0, transition: 'opacity 0.2s' }}
                 >
                     {char}
                 </span>
