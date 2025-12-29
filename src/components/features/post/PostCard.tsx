@@ -36,7 +36,7 @@ export default function PostCard({
         <div
             onClick={onClick}
             className={`
-                flex flex-col h-150 w-95 p-5
+                flex flex-col w-full h-124 min-h-112 p-4
                 rounded-xl border border-(--border-color) bg-(--post-card)
                 cursor-pointer
                 hover:border-(--border-color-hover) hover:bg-(--post-card-hover)
@@ -48,15 +48,15 @@ export default function PostCard({
             <div className="flex-none">
                 {/* Image */}
                 {image && (
-                    <div className="relative w-full h-70 mb-6">
+                    <div className="relative w-full h-42 md:h-40 mb-6">
                         {/* Glow layer */}
-                        <div className="absolute -inset-1 blur-xl opacity-16">
-                            <Image src={image} alt="" fill className="object-cover rounded-lg" />
+                        <div className="absolute -inset-1 blur-lg opacity-16">
+                            <Image src={image} alt="" fill className="object-cover rounded-xl" />
                         </div>
                         {/* Image container */}
-                        <div className="relative w-full h-full rounded-lg overflow-hidden z-10">
+                        <div className="relative w-full h-full rounded-xl overflow-hidden z-10">
                             <Image src={image} alt={title} fill className="object-cover" />
-                            <div className="absolute inset-0 bg-linear-to-t from-background/32 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-linear-to-t from-background/25 via-transparent to-transparent" />
                         </div>
                     </div>
                 )}
@@ -97,7 +97,7 @@ export default function PostCard({
             {/* Bottom Section */}
             <div className="flex-none">
                 <div className="w-full border-t border-(--border-color) mt-4 mb-3" />
-                <StatColumns stats={[
+                <StatColumns stats={[   
                     ...(date ? [{ label: "Date", value: date }] : []),
                     ...(readingTime ? [{ label: "Read", value: readingTime }] : []),
                     ...(level ? [{ label: "Level", value: level.charAt(0).toUpperCase() + level.slice(1) }] : []),

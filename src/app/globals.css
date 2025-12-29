@@ -3,7 +3,7 @@
 /* Dark theme (default) */
 :root {
   --background: #151515;
-  --background-hover: #252525;
+  --background-hover: #292929;
   --foreground: #fcfcfc;
   --accent: #f56325;
   --accent-hover: #f76f35;
@@ -11,7 +11,7 @@
   --border-color-hover: #363636;
   --foreground-dim: #595959;
   --post-card: #1f1f1f;
-  --post-card-hover: #212121;
+  --post-card-hover: #252525;
   --code-block: #1c1c1c;
   --code-block-border: #333333;
   --scrollbar-track: #1a1a1a;

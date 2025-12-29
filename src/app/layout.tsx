@@ -54,7 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${lexend.variable} ${firaCode.variable} antialiased`}>
+      <body className={`${lexend.variable} ${firaCode.variable} antialiased max-h-screen`}>
         <AppShell>{children}</AppShell>
       </body>
     </html>

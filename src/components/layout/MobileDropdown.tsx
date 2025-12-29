@@ -2,15 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CompassIcon, FlameIcon, HomeIcon, NewspaperIcon } from "lucide-react";
 import { useSidebar } from "@/contexts/SidebarContext";
-
-const menuItems = [
-    { icon: <HomeIcon strokeWidth={2.5} />, label: "Home", href: "/" },
-    { icon: <NewspaperIcon strokeWidth={2.5} />, label: "Posts", href: "/post" },
-    { icon: <CompassIcon strokeWidth={2.5} />, label: "Journeys", href: "/journey" },
-    { icon: <FlameIcon strokeWidth={2.5} />, label: "Projects", href: "/project" },
-];
+import { menuItems } from "@/config/navigation";
 
 export default function MobileDropdown() {
     const { isMobileOpen, setIsMobileOpen } = useSidebar();
@@ -20,11 +13,14 @@ export default function MobileDropdown() {
 
     return (
         <>
-            {/* Dim overlay */}
-            <div
-                className={`fixed inset-0 z-40 ${isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-                onTouchStart={handleClose}
-            />
+            {/* Touch overlay - close on touch outside */}
+            {isMobileOpen && (
+                <div
+                    className="fixed inset-0 z-40"
+                    onTouchStart={handleClose}
+                    onClick={handleClose}
+                />
+            )}
 
             {/* Dropdown menu */}
             <div
@@ -43,6 +39,7 @@ export default function MobileDropdown() {
                         const isActive = item.href === "/"
                             ? pathname === "/"
                             : pathname.startsWith(item.href);
+                        const Icon = item.icon;
 
                         return (
                             <Link
@@ -57,7 +54,7 @@ export default function MobileDropdown() {
                                     }
                                 `}
                             >
-                                <span className="size-5 [&>svg]:size-5">{item.icon}</span>
+                                <Icon strokeWidth={2.5} className="size-5" />
                                 <span className="font-medium">{item.label}</span>
                             </Link>
                         );

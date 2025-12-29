@@ -15,7 +15,7 @@ export default function Banner({ content, dismissible = true }: BannerProps) {
     if (!isVisible) return null;
 
     return (
-        <div className="flex items-center justify-center bg-accent text-white/90 text-sm py-1.5 px-4">
+        <div className="flex items-center justify-center bg-red-500 text-white/90 text-sm py-1.5 px-4">
             <div className="flex-1 text-center">
                 {content}
             </div>

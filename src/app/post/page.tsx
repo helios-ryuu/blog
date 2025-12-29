@@ -1,40 +1,39 @@
-import { PostCard } from "@/components/features/post";
-import { getAllPostsMeta } from "@/lib/posts";
-import Link from "next/link";
+import { getAllPostsMeta, getAllTags } from "@/lib/posts";
+import PostListClient from "@/components/features/post/PostListClient";
+import MobileSearchBar from "@/components/layout/MobileSearchBar";
+import type { Level } from "@/types/post";
 
 export default function PostPage() {
     const posts = getAllPostsMeta();
+    const allTags = getAllTags();
+
+    // Get unique levels from posts
+    const allLevels = Array.from(
+        new Set(posts.map((post) => post.level).filter(Boolean))
+    ) as Level[];
 
     return (
-        <div className="py-10 px-6">
-            {/* Centered container */}
-            <div className="max-w-7xl mx-auto">
-                <h1 className="text-2xl font-bold">Posts</h1>
-                <p className="mt-2 text-foreground/70">All posts</p>
+        <>
+            {/* Mobile Search Bar - below header */}
+            <MobileSearchBar />
 
-                {/* Posts grid - justify-start but container centered */}
-                <div className="mt-6 flex flex-wrap gap-6 justify-start">
-                    {posts.map((post) => (
-                        <Link key={post.slug} href={`/post/${post.slug}`}>
-                            <PostCard
-                                image={post.image}
-                                author={post.author}
-                                authorTitle={post.authorTitle}
-                                title={post.title}
-                                description={post.description}
-                                date={post.date}
-                                readingTime={post.readingTime}
-                                level={post.level}
-                                tags={post.tags}
-                            />
-                        </Link>
-                    ))}
+            <div className="w-full py-4 px-4 md:py-6 md:px-10">
+                {/* Centered container */}
+                <div className="max-w-7xl mx-auto">
+                    <h1 className="text-2xl font-bold">Posts</h1>
+                    <p className="mt-0.5 mb-8 text-foreground/70">Thoughts, notes, and experiments about software, systems, and learning</p>
+
+                    <PostListClient
+                        posts={posts}
+                        allTags={allTags}
+                        allLevels={allLevels}
+                    />
+
+                    {posts.length === 0 && (
+                        <p className="mt-6 text-foreground/50">No posts yet. Create your first post in src/content/posts/</p>
+                    )}
                 </div>
-
-                {posts.length === 0 && (
-                    <p className="mt-6 text-foreground/50">No posts yet. Create your first post in src/content/posts/</p>
-                )}
             </div>
-        </div>
+        </>
     );
 }

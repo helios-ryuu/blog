@@ -7,10 +7,21 @@ interface IconButtonProps {
 }
 
 export default function IconButton({ children, onClick, className = "" }: IconButtonProps) {
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onClick?.();
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        e.stopPropagation();
+    };
+
     return (
         <button
-            onClick={onClick}
-            className={`rounded-md p-2 cursor-pointer hover:bg-background-hover [&>svg]:size-5 ${className}`}
+            type="button"
+            onClick={handleClick}
+            onTouchStart={handleTouchStart}
+            className={`relative z-50 rounded-md p-2 cursor-pointer hover:bg-background-hover [&>svg]:size-5 ${className}`}
         >
             {children}
         </button>

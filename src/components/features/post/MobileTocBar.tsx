@@ -83,12 +83,14 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
     const truncatedTitle = title.length > 25 ? title.substring(0, 25) + "..." : title;
 
     return (
-        <div className="lg:hidden sticky z-40 bg-background border-b border-(--border-color)">
+        <div className="lg:hidden z-40 bg-background border-b border-(--border-color)">
             {/* Bar */}
             <div className="flex items-center h-10 px-3.5 gap-2">
                 <button
+                    type="button"
                     onClick={() => setIsOpen(!isOpen)}
-                    className="p-1.5 mr-1.5 rounded hover:bg-background-hover"
+                    onTouchStart={(e) => e.stopPropagation()}
+                    className="relative z-50 p-1.5 mr-1.5 rounded hover:bg-background-hover"
                 >
                     {isOpen ? <X strokeWidth={2.5} className="w-5 h-5" /> : <Menu strokeWidth={2.5} className="w-5 h-5 text-(--foreground-dim)" />}
                 </button>

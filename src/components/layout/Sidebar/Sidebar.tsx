@@ -3,9 +3,10 @@
 import { useState, useRef, useCallback } from "react";
 import FadeText from "@/components/ui/FadeText";
 import SidebarItem from "./SidebarItem";
-import { CompassIcon, FlameIcon, HomeIcon, Menu, NewspaperIcon, PanelRightCloseIcon, PanelRightOpenIcon } from "lucide-react";
+import { Menu, PanelRightCloseIcon, PanelRightOpenIcon } from "lucide-react";
 import IconButton from "@/components/ui/IconButton";
 import { useSidebar } from "@/contexts/SidebarContext";
+import { menuItems } from "@/config/navigation";
 
 export default function Sidebar() {
     const [hovered, setHovered] = useState(false);
@@ -55,29 +56,18 @@ export default function Sidebar() {
             {/* Divider */}
             <div className="border-t border-(--border-color) mb-2 mx-3" />
 
-            <SidebarItem
-                icon={<HomeIcon strokeWidth={2.5} />}
-                label={<FadeText text="Home" isVisible={isExpanded} duration={100} />}
-                href="/"
-            />
-            <SidebarItem
-                icon={<NewspaperIcon strokeWidth={2.5} />}
-                label={<FadeText text="Posts" isVisible={isExpanded} duration={100} />}
-                className={isExpanded ? "gap-x-1.5" : "gap-x-0"}
-                href="/post"
-            />
-            <SidebarItem
-                icon={<CompassIcon strokeWidth={2.5} />}
-                label={<FadeText text="Journeys" isVisible={isExpanded} duration={100} />}
-                className={isExpanded ? "gap-x-1.5" : "gap-x-0"}
-                href="/journey"
-            />
-            <SidebarItem
-                icon={<FlameIcon strokeWidth={2.5} />}
-                label={<FadeText text="Projects" isVisible={isExpanded} duration={100} />}
-                className={isExpanded ? "gap-x-1.5" : "gap-x-0"}
-                href="/project"
-            />
+            {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                    <SidebarItem
+                        key={item.href}
+                        icon={<Icon strokeWidth={2.5} />}
+                        label={<FadeText text={item.label} isVisible={isExpanded} duration={100} />}
+                        className={isExpanded ? "gap-x-1.5" : "gap-x-0"}
+                        href={item.href}
+                    />
+                );
+            })}
 
             {/* Spacer */}
             <div className="flex-1" />
