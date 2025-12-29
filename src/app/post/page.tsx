@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getAllPostsMeta, getAllTags } from "@/lib/posts";
 import PostListClient from "@/components/features/post/PostListClient";
 import MobileSearchBar from "@/components/layout/MobileSearchBar";
@@ -23,11 +24,13 @@ export default function PostPage() {
                     <h1 className="text-2xl font-bold">Posts</h1>
                     <p className="mt-0.5 mb-8 text-foreground/70">Thoughts, notes, and experiments about software, systems, and learning</p>
 
-                    <PostListClient
-                        posts={posts}
-                        allTags={allTags}
-                        allLevels={allLevels}
-                    />
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <PostListClient
+                            posts={posts}
+                            allTags={allTags}
+                            allLevels={allLevels}
+                        />
+                    </Suspense>
 
                     {posts.length === 0 && (
                         <p className="mt-6 text-foreground/50">No posts yet. Create your first post in src/content/posts/</p>
