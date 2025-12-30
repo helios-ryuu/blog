@@ -83,7 +83,7 @@ export function getAllTags(): string[] {
     const tags = new Set<string>();
 
     posts.forEach((post) => {
-        post.tags?.forEach((tag) => tags.add(tag.toLowerCase()));
+        post.tags?.forEach((tag) => tags.add(tag));
     });
 
     return Array.from(tags).sort();

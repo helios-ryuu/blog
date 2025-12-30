@@ -82,19 +82,19 @@ export default async function BlogPostPage({ params }: Props) {
                 <MobileTocBar title={post.title} content={post.content} />
             </div>
 
-            <div className="flex gap-8 px-2 md:px-6 max-w-dvw mx-auto w-full lg:flex-1 lg:min-h-0">
+            <div className="flex gap-6 px-2 md:px-6 max-w-dvw mx-auto w-full lg:flex-1 lg:min-h-0">
                 {/* Left Sidebar - Table of Contents */}
-                <aside className="hidden lg:block w-64 flex-none h-full overflow-y-auto pt-4 pb-20">
+                <aside className="hidden lg:block w-60 flex-none h-full overflow-y-auto pt-4 pb-20">
                     <TableOfContents content={post.content} />
                 </aside>
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 mx-auto lg:h-full lg:overflow-y-auto py-4">
+                <article className="flex-1 min-w-0 mx-auto lg:h-full lg:overflow-y-auto py-4 md:px-2">
                     <header className="mb-8">
                         <h1 className="text-4xl font-bold">{post.title}</h1>
                         <p className="mt-2 text-foreground/70">{post.description}</p>
                         <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} className="mt-4" />
-                        {post.tags && <TagList tags={post.tags.map(t => t.charAt(0).toUpperCase() + t.slice(1))} />}
+                        {post.tags && <TagList tags={post.tags} />}
                     </header>
 
                     <div className="prose prose-lg dark:prose-invert max-w-none pb-20">
@@ -112,7 +112,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </article>
 
                 {/* Right Sidebar - Related Posts */}
-                <aside className="hidden xl:block w-64 flex-none h-full overflow-y-auto pt-4 pb-20">
+                <aside className="hidden xl:block w-60 flex-none h-full overflow-y-auto pt-4 pb-20">
                     <RelatedPosts posts={relatedPosts} />
                 </aside>
             </div>

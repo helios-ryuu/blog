@@ -87,7 +87,7 @@ export default function PostCard({
                 {tags && (
                     <div className="mt-4">
                         <TagList
-                            tags={tags.map(tag => tag.charAt(0).toUpperCase() + tag.slice(1))}
+                            tags={tags}
                             variant="compact"
                         />
                     </div>

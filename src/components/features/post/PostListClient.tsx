@@ -218,6 +218,11 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
 
             </p>
 
+            {/* No posts found */}
+            {filteredPosts.length === 0 && (
+                <p className="mt-10 text-foreground/50">No posts match your filters.</p>
+            )}
+
             {/* Posts grid - single row with max 4 */}
             <div className="mt-4 relative overflow-hidden min-h-[300px]">
                 <AnimatePresence initial={false} mode="wait" custom={direction}>
@@ -279,10 +284,6 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                         <ChevronRight className="w-5 h-5" />
                     </button>
                 </div>
-            )}
-
-            {filteredPosts.length === 0 && (
-                <p className="mt-6 text-foreground/50">No posts match your filters.</p>
             )}
         </>
     );
