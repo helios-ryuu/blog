@@ -14,9 +14,11 @@ import SearchBar from "@/components/layout/Header/SearchBar";
 interface HeaderProps {
     noBorder?: boolean;
     showMobileMenu?: boolean;
+    transparent?: boolean;
+    isHomePage?: boolean;
 }
 
-export default function Header({ noBorder = false, showMobileMenu = true }: HeaderProps) {
+export default function Header({ noBorder = false, showMobileMenu = true, transparent = false, isHomePage = false }: HeaderProps) {
     const [theme, setTheme] = useState<"light" | "dark">("dark");
     const { isMobileOpen, setIsMobileOpen } = useSidebar();
     const pathname = usePathname();
@@ -43,7 +45,7 @@ export default function Header({ noBorder = false, showMobileMenu = true }: Head
     const currentRoute = routes.find(r => pathname.startsWith(r.path));
 
     return (
-        <header className={`relative flex-none flex h-12 items-center bg-background border-b ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
+        <header className={`relative flex-none flex h-12 items-center border-b ${transparent ? "bg-transparent" : "bg-background"} ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
             {/* Mobile menu button with dropdown */}
             {showMobileMenu && (
                 <div className="md:hidden relative flex items-center justify-center h-full px-3 z-50">
@@ -71,7 +73,7 @@ export default function Header({ noBorder = false, showMobileMenu = true }: Head
 
             {/* Mobile: Logo only */}
             <div className="md:hidden flex flex-none items-center h-full text-foreground">
-                <Link href="/" className="ml-3 mr-2">
+                <Link href="/" className={`mr-2 ${isHomePage ? "ml-6" : "ml-2"}`}>
                     <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6" />
                 </Link>
                 {currentRoute && (
