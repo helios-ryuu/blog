@@ -184,7 +184,7 @@ export default function SearchBar() {
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
                     placeholder=""
-                    className="w-full px-4 py-1 bg-background-hover border border-(--border-color) rounded-sm text-sm text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-left"
+                    className="w-full px-4 py-0.5 bg-background-hover/40 border border-(--border-color) rounded-sm text-sm text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-left"
                 />
                 {/* Centered icon + placeholder overlay */}
                 {!isFocused && !query && (

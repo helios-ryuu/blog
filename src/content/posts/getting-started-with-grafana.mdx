@@ -1,0 +1,256 @@
+---
+title: "Getting Started with Grafana"
+description: "Learn how to set up Grafana for monitoring and visualization. This comprehensive guide covers installation, dashboards, alerting, and best practices."
+date: "2025-12-30"
+author: "Helios"
+authorTitle: "DevOps Engineer"
+image: "/post-images/grafana.webp"
+level: "intermediate"
+tags: ["Grafana", "Monitoring", "DevOps", "Observability"]
+---
+
+## What is Grafana?
+
+[Grafana](https://grafana.com/) is an open-source analytics and interactive visualization platform. It provides charts, graphs, and alerts when connected to supported data sources. Unlike other tools that are tied to specific databases, Grafana allows you to query, visualize, alert on, and understand your metrics no matter where they are stored.
+
+![Grafana Dashboard Example](/post-images/grafana.webp)
+
+> Grafana has become the de facto standard for observability dashboards, used by millions of developers worldwide.
+
+---
+
+## Prerequisites
+
+Before we begin, make sure you have:
+
+- Docker installed on your machine (recommended for ease of setup)
+- Basic understanding of metrics (Time series data)
+- A running data source (e.g., [Prometheus](https://prometheus.io/), InfluxDB, or even a SQL database) available on your network
+- At least 2GB of RAM available for the container
+
+---
+
+## Installation
+
+### Using Docker (Quick Start)
+
+The fastest way to get simple Grafana instance running is with Docker:
+
+```bash
+docker run -d \
+  --name=grafana \
+  -p 3000:3000 \
+  grafana/grafana:latest
+```
+
+Navigate to `http://localhost:3000` to see your login screen.
+
+### Using Docker Compose (Production Ready)
+
+For a more robust setup that preserves your dashboards and users across restarts, you should use **Docker Compose** with persistent volumes.
+
+```yaml
+version: "3.8"
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist Grafana data (dashboards, users, plugins)
+      - grafana-storage:/var/lib/grafana
+    environment:
+      # Optional: Pre-configure admin password
+      - GF_SECURITY_ADMIN_PASSWORD=admin_password
+      # Allow embedding if you plan to share via iframe
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+
+volumes:
+  grafana-storage:
+```
+
+<Alert type="note">
+Default credentials are `admin/admin`. You'll be prompted to change the password on first login unless you set the `GF_SECURITY_ADMIN_PASSWORD` variable.
+</Alert>
+
+---
+
+## Configuring Data Sources
+
+Grafana itself doesn't store data (except for its own configuration); it acts as a window into your data. You first need to add a Data Source.
+
+Common supported data sources:
+
+| Data Source | Type | Use Case |
+|-------------|------|----------|
+| **Prometheus** | Time-series | Kubernetes & Infrastructure metrics |
+| **InfluxDB** | Time-series | IoT and high-frequency sensor data |
+| **Loki** | Logs | Log aggregation (like grep for clouds) |
+| **PostgreSQL** | SQL | Business analytics & relational data |
+| **Elasticsearch** | Search | Large scale log & document analysis |
+
+### Adding Prometheus
+
+1. Go to **Connections > Data Sources**.
+2. Click **Add new data source**.
+3. Select **Prometheus**.
+4. In the URL field, enter your Prometheus server address (e.g., `http://host.docker.internal:9090` if running locally via Docker).
+5. Click **Save & Test**. You should see a green checkmark saying "Data source is working".
+
+<Alert type="tip">
+Start with Prometheus for infrastructure monitoring - it has the best integration with Grafana and is widely used in the Kubernetes ecosystem.
+</Alert>
+
+---
+
+## Building Dashboards
+
+A **Dashboard** allows you to combine multiple Panels into a single view. A **Panel** is the basic visualization building block.
+
+### Step 1: Add a Panel
+
+1. Click the **+** icon in the sidebar and select **Dashboard**.
+2. Click **Add visualization**.
+3. Select the Data Source you just configured (e.g., Prometheus).
+
+### Step 2: Choose Your Visualization
+
+Grafana offers many visualization types:
+
+- **Time series**: The classic line graph. Best for CPU, Memory usage over time.
+- **Stat**: Single big number. Great for "Current Uptime" or "Total Requests".
+- **Gauge**: Speedometer style. Good for finite resources (e.g., Disk Space used %).
+- **Bar chart**: Categorical data comparison.
+- **Table**: Raw data view.
+
+### Step 3: Write Your Query (PromQL)
+
+If you are using Prometheus, you will write **PromQL**.
+
+**Example 1: CPU Usage %**
+```promql
+100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+```
+*Explanation: We calculate the rate of idle CPU seconds, convert to percentage, and subtract from 100 to get "Used" percentage.*
+
+**Example 2: Memory Usage (Bytes)**
+```promql
+node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+```
+
+<Alert type="important">
+Always set appropriate time ranges (e.g., `Last 6 hours`) and refresh intervals (e.g., `1m`). Setting refresh to `5s` on a heavy query can crash your database!
+</Alert>
+
+---
+
+## Advanced Features
+
+### Variables and Templating
+
+Variables allow you to create dynamic dashboards. Instead of hardcoding `host="server-01"`, you can make a dropdown menu to switch between servers.
+
+1. Go to **Dashboard Settings > Variables**.
+2. Add a new variable named `instance`.
+3. Set Query: `label_values(node_cpu_seconds_total, instance)`.
+
+Now you can use this variable in your panel queries:
+
+```promql
+rate(node_cpu_seconds_total{instance="$instance"}[5m])
+```
+
+### Alerting
+
+Grafana Alerting allows you to receive notifications (Slack, Email, PagerDuty) when metrics exceed thresholds.
+
+**Steps to create an alert:**
+1. Edit a panel.
+2. Go to the **Alert** tab.
+3. Create an alert rule: "Fire if average CPU > 85% for 5 minutes".
+4. Link it to a **Contact Point** (where the notification is sent).
+
+```yaml
+# Example Alert Rule Logic
+condition: A (Average of query) > 85
+for: 5m
+labels:
+  severity: warning
+annotations:
+  summary: "High CPU usage on {{ $labels.instance }}"
+```
+
+<Alert type="warning">
+Be careful with alert thresholds. Setting them too low will cause alert fatigue (getting spammed), while setting them too high might cause you to miss critical outages.
+</Alert>
+
+---
+
+## Infrastructure as Code: Provisioning
+
+In a DevOps environment, you shouldn't create dashboards manually by clicking buttons. You should **provision** them using configuration files. This allows you to check your dashboards into Git.
+
+**Example `datasources.yaml`:**
+
+```yaml
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false # Prevent UI changes
+```
+
+<Alert type="caution">
+Never commit sensitive data like API keys or passwords in provisioning files. Use environment variables (e.g., `${PROMETHEUS_PASSWORD}`) instead.
+</Alert>
+
+---
+
+## Best Practices
+
+1. **Organize with Folders**: Don't dump everything in "General". Create folders like "Production", "Staging", "Database Team".
+2. **Standardize Naming**: Use `[Service Name] - [Metric Type]` (e.g., "Auth Service - HTTP Metrics").
+3. **Use Rows**: Group related panels (e.g., "CPU", "Memory", "Network") into collapsible rows to keep dashboards clean.
+4. **Optimize Queries**: Don't query raw data for a 30-day range. Use [Recording Rules](https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/) in Prometheus for heavy aggregations.
+5. **Backup**: Even with provisioning, periodically export your dashboards as JSON for safe keeping.
+
+---
+
+## Watch: Grafana Tutorial
+
+For a visual walkthrough, check out this excellent tutorial:
+
+<YouTube id="w-c3KYKQQfs" title="Grafana Tutorial for Beginners" />
+
+---
+
+## Comparison: Tools Landscape
+
+| Feature | Grafana | Kibana | Datadog |
+|---------|---------|--------|---------|
+| **Primary Use** | Metrics & Dashboards | Logs (Elastic Stack) | Full APM SaaS |
+| **Open Source** | ✅ (Core) | ✅ (OpenSearch fork) | ❌ |
+| **Self-hosted** | ✅ | ✅ | ❌ |
+| **Data Sources** | Agnostic (Everything) | Elastic Only | Proprietary Agent |
+| **Cost** | Free / Enterprise | Free / Enterprise | $$$ (Per Host) |
+
+---
+
+## Conclusion
+
+Grafana is an essential tool for any DevOps engineer. Its flexibility, extensive plugin ecosystem, and beautiful visualizations make it the go-to choice for monitoring dashboards. Whether you are monitoring a Raspberry Pi or a global Kubernetes cluster, Grafana gives you the visibility you need.
+
+### Next Steps
+
+- Set up Prometheus as a data source
+- Create your first dashboard with a Time Series panel
+- Experiment with Variables to make your dashboard dynamic
+- Configure your first alert to Slack
+
+---
+
+*If you have questions or need help, reach out to me at [GitHub](https://github.com/helios-ryuu) or connect on [LinkedIn](https://www.linkedin.com/in/helios-nts).*

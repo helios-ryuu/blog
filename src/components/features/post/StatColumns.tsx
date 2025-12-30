@@ -1,7 +1,7 @@
 "use client";
 
 interface StatColumnsProps {
-    stats: { label: string; value: string }[];
+    stats: { label: string; value: React.ReactNode }[];
     className?: string;
 }
 

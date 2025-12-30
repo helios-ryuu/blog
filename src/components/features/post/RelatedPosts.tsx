@@ -12,7 +12,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
     if (posts.length === 0) return null;
 
     return (
-        <aside className="sticky top-14">
+        <aside className="sticky">
             <h4 className="text-sm font-semibold text-foreground/70 mb-4 uppercase tracking-wider">
                 Related Posts
             </h4>

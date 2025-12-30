@@ -1,27 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui";
 
 interface BannerProps {
     content: React.ReactNode;
     dismissible?: boolean;
+    id?: string; // Unique ID for localStorage key
+    cooldownMinutes?: number; // Minutes before banner can show again
 }
 
-export default function Banner({ content, dismissible = true }: BannerProps) {
-    const [isVisible, setIsVisible] = useState(true);
+const BANNER_STORAGE_PREFIX = "banner_dismissed_";
+
+export default function Banner({
+    content,
+    dismissible = true,
+    id = "default",
+    cooldownMinutes = 0.2
+}: BannerProps) {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const storageKey = BANNER_STORAGE_PREFIX + id;
+        const dismissedAt = localStorage.getItem(storageKey);
+
+        if (dismissedAt) {
+            const dismissedTime = parseInt(dismissedAt, 10);
+            const now = Date.now();
+            const cooldownMs = cooldownMinutes * 60 * 1000;
+
+            // Show banner if cooldown has passed
+            if (now - dismissedTime >= cooldownMs) {
+                localStorage.removeItem(storageKey);
+                setIsVisible(true);
+            }
+            // Otherwise keep hidden
+        } else {
+            // Never dismissed, show banner
+            setIsVisible(true);
+        }
+    }, [id, cooldownMinutes]);
+
+    const handleDismiss = () => {
+        const storageKey = BANNER_STORAGE_PREFIX + id;
+        localStorage.setItem(storageKey, Date.now().toString());
+        setIsVisible(false);
+    };
 
     if (!isVisible) return null;
 
     return (
-        <div className="flex items-center justify-center bg-red-500 text-white/90 text-sm py-1.5 px-4">
+        <div className="flex items-center justify-center bg-red-500 text-white/90 text-sm py-1 px-4">
             <div className="flex-1 text-center">
                 {content}
             </div>
             {dismissible && (
                 <button
-                    onClick={() => setIsVisible(false)}
+                    onClick={handleDismiss}
                     className="p-1 hover:bg-white/20 rounded transition-colors"
                 >
                     <X className="w-4 h-4" />

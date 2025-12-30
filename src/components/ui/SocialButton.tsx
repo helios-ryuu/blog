@@ -42,6 +42,7 @@ export default function SocialButton({
                 alt={alt}
                 width={20}
                 height={20}
+                className="w-5 h-5"
             />
         </button>
     );

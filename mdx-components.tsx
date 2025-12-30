@@ -1,5 +1,8 @@
 import type { MDXComponents } from "mdx/types";
 import CodeBlock from "@/components/ui/CodeBlock";
+import Image from "next/image";
+import { Info, Lightbulb, AlertCircle, AlertTriangle, ShieldAlert } from "lucide-react";
+import type { ReactNode } from "react";
 
 // Helper to create URL-friendly slug from text
 function slugify(text: string): string {
@@ -8,6 +11,129 @@ function slugify(text: string): string {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
+}
+
+// Alert component configuration
+const alertConfig = {
+    note: {
+        icon: Info,
+        title: "Note",
+        bg: "rgba(59, 130, 246, 0.08)",
+        border: "rgba(59, 130, 246, 0.3)",
+        color: "#60a5fa",
+        darkText: "#e2e8f0",
+        lightBg: "rgba(59, 130, 246, 0.1)",
+        lightBorder: "rgba(59, 130, 246, 0.6)",
+        lightColor: "#2563eb",
+        lightText: "#1e293b",
+    },
+    tip: {
+        icon: Lightbulb,
+        title: "Tip",
+        bg: "rgba(34, 197, 94, 0.08)",
+        border: "rgba(34, 197, 94, 0.3)",
+        color: "#4ade80",
+        darkText: "#e2e8f0",
+        lightBg: "rgba(34, 197, 94, 0.1)",
+        lightBorder: "rgba(34, 197, 94, 0.6)",
+        lightColor: "#16a34a",
+        lightText: "#1e293b",
+    },
+    important: {
+        icon: AlertCircle,
+        title: "Important",
+        bg: "rgba(168, 85, 247, 0.08)",
+        border: "rgba(168, 85, 247, 0.3)",
+        color: "#c084fc",
+        darkText: "#e2e8f0",
+        lightBg: "rgba(168, 85, 247, 0.1)",
+        lightBorder: "rgba(168, 85, 247, 0.6)",
+        lightColor: "#9333ea",
+        lightText: "#1e293b",
+    },
+    warning: {
+        icon: AlertTriangle,
+        title: "Warning",
+        bg: "rgba(245, 158, 11, 0.08)",
+        border: "rgba(245, 158, 11, 0.3)",
+        color: "#fbbf24",
+        darkText: "#e2e8f0",
+        lightBg: "rgba(245, 158, 11, 0.1)",
+        lightBorder: "rgba(245, 158, 11, 0.6)",
+        lightColor: "#d97706",
+        lightText: "#1e293b",
+    },
+    caution: {
+        icon: ShieldAlert,
+        title: "Caution",
+        bg: "rgba(239, 68, 68, 0.08)",
+        border: "rgba(239, 68, 68, 0.3)",
+        color: "#f87171",
+        darkText: "#e2e8f0",
+        lightBg: "rgba(239, 68, 68, 0.1)",
+        lightBorder: "rgba(239, 68, 68, 0.6)",
+        lightColor: "#dc2626",
+        lightText: "#1e293b",
+    },
+};
+
+type AlertType = keyof typeof alertConfig;
+
+// Custom Alert component
+function Alert({ type = "note", title, children }: { type?: AlertType; title?: string; children: ReactNode }) {
+    const config = alertConfig[type];
+    const Icon = config.icon;
+    const displayTitle = title || config.title;
+
+    return (
+        <div
+            className="alert-box my-6 px-4 pt-4 rounded-lg border"
+            style={{
+                background: `var(--alert-${type}-bg, ${config.bg})`,
+                borderColor: `var(--alert-${type}-border, ${config.border})`,
+            }}
+        >
+            <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wide" style={{ color: config.color }}>
+                <Icon size={18} strokeWidth={3} />
+                <span>{displayTitle}</span>
+            </div>
+            <div className="text-sm leading-relaxed text-foreground">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+// YouTube embed component
+function YouTube({ id, title }: { id: string; title?: string }) {
+    return (
+        <div className="relative w-full aspect-video my-6 rounded-lg overflow-hidden">
+            <iframe
+                src={`https://www.youtube.com/embed/${id}`}
+                title={title || "YouTube video"}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full border-0"
+            />
+        </div>
+    );
+}
+
+// Video component
+function Video({ src, title }: { src: string; title?: string }) {
+    return (
+        <div className="relative w-full my-6 rounded-lg overflow-hidden">
+            <video
+                src={src}
+                title={title}
+                controls
+                className="w-full"
+            >
+                Your browser does not support video.
+            </video>
+        </div>
+    );
 }
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
@@ -32,6 +158,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         ol: ({ children }) => (
             <ol className="list-decimal list-inside my-4 space-y-2">{children}</ol>
         ),
+
         // Inline code - for code blocks, code inside pre will have styles reset
         code: ({ children, className, ...props }) => {
             // If has language class, it's inside a pre block - pass through
@@ -58,6 +185,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
                 {children}
             </blockquote>
         ),
+        hr: () => <hr className="mt-12 border-t border-(--border-color)" />,
         table: ({ children }) => (
             <div className="overflow-x-auto my-6">
                 <table className="min-w-full border-collapse border border-(--border-color)">
@@ -89,6 +217,32 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
                 {children}
             </a>
         ),
+        img: ({ src, alt }) => {
+            if (!src) return null;
+            // Check if external URL
+            const isExternal = src.startsWith('http://') || src.startsWith('https://');
+            if (isExternal) {
+                // eslint-disable-next-line @next/next/no-img-element
+                return <img src={src} alt={alt || ''} className="rounded-lg my-4 max-w-full" />;
+            }
+            return (
+                <span className="block relative w-full my-4">
+                    <Image
+                        src={src}
+                        alt={alt || ''}
+                        width={800}
+                        height={450}
+                        className="rounded-lg object-cover"
+                        style={{ width: '100%', height: 'auto' }}
+                    />
+                </span>
+            );
+        },
+        // Custom components
+        Alert,
+        YouTube,
+        Video,
         ...components,
     };
 }
+

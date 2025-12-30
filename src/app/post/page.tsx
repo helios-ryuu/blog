@@ -18,9 +18,9 @@ export default function PostPage() {
             {/* Mobile Search Bar - below header */}
             <MobileSearchBar />
 
-            <div className="w-full py-4 px-4 md:py-6 md:px-10">
+            <div className="w-full py-4 px-4 md:px-10">
                 {/* Centered container */}
-                <div className="max-w-7xl mx-auto">
+                <div className="mx-auto">
                     <h1 className="text-2xl font-bold">Posts</h1>
                     <p className="mt-0.5 mb-8 text-foreground/70">Thoughts, notes, and experiments about software, systems, and learning</p>
 

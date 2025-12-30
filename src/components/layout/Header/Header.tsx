@@ -43,7 +43,7 @@ export default function Header({ noBorder = false, showMobileMenu = true }: Head
     const currentRoute = routes.find(r => pathname.startsWith(r.path));
 
     return (
-        <header className={`relative flex-none flex h-14 items-center bg-background border-b ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
+        <header className={`relative flex-none flex h-12 items-center bg-background border-b ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
             {/* Mobile menu button with dropdown */}
             {showMobileMenu && (
                 <div className="md:hidden relative flex items-center justify-center h-full px-3 z-50">
@@ -90,7 +90,7 @@ export default function Header({ noBorder = false, showMobileMenu = true }: Head
             </div>
 
             {/* Right side - flex-1 on mobile, fixed width on desktop */}
-            <div className="flex flex-1 md:flex-none items-center justify-end h-full pr-6 gap-1 md:w-48">
+            <div className="flex flex-1 md:flex-none items-center justify-end h-full pr-4 gap-1 md:w-48">
                 <SocialButton
                     lightIcon="/InBug-Black.png"
                     darkIcon="/InBug-White.png"

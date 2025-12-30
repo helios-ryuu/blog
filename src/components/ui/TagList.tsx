@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { MouseEvent } from "react";
+
 interface TagListProps {
     tags: string[];
     variant?: "compact" | "default";
@@ -15,19 +18,25 @@ export default function TagList({ tags, variant = "default", className = "" }: T
     };
 
     const tagStyles = {
-        compact: "px-2 py-0.5 text-xs rounded",
-        default: "px-3 py-1 text-sm rounded-md"
+        compact: "px-2 py-0.5 text-xs rounded transition-colors hover:bg-accent/40",
+        default: "px-2.5 py-0.5 text-sm rounded-sm transition-colors hover:bg-accent/40"
+    };
+
+    const handleTagClick = (e: MouseEvent) => {
+        e.stopPropagation();
     };
 
     return (
         <div className={`flex flex-wrap ${variants[variant]} ${className}`}>
             {tags.map((tag) => (
-                <span
+                <Link
                     key={tag}
+                    href={`/post?tag=${encodeURIComponent(tag.toLowerCase())}`}
+                    onClick={handleTagClick}
                     className={`bg-accent/20 text-accent ${tagStyles[variant]}`}
                 >
                     {tag}
-                </span>
+                </Link>
             ))}
         </div>
     );

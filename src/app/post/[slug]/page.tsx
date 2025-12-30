@@ -76,26 +76,28 @@ export default async function BlogPostPage({ params }: Props) {
     const relatedPosts = getRelatedPosts(slug, post.tags || []);
 
     return (
-        <>
+        <div className="flex flex-col lg:h-full lg:overflow-hidden">
             {/* Mobile TOC Bar */}
-            <MobileTocBar title={post.title} content={post.content} />
+            <div className="shrink-0 z-40">
+                <MobileTocBar title={post.title} content={post.content} />
+            </div>
 
-            <div className="flex gap-10 px-4 md:px-6 lg:px-8 py-8 max-w-dvw mx-auto">
+            <div className="flex gap-8 px-2 md:px-6 max-w-dvw mx-auto w-full lg:flex-1 lg:min-h-0">
                 {/* Left Sidebar - Table of Contents */}
-                <aside className="hidden lg:block w-64 flex-none">
+                <aside className="hidden lg:block w-64 flex-none h-full overflow-y-auto pt-4 pb-20">
                     <TableOfContents content={post.content} />
                 </aside>
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 max-w-max">
+                <article className="flex-1 min-w-0 mx-auto lg:h-full lg:overflow-y-auto py-4">
                     <header className="mb-8">
                         <h1 className="text-4xl font-bold">{post.title}</h1>
                         <p className="mt-2 text-foreground/70">{post.description}</p>
                         <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} className="mt-4" />
-                        {post.tags && <TagList tags={post.tags} />}
+                        {post.tags && <TagList tags={post.tags.map(t => t.charAt(0).toUpperCase() + t.slice(1))} />}
                     </header>
 
-                    <div className="prose prose-lg dark:prose-invert max-w-none">
+                    <div className="prose prose-lg dark:prose-invert max-w-none pb-20">
                         <MDXRemote
                             source={post.content}
                             components={useMDXComponents({})}
@@ -110,10 +112,10 @@ export default async function BlogPostPage({ params }: Props) {
                 </article>
 
                 {/* Right Sidebar - Related Posts */}
-                <aside className="hidden xl:block w-64 flex-none">
+                <aside className="hidden xl:block w-64 flex-none h-full overflow-y-auto pt-4 pb-20">
                     <RelatedPosts posts={relatedPosts} />
                 </aside>
             </div>
-        </>
+        </div>
     );
 }

@@ -36,7 +36,7 @@ export default function PostCard({
         <div
             onClick={onClick}
             className={`
-                flex flex-col w-full h-124 min-h-112 p-4
+                flex flex-col w-full h-122 min-h-108 p-4
                 rounded-xl border border-(--border-color) bg-(--post-card)
                 cursor-pointer
                 hover:border-(--border-color-hover) hover:bg-(--post-card-hover)
@@ -51,11 +51,11 @@ export default function PostCard({
                     <div className="relative w-full h-42 md:h-40 mb-6">
                         {/* Glow layer */}
                         <div className="absolute -inset-1 blur-lg opacity-16">
-                            <Image src={image} alt="" fill className="object-cover rounded-xl" />
+                            <Image src={image} alt="" fill sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw" className="object-cover rounded-xl" />
                         </div>
                         {/* Image container */}
                         <div className="relative w-full h-full rounded-xl overflow-hidden z-10">
-                            <Image src={image} alt={title} fill className="object-cover" />
+                            <Image src={image} alt={title} fill sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw" className="object-cover" />
                             <div className="absolute inset-0 bg-linear-to-t from-background/25 via-transparent to-transparent" />
                         </div>
                     </div>
@@ -80,13 +80,16 @@ export default function PostCard({
 
                 {/* Description */}
                 {description && (
-                    <p className="text-xs text-foreground/70 mt-2 line-clamp-4">{description}</p>
+                    <p className="text-xs text-foreground/70 mt-2 line-clamp-3">{description}</p>
                 )}
 
                 {/* Tags */}
                 {tags && (
                     <div className="mt-4">
-                        <TagList tags={tags} variant="compact" />
+                        <TagList
+                            tags={tags.map(tag => tag.charAt(0).toUpperCase() + tag.slice(1))}
+                            variant="compact"
+                        />
                     </div>
                 )}
             </div>
@@ -97,10 +100,21 @@ export default function PostCard({
             {/* Bottom Section */}
             <div className="flex-none">
                 <div className="w-full border-t border-(--border-color) mt-4 mb-3" />
-                <StatColumns stats={[   
+                <StatColumns stats={[
                     ...(date ? [{ label: "Date", value: date }] : []),
                     ...(readingTime ? [{ label: "Read", value: readingTime }] : []),
-                    ...(level ? [{ label: "Level", value: level.charAt(0).toUpperCase() + level.slice(1) }] : []),
+                    ...(level ? [{
+                        label: "Level",
+                        value: (
+                            <span className={`
+                                ${level === 'beginner' ? 'bg-green-500/20 text-green-500 px-1.5 py-0.5 rounded-[4px]' : ''}
+                                ${level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-[4px]' : ''}
+                                ${level === 'advanced' ? 'bg-red-500/20 text-red-500 px-1.5 py-0.5 rounded-[4px]' : ''}
+                            `}>
+                                {level.charAt(0).toUpperCase() + level.slice(1)}
+                            </span>
+                        )
+                    }] : []),
                 ]} />
             </div>
         </div>

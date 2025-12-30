@@ -79,29 +79,29 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
         }, 800);
     }, []);
 
-    // Truncate title for mobile
-    const truncatedTitle = title.length > 25 ? title.substring(0, 25) + "..." : title;
+    // Title will be truncated by CSS on mobile only
 
     return (
-        <div className="lg:hidden z-40 bg-background border-b border-(--border-color)">
+        <div className="z-40 bg-background border-b border-(--border-color)">
             {/* Bar */}
             <div className="flex items-center h-10 px-3.5 gap-2">
+                {/* TOC Button - Mobile only */}
                 <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
                     onTouchStart={(e) => e.stopPropagation()}
-                    className="relative z-50 p-1.5 mr-1.5 rounded hover:bg-background-hover"
+                    className="lg:hidden relative z-50 p-1.5 mr-1.5 rounded hover:bg-background-hover"
                 >
                     {isOpen ? <X strokeWidth={2.5} className="w-5 h-5" /> : <Menu strokeWidth={2.5} className="w-5 h-5 text-(--foreground-dim)" />}
                 </button>
 
-                {/* Breadcrumb */}
+                {/* Breadcrumb - All screens */}
                 <div className="flex items-center gap-1 text-sm overflow-hidden">
                     <Link href="/post" className="text-foreground/50 hover:text-foreground shrink-0">
                         Posts
                     </Link>
                     <Slash className="w-3 h-3 text-foreground/30 shrink-0" />
-                    <span className="text-foreground truncate">{truncatedTitle}</span>
+                    <span className="text-foreground truncate md:whitespace-normal md:overflow-visible">{title}</span>
                 </div>
             </div>
 

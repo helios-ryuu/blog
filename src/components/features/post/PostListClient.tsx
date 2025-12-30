@@ -21,15 +21,12 @@ interface PostListClientProps {
 
 const variants = {
     enter: (direction: number) => ({
-        x: direction > 0 ? 50 : -50,
         opacity: 0,
     }),
     center: {
-        x: 0,
         opacity: 1,
     },
     exit: (direction: number) => ({
-        x: direction < 0 ? 50 : -50,
         opacity: 0,
     }),
 };
@@ -159,7 +156,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
             {/* Filters & Sort Bar */}
             <div className="mt-8 md:mt-4 flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
                 {/* Filter by Tags */}
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-[3rem_1fr] sm:flex items-center gap-2">
                     <label className="text-sm text-(--foreground-dim) shrink-0">Tags:</label>
                     <MultiSelect
                         values={selectedTags}
@@ -172,7 +169,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                 </div>
 
                 {/* Filter by Levels */}
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-[3rem_1fr] sm:flex items-center gap-2">
                     <label className="text-sm text-(--foreground-dim) shrink-0">Level:</label>
                     <MultiSelect
                         values={selectedLevels}
@@ -185,7 +182,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                 </div>
 
                 {/* Sort */}
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-[3rem_1fr] sm:flex items-center gap-2">
                     <label className="text-sm text-(--foreground-dim) shrink-0">Sort:</label>
                     <Select
                         value={sortBy}
@@ -237,19 +234,19 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                         {filteredPosts
                             .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
                             .map((post) => (
-                                <Link key={post.slug} href={`/post/${post.slug}`}>
-                                    <PostCard
-                                        image={post.image}
-                                        author={post.author}
-                                        authorTitle={post.authorTitle}
-                                        title={post.title}
-                                        description={post.description}
-                                        date={post.date}
-                                        readingTime={post.readingTime}
-                                        level={post.level}
-                                        tags={post.tags}
-                                    />
-                                </Link>
+                                <PostCard
+                                    key={post.slug}
+                                    image={post.image}
+                                    author={post.author}
+                                    authorTitle={post.authorTitle}
+                                    title={post.title}
+                                    description={post.description}
+                                    date={post.date}
+                                    readingTime={post.readingTime}
+                                    level={post.level}
+                                    tags={post.tags}
+                                    onClick={() => router.push(`/post/${post.slug}`)}
+                                />
                             ))}
                     </motion.div>
                 </AnimatePresence>

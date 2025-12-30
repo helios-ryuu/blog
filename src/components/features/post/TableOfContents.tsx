@@ -83,11 +83,11 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
     if (headings.length === 0) return null;
 
     return (
-        <nav className="sticky top-14">
+        <nav>
             <h4 className="text-sm font-semibold text-foreground/70 mb-3 uppercase tracking-wider">
                 On this page
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-0.5">
                 {headings.map(({ id, text, level }) => (
                     <li key={id}>
                         <a
