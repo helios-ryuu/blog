@@ -111,3 +111,14 @@ export function getRelatedPosts(currentSlug: string, tags: string[] = [], limit:
 
     return scoredPosts.slice(0, limit).map(item => item.post);
 }
+
+/**
+ * Get all posts in the same series
+ */
+export function getSeriesPosts(seriesId: string): PostMeta[] {
+    if (!seriesId) return [];
+
+    return getAllPostsMeta()
+        .filter(post => post.seriesId === seriesId)
+        .sort((a, b) => (a.seriesOrder || 0) - (b.seriesOrder || 0));
+}

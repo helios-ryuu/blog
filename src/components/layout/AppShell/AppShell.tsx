@@ -6,8 +6,8 @@ import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 import Banner from "@/components/layout/Banner";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
-import { Button } from "./ui";
-import SnowEffect from "@/components/effects/SnowEffect";
+import { Button } from "@/components/ui";
+import ConfettiEffect from "@/components/effects/ConfettiEffect";
 import DotGrid from "@/components/ui/DotGrid";
 
 function AppShellContent({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                     <DotGrid
                         dotSize={6}
                         gap={20}
-                        proximity={120}
+                        proximity={150}
                         shockRadius={200}
                         shockStrength={5}
                         resistance={750}
@@ -38,11 +38,12 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
             <div className="relative z-10">
                 <Banner
+                    gradient="linear-gradient(to right, #f59e0b, #ea580c, #dc2626)"
                     content={
                         <>
-                            <span className="mr-2">Check out Helios Christmas post on Instagram. Merry Christmas and Happy New Year! 🎄❄️🎅</span>
+                            <span className="text-xs mr-2">Check out Helios's new post on Instagram. Happy New Year 2026! 🎆🎉🎊</span>
                             <Button
-                                className="bg-green-700 border-green-500 text-white hover:bg-green-600 hover:border-green-500 md:mt-0 mt-1"
+                                className="bg-yellow-600 border-yellow-500 text-white hover:bg-yellow-400 hover:border-yellow-500"
                                 onClick={() => {
                                     const instagramUrl = "https://www.instagram.com/helios_innov/";
                                     const instagramAppUrl = "instagram://user?username=helios_innov";
@@ -70,12 +71,12 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
                 {/* Content area - sidebar + main */}
                 <div className="relative flex-1 flex md:min-h-0">
-                    {!isHomePage && <SnowEffect />}
+                    {/* {!isHomePage && <ConfettiEffect />} */}
                     {/* Sidebar - hidden on mobile, full height on desktop */}
                     {!isHomePage && <Sidebar />}
 
                     {/* Main space - scrollable */}
-                    <main className={`flex-1 overflow-auto ${isHomePage ? "bg-transparent" : "bg-background"} ${!isHomePage && !isPinned ? "md:ml-13" : ""} ${isPostPage ? "lg:overflow-hidden" : ""}`}>
+                    <main className={`flex-1 overflow-auto ${isHomePage ? "bg-transparent" : "bg-background"} ${!isHomePage && !isPinned ? "md:ml-10" : ""} ${isPostPage ? "lg:overflow-hidden" : ""}`}>
                         <div className={`${isPostPage ? "h-full" : "min-h-full"} flex flex-col ${!isPostPage ? "pb-[env(safe-area-inset-bottom)]" : ""}`}>
                             <div className="flex-1 min-h-0">{children}</div>
                             {isHomePage && <Footer transparent />}

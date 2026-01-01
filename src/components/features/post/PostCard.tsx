@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { FadeText, TagList } from "@/components/ui";
 import StatColumns from "./StatColumns";
-import type { Level } from "@/types/post";
+import type { Level, PostType } from "@/types/post";
 
 interface PostCardProps {
     image?: string;
@@ -15,6 +15,7 @@ interface PostCardProps {
     readingTime?: string;
     level?: Level;
     tags?: string[];
+    type?: PostType;
     onClick?: () => void;
     className?: string;
 }
@@ -29,6 +30,7 @@ export default function PostCard({
     readingTime,
     level,
     tags,
+    type,
     onClick,
     className = ""
 }: PostCardProps) {
@@ -36,7 +38,7 @@ export default function PostCard({
         <div
             onClick={onClick}
             className={`
-                flex flex-col w-full h-122 min-h-108 p-4
+                relative flex flex-col w-full h-118 min-h-108 p-4
                 rounded-xl border border-(--border-color) bg-(--post-card)
                 cursor-pointer
                 hover:border-(--border-color-hover) hover:bg-(--post-card-hover)
@@ -48,7 +50,7 @@ export default function PostCard({
             <div className="flex-none">
                 {/* Image */}
                 {image && (
-                    <div className="relative w-full h-42 md:h-40 mb-6">
+                    <div className="relative w-full h-42 md:h-40 mb-4">
                         {/* Glow layer */}
                         <div className="absolute -inset-1 blur-lg opacity-16">
                             <Image src={image} alt="" fill sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw" className="object-cover rounded-xl" />
@@ -80,7 +82,7 @@ export default function PostCard({
 
                 {/* Description */}
                 {description && (
-                    <p className="text-xs text-foreground/70 mt-2 line-clamp-3">{description}</p>
+                    <p className="text-xs text-foreground/70 mt-1 line-clamp-3">{description}</p>
                 )}
 
                 {/* Tags */}
@@ -92,6 +94,7 @@ export default function PostCard({
                         />
                     </div>
                 )}
+
             </div>
 
             {/* Spacer */}
@@ -99,7 +102,7 @@ export default function PostCard({
 
             {/* Bottom Section */}
             <div className="flex-none">
-                <div className="w-full border-t border-(--border-color) mt-4 mb-3" />
+                <div className="w-full border-t border-(--border-color) mt-4 mb-2" />
                 <StatColumns stats={[
                     ...(date ? [{ label: "Date", value: date }] : []),
                     ...(readingTime ? [{ label: "Read", value: readingTime }] : []),
@@ -117,6 +120,16 @@ export default function PostCard({
                     }] : []),
                 ]} />
             </div>
+            {/* Series Badge */}
+            {type === "series" && (
+                <div className="absolute left-0 right-0 z-40">
+                    <div className="w-full bg-accent/20 border-y border-accent/40 text-center">
+                        <span className="text-xs font-bold tracking-widest text-accent">
+                            SERIES
+                        </span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

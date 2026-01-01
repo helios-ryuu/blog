@@ -1,10 +1,10 @@
-import { getPostBySlug, getPostSlugs, getRelatedPosts } from "@/lib/posts";
+import { getPostBySlug, getPostSlugs, getRelatedPosts, getSeriesPosts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { useMDXComponents } from "../../../../mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
-import { PostMeta, TableOfContents, RelatedPosts, MobileTocBar } from "@/components/features/post";
+import { PostMeta, TableOfContents, RelatedPosts, MobileTocBar, SeriesNavigation } from "@/components/features/post";
 import { TagList } from "@/components/ui";
 import { Metadata } from "next";
 
@@ -74,6 +74,7 @@ export default async function BlogPostPage({ params }: Props) {
     }
 
     const relatedPosts = getRelatedPosts(slug, post.tags || []);
+    const seriesPosts = post.seriesId ? getSeriesPosts(post.seriesId) : [];
 
     return (
         <div className="flex flex-col lg:h-full lg:overflow-hidden">
@@ -82,22 +83,22 @@ export default async function BlogPostPage({ params }: Props) {
                 <MobileTocBar title={post.title} content={post.content} />
             </div>
 
-            <div className="flex gap-6 px-2 md:px-6 max-w-dvw mx-auto w-full lg:flex-1 lg:min-h-0">
+            <div className="flex gap-2 px-4 md:px-6 max-w-dvw mx-auto w-full lg:flex-1 lg:min-h-0">
                 {/* Left Sidebar - Table of Contents */}
-                <aside className="hidden lg:block w-60 flex-none h-full overflow-y-auto pt-4 pb-20">
+                <aside className="hidden lg:block w-62 flex-none h-full overflow-y-auto pt-4 pb-10">
                     <TableOfContents content={post.content} />
                 </aside>
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 mx-auto lg:h-full lg:overflow-y-auto py-4 md:px-2">
+                <article className="flex-1 min-w-0 mx-auto lg:h-full lg:overflow-y-auto py-6 md:py-4 md:px-2">
                     <header className="mb-8">
-                        <h1 className="text-4xl font-bold">{post.title}</h1>
-                        <p className="mt-2 text-foreground/70">{post.description}</p>
+                        <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
+                        <p className="text-sm mt-2 text-foreground/70">{post.description}</p>
                         <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} className="mt-4" />
                         {post.tags && <TagList tags={post.tags} />}
                     </header>
 
-                    <div className="prose prose-lg dark:prose-invert max-w-none pb-20">
+                    <div className="prose prose-lg dark:prose-invert max-w-none pb-10">
                         <MDXRemote
                             source={post.content}
                             components={useMDXComponents({})}
@@ -109,10 +110,15 @@ export default async function BlogPostPage({ params }: Props) {
                             }}
                         />
                     </div>
+
+                    {/* Series Navigation */}
+                    {post.seriesId && seriesPosts.length > 1 && (
+                        <SeriesNavigation currentPost={post} seriesPosts={seriesPosts} />
+                    )}
                 </article>
 
                 {/* Right Sidebar - Related Posts */}
-                <aside className="hidden xl:block w-60 flex-none h-full overflow-y-auto pt-4 pb-20">
+                <aside className="hidden xl:block w-62 flex-none h-full overflow-y-auto pt-4 pb-10 px-2">
                     <RelatedPosts posts={relatedPosts} />
                 </aside>
             </div>

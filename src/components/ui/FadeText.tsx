@@ -36,7 +36,7 @@ export default function FadeText({ text, isVisible, duration = 200, className = 
 
     return (
         <span
-            className={`whitespace-nowrap text-sm overflow-hidden ${className}`}
+            className={`whitespace-nowrap overflow-hidden ${className}`}
             style={{ width: visibleCount > 0 ? 'auto' : 0 }}
         >
             {text.split("").map((char, index) => (

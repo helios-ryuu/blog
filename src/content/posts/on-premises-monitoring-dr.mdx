@@ -1,0 +1,166 @@
+---
+author: Helios
+authorTitle: DevOps Engineer
+title: "On-Premises Infrastructure - Part 3: Maintenance"
+description: "Learn how to monitor, maintain, and protect your on-premises infrastructure with comprehensive disaster recovery strategies."
+date: "2026-01-03"
+image: "/post-images/on-premises.jpg"
+tags: ["On-Premises", "Monitoring", "Disaster Recovery", "Maintenance"]
+level: advanced
+type: series
+seriesId: "on-premises-infrastructure"
+seriesOrder: 3
+---
+
+## Infrastructure Monitoring
+
+Effective monitoring is crucial for maintaining on-premises infrastructure health and performance.
+
+### Monitoring Stack
+
+A typical monitoring stack for on-premises environments:
+
+```yaml
+Metrics Collection:
+  - Prometheus: Time-series metrics
+  - Telegraf: System and application metrics
+  - SNMP: Network device metrics
+
+Visualization:
+  - Grafana: Dashboards and alerts
+  - Kibana: Log visualization
+
+Log Management:
+  - Elasticsearch: Log storage and search
+  - Fluentd/Logstash: Log collection
+  - Graylog: Centralized logging
+
+Alerting:
+  - PagerDuty: On-call management
+  - Alertmanager: Alert routing
+```
+
+### Key Metrics to Monitor
+
+> [!IMPORTANT]
+> These are the critical metrics that require 24/7 monitoring.
+
+| Category | Metrics | Alert Threshold |
+|----------|---------|-----------------|
+| CPU | Utilization, Load Average | > 80% sustained |
+| Memory | Used, Swap Usage | > 85% used |
+| Disk | Space, I/O latency | > 90% full, > 50ms latency |
+| Network | Bandwidth, Errors | > 80% utilization |
+| Hardware | Temperature, Fan Speed | > 70°C, < 1000 RPM |
+
+## Preventive Maintenance
+
+### Weekly Tasks
+
+```bash
+# Check system logs for errors
+journalctl -p err --since "1 week ago"
+
+# Verify backup completion
+./check_backup_status.sh
+
+# Review security updates
+apt list --upgradable
+```
+
+### Monthly Tasks
+
+- **Firmware Updates**: Check for BIOS, BMC, and storage firmware updates
+- **Cable Management**: Inspect and document cable connections
+- **Capacity Review**: Analyze growth trends and plan procurement
+
+### Quarterly Tasks
+
+- **Failover Testing**: Test HA configurations
+- **DR Drills**: Practice recovery procedures
+- **Hardware Inspection**: Physical inspection of all equipment
+
+## Disaster Recovery
+
+### RPO and RTO
+
+> [!WARNING]
+> Define your RPO and RTO before designing your DR strategy.
+
+```plaintext
+RPO (Recovery Point Objective)
+└── How much data can you afford to lose?
+    ├── 0 minutes  → Synchronous replication
+    ├── 15 minutes → Continuous replication  
+    └── 24 hours   → Daily backups
+
+RTO (Recovery Time Objective)
+└── How quickly must systems be restored?
+    ├── Minutes → Hot standby
+    ├── Hours   → Warm standby
+    └── Days    → Cold site with backups
+```
+
+### Backup Strategy: 3-2-1 Rule
+
+```plaintext
+3 copies of your data
+├── Production data
+├── Local backup (NAS/SAN)
+└── Offsite backup (secondary site or cloud)
+
+2 different storage types
+├── Disk-based (fast recovery)
+└── Tape or cloud (durability)
+
+1 copy offsite
+└── Geographically separated
+```
+
+### DR Site Configurations
+
+| Type | Description | Cost | RTO |
+|------|-------------|------|-----|
+| Hot Site | Fully operational duplicate | $$$$$ | Minutes |
+| Warm Site | Hardware ready, data replication | $$$ | Hours |
+| Cold Site | Empty facility with power/cooling | $ | Days |
+
+## Runbook Example
+
+For critical recovery scenarios, always have documented runbooks:
+
+```markdown
+## Database Server Recovery
+
+### Prerequisites
+- Access to backup storage
+- Recovery credentials (in vault)
+- Network connectivity to DR site
+
+### Steps
+1. Assess damage and document
+2. Notify stakeholders (use template)
+3. Provision replacement hardware or VM
+4. Restore from latest backup
+5. Apply transaction logs
+6. Verify data integrity
+7. Update DNS/Load balancer
+8. Monitor for 24 hours
+9. Post-incident review
+
+### Escalation
+- L1: On-call engineer
+- L2: Database team lead
+- L3: Infrastructure manager
+```
+
+## Summary
+
+This concludes our three-part series on on-premises infrastructure:
+
+1. **Part 1**: Introduction and core concepts
+2. **Part 2**: Hardware selection and architecture
+3. **Part 3**: Monitoring, maintenance, and DR (this post)
+
+> [!TIP]
+> Regularly test your disaster recovery procedures. A plan that hasn't been tested is just a theory.

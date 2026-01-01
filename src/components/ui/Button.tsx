@@ -22,7 +22,7 @@ export default function Button({
         <button
             type="button"
             onClick={onClick}
-            className={`rounded-[7px] border px-4 py-0.5 text-[14px] cursor-pointer ${variants[variant]} ${className}`}
+            className={`rounded-[7px] border px-3 py-0.5 text-[12px] cursor-pointer ${variants[variant]} ${className}`}
         >
             {children}
         </button>

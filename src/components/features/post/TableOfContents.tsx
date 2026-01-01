@@ -87,14 +87,14 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
             <h4 className="text-sm font-semibold text-foreground/70 mb-3 uppercase tracking-wider">
                 On this page
             </h4>
-            <ul className="space-y-0.5">
+            <ul className="space-y-2 mr-2">
                 {headings.map(({ id, text, level }) => (
                     <li key={id}>
                         <a
                             href={`#${id}`}
                             onClick={(e) => handleClick(e, id)}
                             className={`
-                                block text-sm py-1 border-l-2 transition-colors
+                                block text-xs border-l-2 transition-colors
                                 ${level === 3 ? "pl-6" : "pl-2"}
                                 ${activeId === id
                                     ? "border-accent text-accent"

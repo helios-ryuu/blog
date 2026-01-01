@@ -190,7 +190,7 @@ export default function SearchBar() {
                 {!isFocused && !query && (
                     <div className="absolute inset-0 flex items-center justify-center gap-2 pointer-events-none text-(--foreground-dim) text-sm">
                         <Search strokeWidth={3} className="w-4 h-4" />
-                        <span>Search posts by title, tag, or concept...</span>
+                        <span className="text-xs">Search posts by title, tag, or concept...</span>
                     </div>
                 )}
             </div>

@@ -14,12 +14,12 @@ export default function TagList({ tags, variant = "default", className = "" }: T
 
     const variants = {
         compact: "gap-1 mt-3",
-        default: "gap-2 mt-4"
+        default: "gap-1 mt-3"
     };
 
     const tagStyles = {
         compact: "px-2 py-0.5 text-xs rounded transition-colors hover:bg-accent/40",
-        default: "px-2.5 py-0.5 text-sm rounded-sm transition-colors hover:bg-accent/40"
+        default: "px-2.5 py-0.5 text-xs rounded-sm transition-colors hover:bg-accent/40"
     };
 
     const handleTagClick = (e: MouseEvent) => {

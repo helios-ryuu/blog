@@ -1,4 +1,5 @@
 export type Level = "beginner" | "intermediate" | "advanced";
+export type PostType = "standalone" | "series";
 
 export interface PostFrontmatter {
     author?: string;
@@ -9,6 +10,9 @@ export interface PostFrontmatter {
     image?: string;
     tags?: string[];
     level?: Level;
+    type?: PostType;
+    seriesId?: string;
+    seriesOrder?: number;
 }
 
 export interface Post extends PostFrontmatter {

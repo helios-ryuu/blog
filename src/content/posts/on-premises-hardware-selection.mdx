@@ -1,0 +1,114 @@
+---
+author: Helios
+authorTitle: DevOps Engineer
+title: "On-Premises Infrastructure - Part 2: Hardware and Server"
+description: "A comprehensive guide to selecting the right hardware for your on-premises infrastructure, including servers, storage, and networking equipment."
+date: "2026-01-02"
+image: "/post-images/on-premises.jpg"
+tags: ["On-Premises", "Hardware", "Servers", "Storage"]
+level: intermediate
+type: series
+seriesId: "on-premises-infrastructure"
+seriesOrder: 2
+---
+
+## Choosing the Right Hardware
+
+Selecting hardware for on-premises infrastructure requires careful consideration of your workload requirements, budget, and future scalability needs.
+
+## Server Selection
+
+### Form Factors
+
+| Form Factor | Use Case | Pros | Cons |
+|-------------|----------|------|------|
+| Tower | Small offices | Easy to deploy | Takes floor space |
+| Rack (1U-4U) | Data centers | Space efficient | Requires rack |
+| Blade | Large scale | Highest density | Complex management |
+
+### Key Specifications
+
+When evaluating servers, focus on these specifications:
+
+```yaml
+CPU:
+  - Cores: 16-64 (depending on workload)
+  - Clock Speed: 2.5-3.5 GHz
+  - Cache: L3 cache size matters for DB workloads
+
+Memory:
+  - Capacity: 64GB - 1TB per server
+  - Speed: DDR4-3200 or DDR5
+  - ECC: Always use ECC RAM for production
+
+Storage:
+  - NVMe SSD: For high IOPS workloads
+  - SAS HDD: For capacity-focused storage
+  - RAID: RAID 10 for performance, RAID 6 for capacity
+```
+
+## Storage Architecture
+
+### Storage Tiers
+
+> [!IMPORTANT]
+> Design your storage with multiple tiers to optimize cost and performance.
+
+```plaintext
+Tier 1 (Hot):    NVMe SSD     - Databases, active VMs
+Tier 2 (Warm):   SAS SSD      - Application data, logs
+Tier 3 (Cold):   SATA HDD     - Backups, archives
+Tier 4 (Glacier): Tape/Object - Long-term retention
+```
+
+### SAN vs NAS
+
+**SAN (Storage Area Network)**:
+- Block-level access
+- Best for: Databases, VMware
+- Protocols: Fibre Channel, iSCSI
+
+**NAS (Network Attached Storage)**:
+- File-level access
+- Best for: File shares, home directories
+- Protocols: NFS, SMB/CIFS
+
+## Networking Equipment
+
+### Core Components
+
+1. **Top-of-Rack (ToR) Switches**: 10/25GbE for server connectivity
+2. **Spine Switches**: 40/100GbE for backbone
+3. **Firewalls**: Next-gen firewalls for security
+4. **Load Balancers**: For application high availability
+
+### Network Design
+
+```
+┌─────────────────────────────────────────┐
+│              Internet                    │
+└────────────────┬────────────────────────┘
+                 │
+         ┌───────▼───────┐
+         │   Firewall    │
+         └───────┬───────┘
+                 │
+         ┌───────▼───────┐
+         │ Core Switch   │
+         └───────┬───────┘
+                 │
+    ┌────────────┼────────────┐
+    │            │            │
+┌───▼───┐   ┌───▼───┐   ┌───▼───┐
+│ ToR 1 │   │ ToR 2 │   │ ToR 3 │
+└───┬───┘   └───┬───┘   └───┬───┘
+    │           │           │
+ Servers     Servers     Servers
+```
+
+## Next Steps
+
+In the final part of this series, we'll cover **monitoring, maintenance, and disaster recovery** strategies for on-premises infrastructure.
+
+> [!TIP]
+> Always buy slightly more capacity than your projections suggest — hardware lead times can be 8-16 weeks during shortages.

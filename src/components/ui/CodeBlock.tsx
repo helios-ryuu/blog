@@ -50,28 +50,28 @@ export default function CodeBlock({ children, className, ...props }: CodeBlockPr
     };
 
     return (
-        <div className="my-4 rounded-lg border border-(--code-block-border) overflow-hidden">
+        <div className="my-4 rounded-md border border-(--code-block-border) overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between pl-6 pr-4 py-1.5 bg-(--code-block) border-b border-(--code-block-border)">
+            <div className="flex items-center justify-between pl-4 pr-3 py-1 bg-(--code-block) border-b border-(--code-block-border)">
                 <span className="text-sm text-gray-400 font-mono">
                     {language}
                 </span>
                 <button
                     onClick={handleCopy}
-                    className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-gray-200"
+                    className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-gray-200 cursor-pointer"
                     title="Copy to clipboard"
                 >
                     {copied ? (
-                        <Check className="w-5 h-5 text-accent" />
+                        <Check className="w-4 h-4 text-accent" />
                     ) : (
-                        <Clipboard className="w-5 h-5" strokeWidth={2.5} />
+                        <Clipboard className="w-4 h-4" strokeWidth={2.5} />
                     )}
                 </button>
             </div>
             {/* Code content */}
             <pre
                 ref={preRef}
-                className={`bg-(--code-block) text-gray-100 p-4 overflow-x-auto m-0 rounded-none border-0 [&>code]:p-0 [&>code]:bg-transparent ${className || ''}`}
+                className={`text-sm bg-(--code-block) text-gray-100 py-2 px-4 overflow-x-auto m-0 rounded-none border-0 [&>code]:p-0 [&>code]:bg-transparent ${className || ''}`}
                 style={{ fontFamily: 'var(--font-fira-code), monospace' }}
             >
                 {children}

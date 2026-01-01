@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Lexend, Fira_Code } from "next/font/google";
 import "./globals.css";
-import AppShell from "@/components/AppShell";
+import AppShell from "@/components/layout/AppShell";
 
 const lexend = Lexend({
   variable: "--font-lexend",

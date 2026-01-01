@@ -35,10 +35,10 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
                                 </div>
                             )}
                             <div className="flex-1 min-w-0">
-                                <h5 className="text-sm font-medium line-clamp-2 group-hover:text-accent transition-colors">
+                                <h5 className="text-xs font-medium line-clamp-2 group-hover:text-accent transition-colors">
                                     {post.title}
                                 </h5>
-                                <p className="text-xs text-foreground/50 mt-1">
+                                <p className="text-[10px] text-foreground/50 mt-1">
                                     {post.date}
                                 </p>
                             </div>

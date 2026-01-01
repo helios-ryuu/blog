@@ -21,7 +21,7 @@ export default function IconButton({ children, onClick, className = "" }: IconBu
             type="button"
             onClick={handleClick}
             onTouchStart={handleTouchStart}
-            className={`relative z-50 rounded-md p-2 cursor-pointer hover:bg-background-hover [&>svg]:size-5 ${className}`}
+            className={`relative z-50 rounded-sm p-1.5 cursor-pointer hover:bg-background-hover [&>svg]:size-4 ${className}`}
         >
             {children}
         </button>

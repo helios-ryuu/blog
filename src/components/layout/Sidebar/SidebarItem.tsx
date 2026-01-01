@@ -20,7 +20,7 @@ export default function SidebarItem({ icon, label, href, className = "", onClick
             href={href}
             onClick={onClick}
             className={`
-                flex items-center gap-x-2 pl-2 py-1 mt-0.5 mx-2 rounded-md
+                flex items-center gap-x-2 pl-2 py-1 my-0.5 mx-1 rounded-sm cursor-pointer text-[12px]
                 ${isActive
                     ? "bg-accent/20 text-accent"
                     : "text-(--foreground-dim) hover:text-foreground hover:bg-foreground/5"
@@ -28,7 +28,7 @@ export default function SidebarItem({ icon, label, href, className = "", onClick
                 ${className}
             `}
         >
-            {icon && <span className="flex-none size-5 flex items-center justify-center [&>svg]:size-5">{icon}</span>}
+            {icon && <span className="flex-none size-4 flex items-center justify-center [&>svg]:size-4">{icon}</span>}
             <span className="whitespace-nowrap">{label}</span>
         </Link>
     );

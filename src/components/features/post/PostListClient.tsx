@@ -9,7 +9,7 @@ import Select from "@/components/ui/Select";
 import MultiSelect from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { PostMeta, Level } from "@/types/post";
+import type { PostMeta, Level, PostType } from "@/types/post";
 
 type SortOption = "newest" | "oldest" | "a-z" | "z-a";
 
@@ -36,6 +36,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
     const router = useRouter();
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+    const [selectedType, setSelectedType] = useState<string>("");
     const [sortBy, setSortBy] = useState<SortOption>("newest");
     const [currentPage, setCurrentPage] = useState(1);
     const [direction, setDirection] = useState(0);
@@ -108,6 +109,14 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
             );
         }
 
+        // Filter by type
+        if (selectedType) {
+            result = result.filter((post) => {
+                const postType = post.type || "standalone";
+                return postType === selectedType;
+            });
+        }
+
         // Sort
         switch (sortBy) {
             case "newest":
@@ -125,16 +134,17 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
         }
 
         return result;
-    }, [posts, selectedTags, selectedLevels, sortBy]);
+    }, [posts, selectedTags, selectedLevels, selectedType, sortBy]);
 
     const clearFilters = () => {
         setSelectedTags([]);
         setSelectedLevels([]);
+        setSelectedType("");
         setSortBy("newest");
         router.push("/post", { scroll: false });
     };
 
-    const hasActiveFilters = selectedTags.length > 0 || selectedLevels.length > 0 || sortBy !== "newest";
+    const hasActiveFilters = selectedTags.length > 0 || selectedLevels.length > 0 || selectedType !== "" || sortBy !== "newest";
 
     // Build options arrays
     const tagOptions = allTags.map((tag) => ({ value: tag, label: tag }));
@@ -151,45 +161,64 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
         { value: "z-a", label: "Z-A" },
     ];
 
+    const typeOptions = [
+        { value: "", label: "All" },
+        { value: "standalone", label: "Standalone" },
+        { value: "series", label: "Series" },
+    ];
+
     return (
         <>
             {/* Filters & Sort Bar */}
-            <div className="mt-8 md:mt-4 flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
+            <div className="mt-6 flex flex-col sm:flex-row flex-wrap gap-4">
                 {/* Filter by Tags */}
                 <div className="grid grid-cols-[3rem_1fr] sm:flex items-center gap-2">
-                    <label className="text-sm text-(--foreground-dim) shrink-0">Tags:</label>
+                    <label className="text-xs text-(--foreground-dim) shrink-0">Tags:</label>
                     <MultiSelect
                         values={selectedTags}
                         onValuesChange={handleTagsChange}
                         options={tagOptions}
                         placeholder="All"
-                        className="flex-1 cursor-pointer"
+                        className="flex-1 cursor-pointer text-xs"
                         isActive={selectedTags.length > 0}
                     />
                 </div>
 
                 {/* Filter by Levels */}
                 <div className="grid grid-cols-[3rem_1fr] sm:flex items-center gap-2">
-                    <label className="text-sm text-(--foreground-dim) shrink-0">Level:</label>
+                    <label className="text-xs text-(--foreground-dim) shrink-0">Level:</label>
                     <MultiSelect
                         values={selectedLevels}
                         onValuesChange={setSelectedLevels}
                         options={levelOptions}
                         placeholder="All"
-                        className="flex-1 cursor-pointer"
+                        className="flex-1 cursor-pointer text-xs"
                         isActive={selectedLevels.length > 0}
+                    />
+                </div>
+
+                {/* Filter by Type */}
+                <div className="grid grid-cols-[3rem_1fr] sm:flex items-center gap-2">
+                    <label className="text-xs text-(--foreground-dim) shrink-0">Type:</label>
+                    <Select
+                        value={selectedType}
+                        onValueChange={setSelectedType}
+                        options={typeOptions}
+                        placeholder="All"
+                        className="flex-1 cursor-pointer text-xs"
+                        isActive={selectedType !== ""}
                     />
                 </div>
 
                 {/* Sort */}
                 <div className="grid grid-cols-[3rem_1fr] sm:flex items-center gap-2">
-                    <label className="text-sm text-(--foreground-dim) shrink-0">Sort:</label>
+                    <label className="text-xs text-(--foreground-dim) shrink-0">Sort:</label>
                     <Select
                         value={sortBy}
                         onValueChange={(value) => setSortBy(value as SortOption)}
                         options={sortOptions}
                         placeholder="Newest"
-                        className="flex-1 cursor-pointer"
+                        className="flex-1 cursor-pointer text-xs"
                         isActive={sortBy !== "newest"}
                     />
                 </div>
@@ -199,7 +228,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                     <Button
                         onClick={clearFilters}
                         variant="secondary"
-                        className="mt-2 mx-auto sm:mx-0 sm:ml-10 sm:mt-0"
+                        className="mx-auto sm:mx-0 sm:ml-8"
                     >
                         Reset filters
                     </Button>
@@ -207,7 +236,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
             </div>
 
             {/* Results count */}
-            <p className="mt-6 md:mt-4 text-sm text-(--foreground-dim)">
+            <p className="mt-6 md:mt-4 text-xs text-(--foreground-dim)">
                 Showing {filteredPosts.length} of {posts.length} posts
                 {selectedTags.length > 0 && (
                     <> tagged &quot;<span className="text-accent">{selectedTags.join(", ")}</span>&quot;</>
@@ -250,6 +279,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                                     readingTime={post.readingTime}
                                     level={post.level}
                                     tags={post.tags}
+                                    type={post.type}
                                     onClick={() => router.push(`/post/${post.slug}`)}
                                 />
                             ))}
@@ -270,7 +300,7 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <span className="text-sm text-(--foreground-dim)">
+                    <span className="text-xs text-(--foreground-dim)">
                         Page {currentPage} of {Math.ceil(filteredPosts.length / postsPerPage)}
                     </span>
                     <button
