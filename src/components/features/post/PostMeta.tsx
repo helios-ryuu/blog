@@ -37,7 +37,7 @@ export default function PostMeta({ date, readingTime, level, size = "sm", classN
             {readingTime && <span>{readingTime}</span>}
             {readingTime && level && <span>•</span>}
             {level && (
-                <span className={`px-2.5 py-1 rounded-sm text-xs font-medium ${levelStyles[level]}`}>
+                <span className={`px-2 py-0.5 rounded-sm text-xs font-medium ${levelStyles[level]}`}>
                     {levelLabels[level]}
                 </span>
             )}

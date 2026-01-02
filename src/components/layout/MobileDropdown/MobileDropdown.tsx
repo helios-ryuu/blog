@@ -26,7 +26,7 @@ export default function MobileDropdown() {
             <div
                 className={`
                     absolute top-full left-0 z-50
-                    min-w-48 mt-1 bg-background border border-(--border-color) rounded-lg
+                    min-w-44 mt-1 bg-background border border-(--border-color) rounded-lg
                     shadow-lg overflow-hidden origin-top-left
                     ${isMobileOpen
                         ? "scale-100 opacity-100"
@@ -47,7 +47,7 @@ export default function MobileDropdown() {
                                 href={item.href}
                                 onClick={handleClose}
                                 className={`
-                                    flex items-center gap-3 px-4 py-2.5
+                                    flex items-center gap-3 px-4 py-2
                                     ${isActive
                                         ? "bg-accent/15 text-accent"
                                         : "text-foreground hover:bg-foreground/5"
@@ -55,7 +55,7 @@ export default function MobileDropdown() {
                                 `}
                             >
                                 <Icon strokeWidth={2.5} className="size-5" />
-                                <span className="font-medium">{item.label}</span>
+                                <span className="font-medium text-sm">{item.label}</span>
                             </Link>
                         );
                     })}

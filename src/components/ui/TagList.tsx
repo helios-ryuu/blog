@@ -19,7 +19,7 @@ export default function TagList({ tags, variant = "default", className = "" }: T
 
     const tagStyles = {
         compact: "px-2 py-0.5 text-xs rounded transition-colors hover:bg-accent/40",
-        default: "px-2.5 py-0.5 text-xs rounded-sm transition-colors hover:bg-accent/40"
+        default: "px-2.5 py-0.5 text-xs rounded-[4px] transition-colors hover:bg-accent/40"
     };
 
     const handleTagClick = (e: MouseEvent) => {

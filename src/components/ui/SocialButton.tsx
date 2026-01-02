@@ -35,14 +35,14 @@ export default function SocialButton({
         <button
             type="button"
             onClick={handleClick}
-            className={`p-2 rounded-md cursor-pointer hover:bg-background-hover ${className}`}
+            className={`p-1.5 mx-0.5 rounded-md cursor-pointer hover:bg-background-hover ${className}`}
         >
             <Image
                 src={theme === "light" ? lightIcon : darkIcon}
                 alt={alt}
                 width={20}
                 height={20}
-                className="w-5 h-5"
+                className="w-4 h-4"
             />
         </button>
     );

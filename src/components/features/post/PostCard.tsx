@@ -123,8 +123,8 @@ export default function PostCard({
             {/* Series Badge */}
             {type === "series" && (
                 <div className="absolute left-0 right-0 z-40">
-                    <div className="w-full bg-accent/20 border-y border-accent/40 text-center">
-                        <span className="text-xs font-bold tracking-widest text-accent">
+                    <div className="w-full bg-accent/30 border-y border-accent/50 text-center">
+                        <span className="text-xs font-bold tracking-widest text-accent-hover">
                             SERIES
                         </span>
                     </div>

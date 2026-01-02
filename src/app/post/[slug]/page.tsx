@@ -98,7 +98,7 @@ export default async function BlogPostPage({ params }: Props) {
                         {post.tags && <TagList tags={post.tags} />}
                     </header>
 
-                    <div className="prose prose-lg dark:prose-invert max-w-none pb-10">
+                    <div className="prose prose-lg dark:prose-invert max-w-none pb-8">
                         <MDXRemote
                             source={post.content}
                             components={useMDXComponents({})}

@@ -90,7 +90,7 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
                     onTouchStart={(e) => e.stopPropagation()}
-                    className="lg:hidden relative z-50 p-1.5 mr-1.5 rounded hover:bg-background-hover"
+                    className="lg:hidden relative z-50 ml-0.5 mr-2 rounded hover:bg-background-hover"
                 >
                     {isOpen ? <X strokeWidth={2.5} className="w-5 h-5" /> : <Menu strokeWidth={2.5} className="w-5 h-5 text-(--foreground-dim)" />}
                 </button>
@@ -127,8 +127,8 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
                                             href={`#${id}`}
                                             onClick={(e) => handleTocClick(e, id)}
                                             className={`
-                                                block text-sm py-2 px-3 rounded-md
-                                                ${level === 3 ? "ml-4" : ""}
+                                                block text-sm py-1 px-3 rounded-md
+                                                ${level === 3 ? "ml-6" : ""}
                                                 ${activeId === id
                                                     ? "bg-accent/20 text-accent"
                                                     : "text-foreground/70 hover:bg-foreground/5"
