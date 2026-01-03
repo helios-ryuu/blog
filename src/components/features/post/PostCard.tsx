@@ -150,7 +150,7 @@ export default function PostCard({
                     {image && (
                         <div className="relative w-full h-42 md:h-40 mb-4">
                             {/* Glow layer */}
-                            <div className="absolute -inset-1 blur-lg opacity-16">
+                            <div className="absolute -inset-1 blur-xl opacity-16">
                                 <Image src={image} alt="" fill sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw" className="object-cover rounded-xl" />
                             </div>
                             {/* Image container */}

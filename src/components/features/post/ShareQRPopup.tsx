@@ -132,12 +132,12 @@ export default function ShareQRPopup({
             <div
                 ref={cardRef}
                 onClick={(e) => e.stopPropagation()}
-                className="w-86 p-4 rounded-xl border border-(--border-color) bg-(--post-card)"
+                className="w-full max-w-86 p-4 rounded-xl border border-(--border-color) bg-(--post-card)"
             >
                 {/* Image */}
                 {image && (
                     <div className="relative w-full h-40 mb-4">
-                        <div className="absolute -inset-1 blur-lg opacity-16">
+                        <div className="absolute -inset-1 blur-xl opacity-16 transform-gpu">
                             <Image src={image} alt="" fill sizes="320px" className="object-cover rounded-xl" />
                         </div>
                         <div className="relative w-full h-full rounded-xl overflow-hidden z-10">
