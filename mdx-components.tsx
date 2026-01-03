@@ -102,7 +102,7 @@ function Alert({ type = "note", title, children }: { type?: AlertType; title?: s
                 <Icon size={18} strokeWidth={3} />
                 <span>{displayTitle}</span>
             </div>
-            <div className="text-sm leading-relaxed" style={{ color: config.textColor }}>
+            <div className="text-sm leading-relaxed my-2" style={{ color: config.textColor }}>
                 {children}
             </div>
         </div>
@@ -148,7 +148,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         ),
         h2: ({ children }) => {
             const id = slugify(String(children));
-            return <h2 id={id} className="text-2xl font-bold mt-4 mb-3 scroll-mt-20">{children}</h2>;
+            return (
+                <>
+                    <hr className="mt-8 border-t border-(--border-color)" />
+                    <h2 id={id} className="text-2xl font-bold mt-4 mb-3 scroll-mt-20">{children}</h2>
+                </>
+            );
         },
         h3: ({ children }) => {
             const id = slugify(String(children));
@@ -158,10 +163,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             <p className="text-sm my-2 leading-relaxed">{children}</p>
         ),
         ul: ({ children }) => (
-            <ul className="text-sm list-disc list-inside my-2 ml-2 space-y-2">{children}</ul>
+            <ul className="text-sm list-disc list-inside my-2 ml-4 space-y-2">{children}</ul>
         ),
         ol: ({ children }) => (
-            <ol className="text-sm list-decimal list-inside my-2 ml-2 space-y-2">{children}</ol>
+            <ol className="text-sm list-decimal list-inside my-2 ml-4 space-y-2">{children}</ol>
         ),
 
         // Inline code - for code blocks, code inside pre will have styles reset
@@ -173,7 +178,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             // Inline code styling
             return (
                 <code
-                    className="bg-(--code-block) text-gray-100 px-1.5 py-0.5 rounded text-sm"
+                    className="bg-(--code-block) text-gray-200 px-1.5 py-0.5 rounded text-xs"
                     style={{ fontFamily: 'var(--font-fira-code), monospace' }}
                 >
                     {children}
@@ -185,11 +190,59 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
                 {children}
             </CodeBlock>
         ),
-        blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-accent pl-4 my-2 italic">
-                {children}
-            </blockquote>
-        ),
+        blockquote: ({ children }) => {
+            // Check for GitHub-style alerts: > [!NOTE], > [!TIP], etc.
+            const childArray = Array.isArray(children) ? children : [children];
+
+            // Find the first paragraph to check for alert pattern
+            for (const child of childArray) {
+                if (child?.props?.children) {
+                    const grandChildren = child.props.children;
+
+                    // Get text for matching - handle both string and array
+                    let textToMatch: string | null = null;
+                    if (typeof grandChildren === 'string') {
+                        textToMatch = grandChildren;
+                    } else if (Array.isArray(grandChildren)) {
+                        const firstString = grandChildren.find((c: unknown) => typeof c === 'string');
+                        if (typeof firstString === 'string') {
+                            textToMatch = firstString;
+                        }
+                    }
+
+                    if (textToMatch) {
+                        const alertMatch = textToMatch.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i);
+                        if (alertMatch) {
+                            const alertType = alertMatch[1].toLowerCase() as AlertType;
+
+                            // Extract clean content - remove the alert marker from the text
+                            const cleanedFirstText = textToMatch.replace(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i, '');
+
+                            // Build clean content for Alert
+                            let alertContent: ReactNode;
+                            if (typeof grandChildren === 'string') {
+                                alertContent = cleanedFirstText;
+                            } else if (Array.isArray(grandChildren)) {
+                                alertContent = grandChildren.map((gc: unknown) =>
+                                    gc === textToMatch ? cleanedFirstText : gc
+                                ) as ReactNode[];
+                            } else {
+                                alertContent = cleanedFirstText;
+                            }
+
+                            return <Alert type={alertType}>{alertContent}</Alert>;
+                        }
+                    }
+                }
+            }
+
+            // Regular blockquote
+            return (
+                <blockquote className="border-l-4 border-accent pl-4 my-2 italic">
+                    {children}
+                </blockquote>
+            );
+        },
         hr: () => <hr className="mt-8 border-t border-(--border-color)" />,
         table: ({ children }) => (
             <div className="overflow-x-auto my-6">
@@ -244,7 +297,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             );
         },
         // Custom components
-        Alert,
         YouTube,
         Video,
         ...components,

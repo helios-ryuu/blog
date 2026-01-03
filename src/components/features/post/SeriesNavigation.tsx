@@ -24,7 +24,7 @@ export default function SeriesNavigation({ currentPost, seriesPosts }: SeriesNav
     const nextPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
 
     return (
-        <div className="mt-2 pt-4 border-t border-(--border-color)">
+        <div className="mt-4 mb-8 pt-4 border-t border-(--border-color)">
             <div className="flex items-center justify-center gap-2 mb-4">
                 <span className="text-xs font-bold tracking-widest text-accent">
                     SERIES

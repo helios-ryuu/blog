@@ -84,7 +84,7 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
     return (
         <div className="z-40 bg-background border-b border-(--border-color)">
             {/* Bar */}
-            <div className="flex items-center h-10 px-3.5 gap-2">
+            <div className="flex items-center px-3.5 gap-2">
                 {/* TOC Button - Mobile only */}
                 <button
                     type="button"
@@ -96,7 +96,7 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
                 </button>
 
                 {/* Breadcrumb - All screens */}
-                <div className="flex items-center gap-1 text-sm overflow-hidden">
+                <div className="flex items-center gap-1 md:pl-2 text-sm md:text-xs overflow-hidden py-2">
                     <Link href="/post" className="text-foreground/50 hover:text-foreground shrink-0">
                         Posts
                     </Link>

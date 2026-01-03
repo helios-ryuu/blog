@@ -17,8 +17,6 @@ tags: ["Grafana", "Monitoring", "DevOps", "Observability"]
 
 > Grafana has become the de facto standard for observability dashboards, used by millions of developers worldwide.
 
----
-
 ## Prerequisites
 
 Before we begin, make sure you have:
@@ -27,8 +25,6 @@ Before we begin, make sure you have:
 - Basic understanding of metrics (Time series data)
 - A running data source (e.g., [Prometheus](https://prometheus.io/), InfluxDB, or even a SQL database) available on your network
 - At least 2GB of RAM available for the container
-
----
 
 ## Installation
 
@@ -70,11 +66,8 @@ volumes:
   grafana-storage:
 ```
 
-<Alert type="note">
-Default credentials are `admin/admin`. You'll be prompted to change the password on first login unless you set the `GF_SECURITY_ADMIN_PASSWORD` variable.
-</Alert>
-
----
+> [!NOTE]
+> Default credentials are `admin/admin`. You'll be prompted to change the password on first login unless you set the `GF_SECURITY_ADMIN_PASSWORD` variable.
 
 ## Configuring Data Sources
 
@@ -98,11 +91,8 @@ Common supported data sources:
 4. In the URL field, enter your Prometheus server address (e.g., `http://host.docker.internal:9090` if running locally via Docker).
 5. Click **Save & Test**. You should see a green checkmark saying "Data source is working".
 
-<Alert type="tip">
-Start with Prometheus for infrastructure monitoring - it has the best integration with Grafana and is widely used in the Kubernetes ecosystem.
-</Alert>
-
----
+> [!TIP]
+> Start with Prometheus for infrastructure monitoring - it has the best integration with Grafana and is widely used in the Kubernetes ecosystem.
 
 ## Building Dashboards
 
@@ -139,11 +129,8 @@ If you are using Prometheus, you will write **PromQL**.
 node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
 ```
 
-<Alert type="important">
-Always set appropriate time ranges (e.g., `Last 6 hours`) and refresh intervals (e.g., `1m`). Setting refresh to `5s` on a heavy query can crash your database!
-</Alert>
-
----
+> [!IMPORTANT]
+> Always set appropriate time ranges (e.g., `Last 6 hours`) and refresh intervals (e.g., `1m`). Setting refresh to `5s` on a heavy query can crash your database!
 
 ## Advanced Features
 
@@ -181,11 +168,8 @@ annotations:
   summary: "High CPU usage on {{ $labels.instance }}"
 ```
 
-<Alert type="warning">
-Be careful with alert thresholds. Setting them too low will cause alert fatigue (getting spammed), while setting them too high might cause you to miss critical outages.
-</Alert>
-
----
+> [!WARNING]
+> Be careful with alert thresholds. Setting them too low will cause alert fatigue (getting spammed), while setting them too high might cause you to miss critical outages.
 
 ## Infrastructure as Code: Provisioning
 
@@ -204,11 +188,8 @@ datasources:
     editable: false # Prevent UI changes
 ```
 
-<Alert type="caution">
-Never commit sensitive data like API keys or passwords in provisioning files. Use environment variables (e.g., `${PROMETHEUS_PASSWORD}`) instead.
-</Alert>
-
----
+> [!CAUTION]
+> Never commit sensitive data like API keys or passwords in provisioning files. Use environment variables (e.g., `${PROMETHEUS_PASSWORD}`) instead.
 
 ## Best Practices
 
@@ -218,15 +199,11 @@ Never commit sensitive data like API keys or passwords in provisioning files. Us
 4. **Optimize Queries**: Don't query raw data for a 30-day range. Use [Recording Rules](https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/) in Prometheus for heavy aggregations.
 5. **Backup**: Even with provisioning, periodically export your dashboards as JSON for safe keeping.
 
----
-
 ## Watch: Grafana Tutorial
 
 For a visual walkthrough, check out this excellent tutorial:
 
 <YouTube id="w-c3KYKQQfs" title="Grafana Tutorial for Beginners" />
-
----
 
 ## Comparison: Tools Landscape
 
@@ -237,8 +214,6 @@ For a visual walkthrough, check out this excellent tutorial:
 | **Self-hosted** | ✅ | ✅ | ❌ |
 | **Data Sources** | Agnostic (Everything) | Elastic Only | Proprietary Agent |
 | **Cost** | Free / Enterprise | Free / Enterprise | $$$ (Per Host) |
-
----
 
 ## Conclusion
 
@@ -253,4 +228,4 @@ Grafana is an essential tool for any DevOps engineer. Its flexibility, extensive
 
 ---
 
-*If you have questions or need help, reach out to me at [GitHub](https://github.com/helios-ryuu) or connect on [LinkedIn](https://www.linkedin.com/in/helios-nts).*
+If you have questions or need help, reach out to me at [GitHub](https://github.com/helios-ryuu) or connect on [LinkedIn](https://www.linkedin.com/in/helios-nts).

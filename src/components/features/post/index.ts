@@ -5,3 +5,4 @@ export { default as RelatedPosts } from "./RelatedPosts";
 export { default as SeriesNavigation } from "./SeriesNavigation";
 export { default as StatColumns } from "./StatColumns";
 export { default as TableOfContents } from "./TableOfContents";
+export { default as PostShareActions } from "./PostShareActions";

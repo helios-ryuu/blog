@@ -46,11 +46,11 @@ export default function Sidebar() {
             `}
         >
             {/* Menu title */}
-            <div className="flex items-center h-10 relative">
+            <div className="flex items-center p-2 relative">
                 <div className={`absolute m-1 transition-[opacity,left] duration-200 ${isExpanded ? "opacity-0 left-full" : "opacity-100 left-2"}`}>
                     <Menu strokeWidth={3} className="w-4 h-4 text-foreground/50" />
                 </div>
-                <FadeText text="Menu" isVisible={isExpanded} duration={100} className="ml-4 font-semibold text-sm text-foreground/50" />
+                <FadeText text="Menu" isVisible={isExpanded} duration={100} className="ml-4 font-medium text-xs text-foreground/50" />
             </div>
 
             {/* Divider */}

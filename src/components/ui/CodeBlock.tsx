@@ -53,12 +53,12 @@ export default function CodeBlock({ children, className, ...props }: CodeBlockPr
         <div className="my-4 rounded-md border border-(--code-block-border) overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between pl-4 pr-3 py-1 bg-(--code-block) border-b border-(--code-block-border)">
-                <span className="text-sm text-gray-400 font-mono">
+                <span className="mt-0.5 text-xs text-gray-400 font-mono">
                     {language}
                 </span>
                 <button
                     onClick={handleCopy}
-                    className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-gray-200 cursor-pointer"
+                    className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-gray-200 cursor-pointer"
                     title="Copy to clipboard"
                 >
                     {copied ? (
