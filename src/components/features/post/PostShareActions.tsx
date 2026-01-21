@@ -67,6 +67,17 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
         setShowQRPopup(true);
     }, []);
 
+    const handleDownloadMarkdown = useCallback(() => {
+        const downloadUrl = `/api/post/${post.slug}/download?format=md`;
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = `${post.slug}.md`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setContextMenu(null);
+    }, [post.slug]);
+
     return (
         <div className="mt-6 flex justify-center">
             <button
@@ -93,6 +104,7 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                     onShareQR={handleOpenQRPopup}
                     linkCopied={linkCopied}
                     onCopyLink={handleCopyLink}
+                    onDownloadMarkdown={handleDownloadMarkdown}
                 />
             )}
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import IconButton from "@/components/ui/IconButton";
 import SocialButton from "@/components/ui/SocialButton";
 import { Sun, Moon, Slash, SquareChevronDown, SquareChevronUp } from "lucide-react";
@@ -19,33 +20,29 @@ interface HeaderProps {
 }
 
 export default function Header({ noBorder = false, showMobileMenu = true, transparent = false, isHomePage = false }: HeaderProps) {
-    const [theme, setTheme] = useState<"light" | "dark">("dark");
+    const [mounted, setMounted] = useState(false);
+    const { resolvedTheme, setTheme } = useTheme();
     const { isMobileOpen, setIsMobileOpen } = useSidebar();
     const pathname = usePathname();
 
     useEffect(() => {
-        const html = document.documentElement;
-        requestAnimationFrame(() => {
-            if (theme === "light") {
-                html.classList.add("light");
-            } else {
-                html.classList.remove("light");
-            }
-        });
-    }, [theme]);
+        setMounted(true);
+    }, []);
 
-    const toggleTheme = () => setTheme(prev => prev === "light" ? "dark" : "light");
+    // Use "dark" as fallback during SSR, actual theme after mount
+    const theme = (mounted ? resolvedTheme : "dark") as "light" | "dark";
+    const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
     const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
 
     const routes = [
         { path: "/post", label: "Post" },
-        { path: "/journey", label: "Journey" },
+        { path: "/roadmaps", label: "Roadmaps" },
         { path: "/project", label: "Project" }
     ];
     const currentRoute = routes.find(r => pathname.startsWith(r.path));
 
     return (
-        <header className={`relative flex-none flex h-12 items-center border-b ${transparent ? "bg-transparent" : "bg-background"} ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
+        <header className={`relative flex-none flex h-10 items-center border-b ${transparent ? "bg-transparent" : "bg-background"} ${noBorder ? "border-transparent" : "border-(--border-color)"}`}>
             {/* Mobile menu button with dropdown */}
             {showMobileMenu && (
                 <div className="md:hidden relative flex items-center justify-center h-full px-3 z-50">
@@ -57,24 +54,24 @@ export default function Header({ noBorder = false, showMobileMenu = true, transp
             )}
 
             {/* Logo & Breadcrumb - Fixed width for balance */}
-            <div className="hidden md:flex flex-none items-center h-full text-foreground w-48">
+            <div className="hidden md:flex flex-none items-center h-full text-foreground w-60">
                 <Link href="/" className="ml-16 mr-2">
                     <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6" />
                 </Link>
                 {currentRoute && (
                     <>
                         <Slash className="w-4 h-4 text-(--foreground-dim)" />
-                        <Link href={currentRoute.path} className="px-2 text-foreground hover:text-accent transition-colors">
+                        <Link href={currentRoute.path} className="px-2 text-foreground hover:text-accent transition-colors text-sm">
                             {currentRoute.label}
                         </Link>
                     </>
                 )}
             </div>
 
-            {/* Mobile: Logo only */}
+            {/* Mobile */}
             <div className="md:hidden flex flex-none items-center h-full text-foreground">
                 <Link href="/" className={`mr-2 ${isHomePage ? "ml-6" : "ml-2"}`}>
-                    <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-6 h-6" />
+                    <Image src="/favicon.ico" alt="Helios" width={24} height={24} className="w-5 h-5" />
                 </Link>
                 {currentRoute && (
                     <>
@@ -92,7 +89,7 @@ export default function Header({ noBorder = false, showMobileMenu = true, transp
             </div>
 
             {/* Right side - flex-1 on mobile, fixed width on desktop */}
-            <div className="flex flex-1 md:flex-none items-center justify-end h-full pr-4 gap-1 md:w-48">
+            <div className="flex flex-1 md:flex-none items-center justify-end h-full pr-4 gap-1 md:w-52">
                 <SocialButton
                     lightIcon="/InBug-Black.png"
                     darkIcon="/InBug-White.png"
@@ -108,7 +105,7 @@ export default function Header({ noBorder = false, showMobileMenu = true, transp
                     appUrl="github://user?username=helios-ryuu"
                     webUrl="https://github.com/helios-ryuu"
                     theme={theme}
-                    className="mr-6"
+                    className="mr-4"
                 />
                 <IconButton onClick={toggleTheme} className={`text-(--foreground-dim) bg-background-hover ${theme === "light" ? "hover:text-blue-500" : "hover:text-yellow-500"}`}>
                     {theme === "light" ? <Moon strokeWidth={3} /> : <Sun strokeWidth={3} />}

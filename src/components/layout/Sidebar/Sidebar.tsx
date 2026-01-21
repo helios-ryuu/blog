@@ -65,6 +65,7 @@ export default function Sidebar() {
                         label={<FadeText text={item.label} isVisible={isExpanded} duration={100} />}
                         className={isExpanded ? "gap-x-1.5" : "gap-x-0"}
                         href={item.href}
+                        disabled={item.disabled}
                     />
                 );
             })}

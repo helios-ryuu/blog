@@ -21,8 +21,8 @@ export default function PostPage() {
             <div className="w-full py-4 px-4 md:px-10">
                 {/* Centered container */}
                 <div className="mx-auto">
-                    <h1 className="text-xl font-bold">Posts</h1>
-                    <p className="text-sm mt-0.5 mb-4 text-foreground/70">Thoughts, notes, and experiments about software, systems, and learning</p>
+                    <h1 className="text-xl font-bold text-center text-accent tracking-widest">POSTS</h1>
+                    <p className="text-xs mt-0.5 mb-4 text-foreground/70 text-center">Thoughts, notes, and experiments about software, systems, and learning</p>
 
                     <Suspense fallback={<div>Loading...</div>}>
                         <PostListClient

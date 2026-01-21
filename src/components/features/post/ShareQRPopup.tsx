@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { Download, Copy, X, Check, Link as LinkIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toPng } from "html-to-image";
-import Image from "next/image";
+
 import { FadeText, TagList } from "@/components/ui";
 import StatColumns from "./StatColumns";
 import type { Level, PostType } from "@/types/post";
@@ -20,6 +20,7 @@ interface ShareQRPopupProps {
     level?: Level;
     tags?: string[];
     type?: PostType;
+    seriesOrder?: number;
     postUrl: string;
     onClose: () => void;
 }
@@ -35,6 +36,7 @@ export default function ShareQRPopup({
     level,
     tags,
     type,
+    seriesOrder,
     postUrl,
     onClose,
 }: ShareQRPopupProps) {
@@ -49,11 +51,28 @@ export default function ShareQRPopup({
         document.addEventListener("keydown", handleEscape);
         return () => document.removeEventListener("keydown", handleEscape);
     }, [onClose]);
+    // Helper to wait for all images to load
+    const waitForImages = async (element: HTMLElement): Promise<void> => {
+        const images = element.querySelectorAll('img');
+        const promises = Array.from(images).map((img) => {
+            if (img.complete) return Promise.resolve();
+            return new Promise<void>((resolve) => {
+                img.onload = () => resolve();
+                img.onerror = () => resolve(); // Resolve even on error to prevent hang
+            });
+        });
+        await Promise.all(promises);
+        // Extra delay to ensure rendering is complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+    };
 
     const handleDownload = async () => {
         if (!cardRef.current || downloading) return;
         setDownloading(true);
         try {
+            // Wait for all images to load before capturing
+            await waitForImages(cardRef.current);
+
             const dataUrl = await toPng(cardRef.current, {
                 quality: 1,
                 pixelRatio: 2,
@@ -72,6 +91,9 @@ export default function ShareQRPopup({
     const handleCopyToClipboard = async () => {
         if (!cardRef.current || copied) return;
         try {
+            // Wait for all images to load before capturing
+            await waitForImages(cardRef.current);
+
             const dataUrl = await toPng(cardRef.current, {
                 quality: 1,
                 pixelRatio: 2,
@@ -131,17 +153,28 @@ export default function ShareQRPopup({
             {/* Card Preview */}
             <div
                 ref={cardRef}
+                key={postUrl}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-86 p-4 rounded-xl border border-(--border-color) bg-(--post-card)"
+                className="w-full max-w-84 p-3 rounded-xl border border-(--border-color) bg-(--post-card)"
             >
                 {/* Image */}
                 {image && (
-                    <div className="relative w-full h-40 mb-4">
+                    <div className="relative w-full h-44 md:h-42 mb-4 rounded-xl overflow-hidden">
                         <div className="absolute -inset-1 blur-xl opacity-16 transform-gpu">
-                            <Image src={image} alt="" fill sizes="320px" className="object-cover rounded-xl" />
+                            <img
+                                src={image}
+                                alt=""
+                                className="w-full h-full object-cover"
+                                crossOrigin="anonymous"
+                            />
                         </div>
-                        <div className="relative w-full h-full rounded-xl overflow-hidden z-10">
-                            <Image src={image} alt={title} fill sizes="320px" className="object-cover" />
+                        <div className="relative w-full h-full z-10">
+                            <img
+                                src={image}
+                                alt={title}
+                                className="w-full h-full object-cover"
+                                crossOrigin="anonymous"
+                            />
                             <div className="absolute inset-0 bg-linear-to-t from-background/25 via-transparent to-transparent" />
                         </div>
                     </div>
@@ -179,8 +212,8 @@ export default function ShareQRPopup({
                 {/* QR Code Section */}
                 <div className="flex items-center justify-between mt-4 pt-2 border-t border-(--border-color)">
                     <div className="flex items-center ml-8 gap-2 text-xs text-foreground/60">
-                        <LinkIcon className="w-3 h-3 text-accent/90" />
-                        <span className="font-medium">Find out more:</span>
+                        <img src="/favicon.ico" alt="Logo" width={26} height={26} className="rounded-sm" />
+                        <span className="font-medium text-accent/80 tracking-widest text-[10px]">FIND OUT MORE:</span>
                     </div>
                     <div className="bg-[#fcfcfc] mr-12 p-1 rounded text-[#1a1a1a]">
                         <QRCodeSVG
@@ -215,10 +248,20 @@ export default function ShareQRPopup({
                 ]} />
 
                 {/* Series Badge */}
-                {type === "series" && (
-                    <div className="mt-2 w-full bg-accent/30 border rounded-[4px] border-accent/50 text-center">
-                        <span className="text-xs font-bold tracking-widest text-accent-hover">
+                {/* Series Badge */}
+                {type === "series" ? (
+                    <div className="mt-2 w-6/7 mx-auto flex items-center justify-center bg-accent/30 border rounded-md border-accent/50">
+                        <span className="text-center text-xs font-bold tracking-widest text-accent-hover px-2 py-0.5 border-r border-accent/50">
                             SERIES
+                        </span>
+                        <span className="flex-1 text-center text-xs font-bold text-accent-hover px-2 py-0.5">
+                            {seriesOrder ?? "?"}
+                        </span>
+                    </div>
+                ) : (
+                    <div className="mt-2 w-6/7 mx-auto flex items-center justify-center bg-blue-500/20 border rounded-md border-blue-500/40">
+                        <span className="text-center text-xs font-bold tracking-widest text-blue-500 px-2 py-0.5">
+                            STANDALONE
                         </span>
                     </div>
                 )}

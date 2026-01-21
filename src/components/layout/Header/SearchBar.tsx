@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface SearchItem {
-    type: "Home" | "Post" | "Journey" | "Project" | "Tag";
+    type: "Home" | "Post" | "Roadmaps" | "Project" | "Tag";
     title: string;
     path: string;
     tags?: string[];
@@ -16,8 +16,6 @@ interface SearchItem {
 const staticRoutes: SearchItem[] = [
     { type: "Home", title: "Home", path: "/" },
     { type: "Post", title: "All Posts", path: "/post" },
-    { type: "Journey", title: "My Journey", path: "/journey" },
-    { type: "Project", title: "Projects", path: "/project" },
 ];
 
 export default function SearchBar() {

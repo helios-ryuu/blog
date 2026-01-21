@@ -41,6 +41,18 @@ export default function MobileDropdown() {
                             : pathname.startsWith(item.href);
                         const Icon = item.icon;
 
+                        if (item.disabled) {
+                            return (
+                                <span
+                                    key={item.href}
+                                    className="flex items-center gap-3 px-4 py-2 text-foreground/40 cursor-not-allowed"
+                                >
+                                    <Icon strokeWidth={2.5} className="size-5" />
+                                    <span className="font-medium text-sm">{item.label}</span>
+                                </span>
+                            );
+                        }
+
                         return (
                             <Link
                                 key={item.href}

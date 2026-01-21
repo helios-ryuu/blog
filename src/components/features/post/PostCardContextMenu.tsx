@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Link2, QrCode } from "lucide-react";
+import { Link2, QrCode, FileText, FileCode } from "lucide-react";
 
 interface PostCardContextMenuProps {
     x: number;
@@ -11,6 +11,7 @@ interface PostCardContextMenuProps {
     onShareQR: () => void;
     linkCopied: boolean;
     onCopyLink: () => void;
+    onDownloadMarkdown?: () => void;
 }
 
 export default function PostCardContextMenu({
@@ -21,6 +22,7 @@ export default function PostCardContextMenu({
     onShareQR,
     linkCopied,
     onCopyLink,
+    onDownloadMarkdown,
 }: PostCardContextMenuProps) {
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -52,14 +54,14 @@ export default function PostCardContextMenu({
     // Adjust position to stay within viewport (Force Top-Left relative to cursor)
     const adjustedStyle = {
         left: `${Math.max(x, 170)}px`, // Ensure it doesn't go off-screen left
-        top: `${Math.max(y, 90)}px`,   // Ensure it doesn't go off-screen top
+        top: `${Math.max(y, 150)}px`,   // Ensure it doesn't go off-screen top (increased height for new items)
         transform: 'translate(-100%, -100%)'
     };
 
     return (
         <div
             ref={menuRef}
-            className="fixed z-100 min-w-[160px] p-1 rounded-lg border border-(--border-color) bg-background shadow-lg flex flex-col"
+            className="fixed z-100 min-w-[200px] p-1 rounded-md border border-(--border-color) bg-background shadow-lg flex flex-col"
             style={adjustedStyle}
         >
             {/* Share as Link */}
@@ -68,7 +70,7 @@ export default function PostCardContextMenu({
                     e.stopPropagation();
                     onCopyLink();
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-lg cursor-pointer transition-colors text-left"
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-md cursor-pointer transition-colors text-left"
             >
                 <Link2 className="w-4 h-4" />
                 <span className="whitespace-nowrap">{linkCopied ? "Link copied!" : "Share as Link"}</span>
@@ -80,10 +82,26 @@ export default function PostCardContextMenu({
                     e.stopPropagation();
                     onShareQR();
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-lg cursor-pointer transition-colors text-left"
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-md cursor-pointer transition-colors text-left"
             >
                 <QrCode className="w-4 h-4" />
                 <span className="whitespace-nowrap">Share as QR Card</span>
+            </button>
+
+            <div className="my-1 border-t border-(--border-color)/50"></div>
+
+
+
+            {/* Download as Markdown */}
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onDownloadMarkdown?.();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-accent/20 rounded-md cursor-pointer transition-colors text-left"
+            >
+                <FileCode className="w-4 h-4" />
+                <span className="whitespace-nowrap">Download as Markdown</span>
             </button>
         </div>
     );

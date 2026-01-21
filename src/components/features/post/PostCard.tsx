@@ -20,6 +20,7 @@ interface PostCardProps {
     level?: Level;
     tags?: string[];
     type?: PostType;
+    seriesOrder?: number;
     onClick?: () => void;
     className?: string;
 }
@@ -36,6 +37,7 @@ export default function PostCard({
     level,
     tags,
     type,
+    seriesOrder,
     onClick,
     className = ""
 }: PostCardProps) {
@@ -120,6 +122,19 @@ export default function PostCard({
         setShowQRPopup(true);
     }, []);
 
+    const handleDownloadMarkdown = useCallback(() => {
+        const downloadUrl = `/api/post/${slug}/download?format=md`;
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = `${slug}.md`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setContextMenu(null);
+    }, [slug]);
+
+
+
     const handleClick = useCallback(() => {
         if (!contextMenu && onClick) {
             onClick();
@@ -135,7 +150,7 @@ export default function PostCard({
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 className={`
-                    relative flex flex-col w-full p-4
+                    relative flex flex-col w-full p-3
                     rounded-xl border border-(--border-color) bg-(--post-card)
                     cursor-pointer
                     hover:border-(--border-color-hover) hover:bg-(--post-card-hover)
@@ -148,9 +163,9 @@ export default function PostCard({
                 <div className="flex-none">
                     {/* Image */}
                     {image && (
-                        <div className="relative w-full h-42 md:h-40 mb-4">
+                        <div className="relative w-full h-48 md:h-42 mb-4">
                             {/* Glow layer */}
-                            <div className="absolute -inset-1 blur-xl opacity-16">
+                            <div className="absolute -inset-1 blur-xl opacity-14">
                                 <Image src={image} alt="" fill sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw" className="object-cover rounded-xl" />
                             </div>
                             {/* Image container */}
@@ -185,7 +200,7 @@ export default function PostCard({
 
                     {/* Tags */}
                     {tags && (
-                        <div className="mt-2">
+                        <div className="mt-4 mb-2">
                             <TagList
                                 tags={tags}
                                 variant="compact"
@@ -219,10 +234,20 @@ export default function PostCard({
                     ]} />
                 </div>
                 {/* Series Badge */}
-                {type === "series" && (
-                    <div className="mt-2 w-full bg-accent/30 border rounded-[4px] border-accent/50 text-center">
-                        <span className="text-xs font-bold tracking-widest text-accent-hover">
+                {/* Series Badge */}
+                {type === "series" ? (
+                    <div className="mt-2 w-6/7 mx-auto flex items-center justify-center bg-accent/30 border rounded-md border-accent/50">
+                        <span className="text-center text-xs font-bold tracking-widest text-accent-hover px-2 py-0.5 border-r border-accent/50">
                             SERIES
+                        </span>
+                        <span className="flex-1 text-center text-xs font-bold text-accent-hover px-2 py-0.5">
+                            {seriesOrder ?? "?"}
+                        </span>
+                    </div>
+                ) : (
+                    <div className="mt-2 w-6/7 mx-auto flex items-center justify-center bg-blue-500/20 border rounded-md border-blue-500/40">
+                        <span className="text-center text-xs font-bold tracking-widest text-blue-500 px-2 py-0.5">
+                            STANDALONE
                         </span>
                     </div>
                 )}
@@ -238,6 +263,7 @@ export default function PostCard({
                     onShareQR={handleOpenQRPopup}
                     linkCopied={linkCopied}
                     onCopyLink={handleCopyLink}
+                    onDownloadMarkdown={handleDownloadMarkdown}
                 />
             )}
 
@@ -254,6 +280,7 @@ export default function PostCard({
                     level={level}
                     tags={tags}
                     type={type}
+                    seriesOrder={seriesOrder}
                     postUrl={postUrl}
                     onClose={() => setShowQRPopup(false)}
                 />

@@ -53,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${lexend.variable} ${firaCode.variable} antialiased max-h-screen`}>
         <AppShell>{children}</AppShell>
       </body>

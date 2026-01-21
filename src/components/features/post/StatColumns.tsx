@@ -10,8 +10,8 @@ export default function StatColumns({ stats, className = "" }: StatColumnsProps)
         <div className={`flex flex-row items-stretch gap-2 ${className}`}>
             {stats.map((stat) => (
                 <div key={stat.label} className="flex-1 flex flex-col items-start justify-center gap-1 p-2">
-                    <span className="text-[13px] font-bold text-foreground/50 tracking-widest">{stat.label.toUpperCase()}</span>
-                    <span className="font-semibold text-[11px]">{stat.value}</span>
+                    <span className="text-xs font-semibold text-foreground/50 tracking-widest">{stat.label.toUpperCase()}</span>
+                    <span className="font-semibold text-[10px]">{stat.value}</span>
                 </div>
             ))}
         </div>

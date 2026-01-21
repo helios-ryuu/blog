@@ -94,7 +94,7 @@ export default async function BlogPostPage({ params }: Props) {
                     <header className="mb-8">
                         <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
                         <p className="text-sm mt-2 text-foreground/70">{post.description}</p>
-                        <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} className="mt-4" />
+                        <PostMeta date={post.date} readingTime={post.readingTime} level={post.level} className="mt-4 mb-3" />
                         {post.tags && <TagList tags={post.tags} />}
                     </header>
 

@@ -13,8 +13,8 @@ export default function TagList({ tags, variant = "default", className = "" }: T
     if (!tags || tags.length === 0) return null;
 
     const variants = {
-        compact: "gap-1 mt-3",
-        default: "gap-1 mt-3"
+        compact: "gap-1",
+        default: "gap-1"
     };
 
     const tagStyles = {

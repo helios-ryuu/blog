@@ -6,6 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 import Banner from "@/components/layout/Banner";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
+import { ThemeProvider } from "next-themes";
 import { Button } from "@/components/ui";
 import ConfettiEffect from "@/components/effects/ConfettiEffect";
 import DotGrid from "@/components/ui/DotGrid";
@@ -41,7 +42,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                     gradient="linear-gradient(to right, #f59e0b, #ea580c, #dc2626)"
                     content={
                         <>
-                            <span className="text-xs mr-2">Check out Helios's new post on Instagram. Happy New Year 2026! 🎆🎉🎊</span>
+                            <span className="text-xs mr-2">Check out Helios's new post on Instagram! Currently looking for companion in DevOps Engineer position 😉.</span>
                             <Button
                                 className="bg-yellow-600 border-yellow-500 text-white hover:bg-yellow-400 hover:border-yellow-500"
                                 onClick={() => {
@@ -90,8 +91,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
     return (
-        <SidebarProvider>
-            <AppShellContent>{children}</AppShellContent>
-        </SidebarProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            <SidebarProvider>
+                <AppShellContent>{children}</AppShellContent>
+            </SidebarProvider>
+        </ThemeProvider>
     );
 }
