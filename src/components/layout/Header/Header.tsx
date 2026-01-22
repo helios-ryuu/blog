@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -19,15 +19,20 @@ interface HeaderProps {
     isHomePage?: boolean;
 }
 
+// Custom hook for mounted state without setState in useEffect
+function useMounted() {
+    return useSyncExternalStore(
+        () => () => { },
+        () => true,
+        () => false
+    );
+}
+
 export default function Header({ noBorder = false, showMobileMenu = true, transparent = false, isHomePage = false }: HeaderProps) {
-    const [mounted, setMounted] = useState(false);
+    const mounted = useMounted();
     const { resolvedTheme, setTheme } = useTheme();
     const { isMobileOpen, setIsMobileOpen } = useSidebar();
     const pathname = usePathname();
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // Use "dark" as fallback during SSR, actual theme after mount
     const theme = (mounted ? resolvedTheme : "dark") as "light" | "dark";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { Menu, X, Slash } from "lucide-react";
 import Link from "next/link";
 
@@ -17,12 +17,11 @@ interface MobileTocBarProps {
 
 export default function MobileTocBar({ title, content }: MobileTocBarProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [headings, setHeadings] = useState<TocItem[]>([]);
     const [activeId, setActiveId] = useState<string>("");
     const isClickNavigating = useRef(false);
 
-    useEffect(() => {
-        // Extract headings from markdown content
+    // Extract headings from markdown content using useMemo (no setState in effect)
+    const headings = useMemo(() => {
         const headingRegex = /^(#{2,3})\s+(.+)$/gm;
         const matches: TocItem[] = [];
         let match;
@@ -37,8 +36,7 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
 
             matches.push({ id, text, level });
         }
-
-        setHeadings(matches);
+        return matches;
     }, [content]);
 
     useEffect(() => {

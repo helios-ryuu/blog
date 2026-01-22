@@ -234,7 +234,6 @@ export default function PostCard({
                     ]} />
                 </div>
                 {/* Series Badge */}
-                {/* Series Badge */}
                 {type === "series" ? (
                     <div className="mt-2 w-6/7 mx-auto flex items-center justify-center bg-accent/30 border rounded-md border-accent/50">
                         <span className="text-center text-xs font-bold tracking-widest text-accent-hover px-2 py-0.5 border-r border-accent/50">

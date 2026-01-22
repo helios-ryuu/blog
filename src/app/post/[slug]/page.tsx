@@ -1,27 +1,47 @@
-import { getPostBySlug, getPostSlugs, getRelatedPosts, getSeriesPosts } from "@/lib/posts";
+import { getPostBySlug, getAllPostsMeta, getRelatedPosts, getSeriesPosts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { useMDXComponents } from "../../../../mdx-components";
+import { mdxComponents } from "../../../../mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
 import { PostMeta, TableOfContents, RelatedPosts, MobileTocBar, SeriesNavigation, PostShareActions } from "@/components/features/post";
 import { TagList } from "@/components/ui";
 import { Metadata } from "next";
+import { unstable_cache } from "next/cache";
+
+// Cache post data for faster subsequent loads
+const getCachedPost = unstable_cache(
+    async (slug: string) => getPostBySlug(slug),
+    ["post"],
+    { revalidate: 60, tags: ["posts"] }
+);
+
+const getCachedRelatedPosts = unstable_cache(
+    async (slug: string, tags: string[]) => getRelatedPosts(slug, tags),
+    ["related-posts"],
+    { revalidate: 60, tags: ["posts"] }
+);
+
+const getCachedSeriesPosts = unstable_cache(
+    async (seriesId: string) => getSeriesPosts(seriesId),
+    ["series-posts"],
+    { revalidate: 60, tags: ["posts"] }
+);
 
 interface Props {
     params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-    const slugs = getPostSlugs();
-    return slugs.map((slug) => ({
-        slug: slug.replace(/\.mdx$/, ""),
+    const posts = await getAllPostsMeta();
+    return posts.map((post) => ({
+        slug: post.slug,
     }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const post = getPostBySlug(slug);
+    const post = await getPostBySlug(slug);
 
     if (!post) {
         return {
@@ -67,14 +87,17 @@ const rehypePrettyCodeOptions = {
 
 export default async function BlogPostPage({ params }: Props) {
     const { slug } = await params;
-    const post = getPostBySlug(slug);
+    const post = await getCachedPost(slug);
 
     if (!post) {
         notFound();
     }
 
-    const relatedPosts = getRelatedPosts(slug, post.tags || []);
-    const seriesPosts = post.seriesId ? getSeriesPosts(post.seriesId) : [];
+    // Fetch related and series posts in parallel
+    const [relatedPosts, seriesPosts] = await Promise.all([
+        getCachedRelatedPosts(slug, post.tags || []),
+        post.seriesId ? getCachedSeriesPosts(post.seriesId) : Promise.resolve([])
+    ]);
 
     return (
         <div className="flex flex-col lg:h-full lg:overflow-hidden">
@@ -101,7 +124,7 @@ export default async function BlogPostPage({ params }: Props) {
                     <div className="prose prose-lg dark:prose-invert max-w-none pb-8">
                         <MDXRemote
                             source={post.content}
-                            components={useMDXComponents({})}
+                            components={mdxComponents}
                             options={{
                                 mdxOptions: {
                                     remarkPlugins: [remarkGfm],

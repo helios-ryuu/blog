@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 interface FadeTextProps {
     text: string;
@@ -11,28 +11,35 @@ interface FadeTextProps {
 
 export default function FadeText({ text, isVisible, duration = 200, className = "" }: FadeTextProps) {
     const [visibleCount, setVisibleCount] = useState(0);
+    const visibleCountRef = useRef(visibleCount);
 
+    // Keep ref in sync with state
     useEffect(() => {
-        const intervalTime = duration / text.length;
+        visibleCountRef.current = visibleCount;
+    }, [visibleCount]);
 
-        if (isVisible) {
-            let i = visibleCount;
-            const timer = setInterval(() => {
+    const animate = useCallback((direction: 'in' | 'out') => {
+        const intervalTime = duration / text.length;
+        let i = visibleCountRef.current;
+
+        const timer = setInterval(() => {
+            if (direction === 'in') {
                 i++;
                 setVisibleCount(i);
                 if (i >= text.length) clearInterval(timer);
-            }, intervalTime);
-            return () => clearInterval(timer);
-        } else {
-            let i = visibleCount;
-            const timer = setInterval(() => {
+            } else {
                 i--;
                 setVisibleCount(i);
                 if (i <= 0) clearInterval(timer);
-            }, intervalTime);
-            return () => clearInterval(timer);
-        }
-    }, [isVisible, duration, text.length]);
+            }
+        }, intervalTime);
+
+        return () => clearInterval(timer);
+    }, [duration, text.length]);
+
+    useEffect(() => {
+        return animate(isVisible ? 'in' : 'out');
+    }, [isVisible, animate]);
 
     return (
         <span

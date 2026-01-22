@@ -41,7 +41,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                     gradient="linear-gradient(to right, #f59e0b, #ea580c, #dc2626)"
                     content={
                         <>
-                            <span className="text-xs mr-2">Check out Helios's new post on Instagram! Currently looking for companion in DevOps Engineer position 😉.</span>
+                            <span className="text-xs mr-2">Check out Helios&apos;s new post on Instagram! Currently looking for companion in DevOps Engineer position 😉.</span>
                             <Button
                                 className="bg-yellow-600 border-yellow-500 text-white hover:bg-yellow-400 hover:border-yellow-500"
                                 onClick={() => {
@@ -90,7 +90,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
     return (
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" storageKey="helios-blog-theme" enableSystem={false}>
             <SidebarProvider>
                 <AppShellContent>{children}</AppShellContent>
             </SidebarProvider>

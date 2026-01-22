@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { getPostBySlug } from '@/lib/posts';
 
 export async function GET(
     request: NextRequest,
@@ -10,22 +9,40 @@ export async function GET(
     const format = request.nextUrl.searchParams.get('format');
 
     if (format === 'md') {
-        const filePath = path.join(process.cwd(), 'src/content/posts', `${slug}.mdx`);
         try {
-            if (!fs.existsSync(filePath)) {
-                return new NextResponse('File not found', { status: 404 });
-            }
-            const fileBuffer = fs.readFileSync(filePath);
+            const post = await getPostBySlug(slug);
 
-            return new NextResponse(fileBuffer, {
+            if (!post) {
+                return new NextResponse('Post not found', { status: 404 });
+            }
+
+            // Reconstruct frontmatter + content for download
+            const frontmatter = `---
+title: "${post.title}"
+description: "${post.description}"
+date: "${post.date}"
+${post.author ? `author: "${post.author}"` : ''}
+${post.authorTitle ? `authorTitle: "${post.authorTitle}"` : ''}
+${post.image ? `image: "${post.image}"` : ''}
+${post.level ? `level: "${post.level}"` : ''}
+${post.type ? `type: "${post.type}"` : ''}
+${post.tags?.length ? `tags: [${post.tags.map(t => `"${t}"`).join(', ')}]` : ''}
+${post.seriesId ? `seriesId: "${post.seriesId}"` : ''}
+${post.seriesOrder ? `seriesOrder: ${post.seriesOrder}` : ''}
+---
+
+`;
+            const markdown = frontmatter + post.content;
+
+            return new NextResponse(markdown, {
                 headers: {
                     'Content-Disposition': `attachment; filename="${slug}.md"`,
-                    'Content-Type': 'text/markdown',
+                    'Content-Type': 'text/markdown; charset=utf-8',
                 },
             });
         } catch (error) {
-            console.error(error);
-            return new NextResponse('Error reading file', { status: 500 });
+            console.error('Download error:', error);
+            return new NextResponse('Error fetching post', { status: 500 });
         }
     }
 

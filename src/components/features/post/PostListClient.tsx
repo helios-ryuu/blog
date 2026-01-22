@@ -2,26 +2,15 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { PostCard, PostListItem } from "@/components/features/post";
 import Select from "@/components/ui/Select";
 import MultiSelect from "@/components/ui/MultiSelect";
 import { Button } from "@/components/ui";
-import TagList from "@/components/ui/TagList";
-import { ChevronLeft, ChevronRight, LayoutGrid, List, ArrowUp, ArrowDown } from "lucide-react";
-import type { PostMeta, Level, PostType } from "@/types/post";
+import { ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
+import type { PostMeta, Level } from "@/types/post";
 
 type ViewMode = "card" | "list";
-
-// Sort Configuration
-type SortKey = 'title' | 'date' | 'readingTime' | 'level' | 'author' | 'type';
-type SortDirection = 'asc' | 'desc';
-
-interface SortConfig {
-    key: SortKey;
-    direction: SortDirection;
-}
 
 interface PostListClientProps {
     posts: PostMeta[];
@@ -30,19 +19,19 @@ interface PostListClientProps {
 }
 
 const variants = {
-    enter: (direction: number) => ({
+    enter: (_direction: number) => ({
         opacity: 0,
     }),
     center: {
         opacity: 1,
     },
-    exit: (direction: number) => ({
+    exit: (_direction: number) => ({
         opacity: 0,
     }),
 };
 
-// Helper: Parse time string "5 min read" -> 5
-const parseReadTime = (timeStr?: string): number => {
+// Helper: Parse time string "5 min read" -> 5 (kept for potential future use)
+const _parseReadTime = (timeStr?: string): number => {
     if (!timeStr) return 0;
     const match = timeStr.match(/(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
@@ -61,16 +50,26 @@ const getLevelWeight = (level?: Level): number => {
 export default function PostListClient({ posts, allTags, allLevels }: PostListClientProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
-    const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
-    const [selectedType, setSelectedType] = useState<string>("");
-    const [selectedSort, setSelectedSort] = useState<string>("newest"); // Default sort
+    // Derived state from URL (Source of Truth)
+    const selectedTags = useMemo(() => {
+        const t = searchParams.get("tag");
+        return t ? t.split(",").map(s => s.trim()).filter(Boolean) : [];
+    }, [searchParams]);
+
+    const selectedLevels = useMemo(() => {
+        const l = searchParams.get("level");
+        return l ? l.split(",").map(s => s.trim()).filter(Boolean) : [];
+    }, [searchParams]);
+
+    const selectedType = searchParams.get("type") || "";
+    const selectedSort = searchParams.get("sort") || "newest";
+    const viewMode = (searchParams.get("view") as ViewMode) || "card";
 
     const [currentPage, setCurrentPage] = useState(1);
     const [direction, setDirection] = useState(0);
     const [postsPerPage, setPostsPerPage] = useState(4);
     const [isMobile, setIsMobile] = useState(false);
-    const [viewMode, setViewMode] = useState<ViewMode>("card");
+
 
     // Responsive posts per page and mobile detection
     useEffect(() => {
@@ -95,56 +94,8 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
         return () => window.removeEventListener("resize", handleResize);
     }, [viewMode]);
 
-    // Sync URL -> State (Read params on mount/change)
-    useEffect(() => {
-        // Tags
-        const tagsFromUrl = searchParams.get("tag");
-        if (tagsFromUrl) {
-            const tagArray = tagsFromUrl.split(",").map((t) => t.trim());
-            const matchedTags = tagArray
-                .map((tag) => allTags.find((t) => t.toLowerCase() === tag.toLowerCase()))
-                .filter(Boolean) as string[];
-            setSelectedTags(matchedTags);
-        } else {
-            setSelectedTags([]);
-        }
+    // Sync URL -> State effect removed - state is now derived directly from searchParams
 
-        // Levels
-        const levelsFromUrl = searchParams.get("level");
-        if (levelsFromUrl) {
-            const levelArray = levelsFromUrl.split(",").map((t) => t.trim());
-            const matchedLevels = levelArray
-                .map((level) => allLevels.find((l) => l.toLowerCase() === level.toLowerCase()))
-                .filter(Boolean) as string[];
-            setSelectedLevels(matchedLevels);
-        } else {
-            setSelectedLevels([]);
-        }
-
-        // Type
-        const typeFromUrl = searchParams.get("type");
-        if (typeFromUrl && ["standalone", "series"].includes(typeFromUrl)) {
-            setSelectedType(typeFromUrl);
-        } else {
-            setSelectedType("");
-        }
-
-        // Sort
-        const sortFromUrl = searchParams.get("sort");
-        if (sortFromUrl && ["newest", "oldest", "a-z", "z-a", "easiest", "most-advanced"].includes(sortFromUrl)) {
-            setSelectedSort(sortFromUrl);
-        } else {
-            setSelectedSort("newest");
-        }
-
-        // View Mode
-        const viewFromUrl = searchParams.get("view");
-        if (viewFromUrl && ["card", "list"].includes(viewFromUrl)) {
-            setViewMode(viewFromUrl as ViewMode);
-        } else {
-            setViewMode("card");
-        }
-    }, [searchParams, allTags, allLevels]);
 
     // Helper to update URL based on current state + new changes
     const updateUrl = (newParams: Partial<{ tags: string[], levels: string[], type: string, sort: string, view: ViewMode }>) => {
@@ -166,27 +117,24 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
     };
 
     // Handlers
+    // Handlers - Only update URL, state updates automatically via derivation
     const handleTagsChange = (values: string[]) => {
         const newTags = values.includes("") ? [] : values;
-        setSelectedTags(newTags);
         updateUrl({ tags: newTags });
     };
 
     const handleLevelsChange = (values: string[]) => {
         const newLevels = values.includes("") ? [] : values;
-        setSelectedLevels(newLevels);
         updateUrl({ levels: newLevels });
     };
 
     const handleTypeChange = (value: string) => {
         const newType = value === "" ? "" : value;
-        setSelectedType(newType);
         updateUrl({ type: newType });
     };
 
     const handleSortChange = (value: string) => {
         const newSort = value === "" ? "newest" : value;
-        setSelectedSort(newSort);
         updateUrl({ sort: newSort });
     };
 
@@ -216,7 +164,6 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
 
         // Single Sort
         result.sort((a, b) => {
-            let comparison = 0;
             switch (selectedSort) {
                 case "newest": // Date Desc
                     return new Date(b.date || '').getTime() - new Date(a.date || '').getTime();
@@ -239,10 +186,6 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
     }, [posts, selectedTags, selectedLevels, selectedType, selectedSort]);
 
     const clearFilters = () => {
-        setSelectedTags([]);
-        setSelectedLevels([]);
-        setSelectedType("");
-        setSelectedSort("newest");
         updateUrl({ tags: [], levels: [], type: "", sort: "newest" });
     };
 
@@ -371,7 +314,6 @@ export default function PostListClient({ posts, allTags, allLevels }: PostListCl
                             value={viewMode}
                             onValueChange={(v) => {
                                 const newView = v as ViewMode;
-                                setViewMode(newView);
                                 updateUrl({ view: newView });
                             }}
                             options={viewOptions.map(o => ({ value: o.value, label: o.label }))}

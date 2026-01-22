@@ -5,9 +5,9 @@ import { InertiaPlugin } from 'gsap/InertiaPlugin';
 
 gsap.registerPlugin(InertiaPlugin);
 
-const throttle = (func: (...args: any[]) => void, limit: number) => {
+const throttle = <T extends unknown[]>(func: (...args: T) => void, limit: number) => {
     let lastCall = 0;
-    return function (this: any, ...args: any[]) {
+    return function (this: unknown, ...args: T) {
         const now = performance.now();
         if (now - lastCall >= limit) {
             lastCall = now;
@@ -87,21 +87,27 @@ const DotGrid: React.FC<DotGridProps> = ({
         lastY: 0
     });
 
-    // Dynamic colors that update with theme
-    const [currentBaseColor, setCurrentBaseColor] = useState(baseColor);
-    const [currentActiveColor, setCurrentActiveColor] = useState(activeColor);
-
-    // Watch for theme changes
-    useEffect(() => {
-        if (!useCssVars) {
-            setCurrentBaseColor(baseColor);
-            setCurrentActiveColor(activeColor);
-            return;
+    // CSS variable colors - only used when useCssVars is true
+    const [cssBaseColor, setCssBaseColor] = useState(() => {
+        if (useCssVars && typeof window !== 'undefined') {
+            return getCssVariableColor('--background-hover') || baseColor;
         }
+        return baseColor;
+    });
+    const [cssActiveColor, setCssActiveColor] = useState(() => {
+        if (useCssVars && typeof window !== 'undefined') {
+            return getCssVariableColor('--accent') || activeColor;
+        }
+        return activeColor;
+    });
+
+    // Watch for theme changes via MutationObserver (callback-based, not synchronous setState)
+    useEffect(() => {
+        if (!useCssVars) return;
 
         const updateColors = () => {
-            setCurrentBaseColor(getCssVariableColor('--background-hover'));
-            setCurrentActiveColor(getCssVariableColor('--accent'));
+            setCssBaseColor(getCssVariableColor('--background-hover'));
+            setCssActiveColor(getCssVariableColor('--accent'));
         };
 
         // Initial update
@@ -119,7 +125,11 @@ const DotGrid: React.FC<DotGridProps> = ({
         observer.observe(document.documentElement, { attributes: true });
 
         return () => observer.disconnect();
-    }, [useCssVars, baseColor, activeColor]);
+    }, [useCssVars]);
+
+    // Derive current colors based on mode - no setState needed
+    const currentBaseColor = useCssVars ? cssBaseColor : baseColor;
+    const currentActiveColor = useCssVars ? cssActiveColor : activeColor;
 
     const baseRgb = useMemo(() => hexToRgb(currentBaseColor), [currentBaseColor]);
     const activeRgb = useMemo(() => hexToRgb(currentActiveColor), [currentActiveColor]);
@@ -222,7 +232,9 @@ const DotGrid: React.FC<DotGridProps> = ({
         let ro: ResizeObserver | null = null;
         if ('ResizeObserver' in window) {
             ro = new ResizeObserver(buildGrid);
-            wrapperRef.current && ro.observe(wrapperRef.current);
+            if (wrapperRef.current) {
+                ro.observe(wrapperRef.current);
+            }
         } else {
             (window as Window).addEventListener('resize', buildGrid);
         }

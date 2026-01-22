@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { X } from "lucide-react";
 
 interface BannerProps {
@@ -14,17 +14,14 @@ interface BannerProps {
 
 const BANNER_STORAGE_PREFIX = "banner_dismissed_";
 
-export default function Banner({
-    content,
-    dismissible = true,
-    id = "default",
-    cooldownMinutes = 5,
-    gradient,
-    bgColor = "#ef4444"
-}: BannerProps) {
-    const [isVisible, setIsVisible] = useState(false);
+// Custom hook to check banner visibility from localStorage
+function useBannerVisibility(id: string, cooldownMinutes: number) {
+    const subscribe = (callback: () => void) => {
+        window.addEventListener('storage', callback);
+        return () => window.removeEventListener('storage', callback);
+    };
 
-    useEffect(() => {
+    const getSnapshot = () => {
         const storageKey = BANNER_STORAGE_PREFIX + id;
         const dismissedAt = localStorage.getItem(storageKey);
 
@@ -33,22 +30,35 @@ export default function Banner({
             const now = Date.now();
             const cooldownMs = cooldownMinutes * 60 * 1000;
 
-            // Show banner if cooldown has passed
             if (now - dismissedTime >= cooldownMs) {
                 localStorage.removeItem(storageKey);
-                setIsVisible(true);
+                return true;
             }
-            // Otherwise keep hidden
-        } else {
-            // Never dismissed, show banner
-            setIsVisible(true);
+            return false;
         }
-    }, [id, cooldownMinutes]);
+        return true;
+    };
+
+    const getServerSnapshot = () => false; // Hidden during SSR
+
+    return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
+export default function Banner({
+    content,
+    dismissible = true,
+    id = "default",
+    cooldownMinutes = 5,
+    gradient,
+    bgColor = "#ef4444"
+}: BannerProps) {
+    const isVisible = useBannerVisibility(id, cooldownMinutes);
 
     const handleDismiss = () => {
         const storageKey = BANNER_STORAGE_PREFIX + id;
         localStorage.setItem(storageKey, Date.now().toString());
-        setIsVisible(false);
+        // Force a storage event for same-tab updates
+        window.dispatchEvent(new Event('storage'));
     };
 
     if (!isVisible) return null;

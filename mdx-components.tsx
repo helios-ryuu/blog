@@ -303,3 +303,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     };
 }
 
+// Pre-built components object for use in async Server Components
+// eslint-disable-next-line react-hooks/rules-of-hooks
+export const mdxComponents = useMDXComponents({});

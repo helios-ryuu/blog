@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui";
 import { ArrowRight } from "lucide-react";
 
 export default function Home() {

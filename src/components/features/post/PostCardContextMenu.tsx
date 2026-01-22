@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Link2, QrCode, FileText, FileCode } from "lucide-react";
+import { Link2, QrCode, FileCode } from "lucide-react";
 
 interface PostCardContextMenuProps {
     x: number;
@@ -17,7 +17,7 @@ interface PostCardContextMenuProps {
 export default function PostCardContextMenu({
     x,
     y,
-    postUrl,
+    postUrl: _postUrl,
     onClose,
     onShareQR,
     linkCopied,

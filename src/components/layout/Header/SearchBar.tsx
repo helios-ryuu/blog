@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Search } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface SearchItem {
@@ -22,7 +21,6 @@ export default function SearchBar() {
     const [query, setQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
-    const [results, setResults] = useState<SearchItem[]>([]);
     const [posts, setPosts] = useState<SearchItem[]>([]);
     const [tags, setTags] = useState<SearchItem[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -80,12 +78,8 @@ export default function SearchBar() {
         );
     }, [posts, tags]);
 
-    // Update results when query changes
-    useEffect(() => {
-        const filtered = filterResults(query);
-        setResults(filtered);
-        setSelectedIndex(-1);
-    }, [query, filterResults]);
+    // Derive results directly from query (no setState in effect)
+    const results = useMemo(() => filterResults(query), [query, filterResults]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -139,7 +133,7 @@ export default function SearchBar() {
         // Only open dropdown if there's already a query
         if (query.trim()) {
             setIsOpen(true);
-            setResults(filterResults(query));
+            // Results are now derived via useMemo based on query
         }
     };
 
@@ -155,6 +149,7 @@ export default function SearchBar() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setQuery(value);
+        setSelectedIndex(-1); // Reset selection when query changes
         // Open dropdown when user starts typing
         if (value.trim()) {
             setIsOpen(true);

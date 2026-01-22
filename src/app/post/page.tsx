@@ -3,15 +3,28 @@ import { getAllPostsMeta, getAllTags } from "@/lib/posts";
 import PostListClient from "@/components/features/post/PostListClient";
 import MobileSearchBar from "@/components/layout/MobileSearchBar";
 import type { Level } from "@/types/post";
+import { unstable_cache } from "next/cache";
 
-export default function PostPage() {
-    const posts = getAllPostsMeta();
-    const allTags = getAllTags();
+// Cache post list data
+const getCachedPostsData = unstable_cache(
+    async () => {
+        const [posts, allTags] = await Promise.all([
+            getAllPostsMeta(),
+            getAllTags()
+        ]);
+        
+        const allLevels = Array.from(
+            new Set(posts.map((post) => post.level).filter(Boolean))
+        ) as Level[];
+        
+        return { posts, allTags, allLevels };
+    },
+    ["post-list"],
+    { revalidate: 60, tags: ["posts"] }
+);
 
-    // Get unique levels from posts
-    const allLevels = Array.from(
-        new Set(posts.map((post) => post.level).filter(Boolean))
-    ) as Level[];
+export default async function PostPage() {
+    const { posts, allTags, allLevels } = await getCachedPostsData();
 
     return (
         <>
@@ -33,7 +46,7 @@ export default function PostPage() {
                     </Suspense>
 
                     {posts.length === 0 && (
-                        <p className="mt-6 text-foreground/50">No posts yet. Create your first post in src/content/posts/</p>
+                        <p className="mt-6 text-foreground/50">No posts yet. Add your first post in the database.</p>
                     )}
                 </div>
             </div>

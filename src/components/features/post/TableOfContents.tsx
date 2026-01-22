@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 
 interface TocItem {
     id: string;
@@ -13,12 +13,11 @@ interface TableOfContentsProps {
 }
 
 export default function TableOfContents({ content }: TableOfContentsProps) {
-    const [headings, setHeadings] = useState<TocItem[]>([]);
     const [activeId, setActiveId] = useState<string>("");
     const isClickNavigating = useRef(false);
 
-    useEffect(() => {
-        // Extract headings from markdown content
+    // Extract headings from markdown content using useMemo (no setState in effect)
+    const headings = useMemo(() => {
         const headingRegex = /^(#{2,3})\s+(.+)$/gm;
         const matches: TocItem[] = [];
         let match;
@@ -33,8 +32,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
 
             matches.push({ id, text, level });
         }
-
-        setHeadings(matches);
+        return matches;
     }, [content]);
 
     useEffect(() => {

@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { getAllPostsMeta, getAllTags } from "@/lib/posts";
+import { unstable_cache } from "next/cache";
 
-export async function GET() {
-    try {
-        const posts = getAllPostsMeta();
-        const allTags = getAllTags();
+// Cache search data for 60 seconds to reduce database calls
+const getCachedSearchData = unstable_cache(
+    async () => {
+        const [posts, allTags] = await Promise.all([
+            getAllPostsMeta(),
+            getAllTags()
+        ]);
 
         const searchableItems = posts.map((post) => ({
             type: "Post" as const,
@@ -13,7 +17,6 @@ export async function GET() {
             tags: post.tags || [],
         }));
 
-        // Also include tags as searchable items
         const tagItems = allTags.map((tag) => ({
             type: "Tag" as const,
             title: tag,
@@ -21,7 +24,16 @@ export async function GET() {
             tags: [] as string[],
         }));
 
-        return NextResponse.json({ posts: searchableItems, tags: tagItems });
+        return { posts: searchableItems, tags: tagItems };
+    },
+    ["search-data"],
+    { revalidate: 60 }
+);
+
+export async function GET() {
+    try {
+        const data = await getCachedSearchData();
+        return NextResponse.json(data);
     } catch (error) {
         console.error("Search API error:", error);
         return NextResponse.json({ posts: [], tags: [] });
