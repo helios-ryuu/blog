@@ -121,6 +121,7 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                     level={post.level}
                     tags={post.tags}
                     type={post.type}
+                    seriesOrder={post.seriesOrder}
                     postUrl={postUrl}
                     onClose={() => setShowQRPopup(false)}
                 />

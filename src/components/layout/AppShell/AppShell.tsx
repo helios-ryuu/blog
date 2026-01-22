@@ -8,7 +8,6 @@ import Banner from "@/components/layout/Banner";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import { ThemeProvider } from "next-themes";
 import { Button } from "@/components/ui";
-import ConfettiEffect from "@/components/effects/ConfettiEffect";
 import DotGrid from "@/components/ui/DotGrid";
 
 function AppShellContent({ children }: { children: React.ReactNode }) {
@@ -72,7 +71,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
                 {/* Content area - sidebar + main */}
                 <div className="relative flex-1 flex md:min-h-0">
-                    {/* {!isHomePage && <ConfettiEffect />} */}
+
                     {/* Sidebar - hidden on mobile, full height on desktop */}
                     {!isHomePage && <Sidebar />}
 
