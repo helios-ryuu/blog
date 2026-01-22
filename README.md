@@ -236,9 +236,3 @@ DATABASE_URL=postgresql://user:password@host:5432/database
 5. Deploy!
 
 For other platforms, use `npm run build` to generate the `.next` output folder.
-
----
-
-## 📄 License
-
-MIT © Helios
