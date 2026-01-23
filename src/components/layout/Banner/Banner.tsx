@@ -1,7 +1,7 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { X } from "lucide-react";
+import { useBannerVisibility, dismissBanner } from "@/hooks";
 
 interface BannerProps {
     content: React.ReactNode;
@@ -10,38 +10,6 @@ interface BannerProps {
     cooldownMinutes?: number; // Minutes before banner can show again
     gradient?: string; // CSS gradient string, e.g. "linear-gradient(to right, #ff6b6b, #feca57)"
     bgColor?: string; // Fallback solid color
-}
-
-const BANNER_STORAGE_PREFIX = "banner_dismissed_";
-
-// Custom hook to check banner visibility from localStorage
-function useBannerVisibility(id: string, cooldownMinutes: number) {
-    const subscribe = (callback: () => void) => {
-        window.addEventListener('storage', callback);
-        return () => window.removeEventListener('storage', callback);
-    };
-
-    const getSnapshot = () => {
-        const storageKey = BANNER_STORAGE_PREFIX + id;
-        const dismissedAt = localStorage.getItem(storageKey);
-
-        if (dismissedAt) {
-            const dismissedTime = parseInt(dismissedAt, 10);
-            const now = Date.now();
-            const cooldownMs = cooldownMinutes * 60 * 1000;
-
-            if (now - dismissedTime >= cooldownMs) {
-                localStorage.removeItem(storageKey);
-                return true;
-            }
-            return false;
-        }
-        return true;
-    };
-
-    const getServerSnapshot = () => false; // Hidden during SSR
-
-    return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 export default function Banner({
@@ -55,10 +23,7 @@ export default function Banner({
     const isVisible = useBannerVisibility(id, cooldownMinutes);
 
     const handleDismiss = () => {
-        const storageKey = BANNER_STORAGE_PREFIX + id;
-        localStorage.setItem(storageKey, Date.now().toString());
-        // Force a storage event for same-tab updates
-        window.dispatchEvent(new Event('storage'));
+        dismissBanner(id);
     };
 
     if (!isVisible) return null;

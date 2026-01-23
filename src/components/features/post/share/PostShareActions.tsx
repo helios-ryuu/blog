@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Share2 } from "lucide-react";
-import PostCardContextMenu from "./PostCardContextMenu";
+import PostCardContextMenu from "../card/PostCardContextMenu";
 import ShareQRPopup from "./ShareQRPopup";
 import type { Post } from "@/types/post";
 

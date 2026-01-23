@@ -4,6 +4,9 @@
 
 <h1 align="center">Helios Blog</h1>
 <p align="center">
+  <strong>Version 1.1.0</strong>
+</p>
+<p align="center">
   <strong>A modern, high-performance personal blog built with Next.js 16, React 19, and Supabase.</strong>
 </p>
 
@@ -45,6 +48,12 @@
 ### Filtering & Sorting
 - **URL-Driven State**: Filters sync with URL params - shareable and bookmark-friendly.
 - **Sort Options**: Order posts by Date (Newest/Oldest), Title (A-Z/Z-A), or Level.
+
+### Administration
+- **Secure Dashboard**: Password-protected admin area for content management.
+- **Post Management**: CRUD operations for posts with a rich editor.
+- **Tag & Series Control**: Manage taxonomies directly from the UI.
+- **Real-time Preview**: Preview posts before publishing.
 
 ---
 
@@ -135,8 +144,10 @@ blog/
 ├── src/
 │   ├── app/                # Next.js App Router pages & API routes
 │   │   ├── api/            # Backend API endpoints
+│   │   │   ├── admin/      # Admin API routes (auth, posts, etc.)
 │   │   │   ├── post/       # Post download endpoint
 │   │   │   └── search/     # Search API with caching
+│   │   ├── admin/          # Admin dashboard page
 │   │   ├── post/           # Post listing and detail pages
 │   │   └── page.tsx        # Homepage
 │   ├── components/
@@ -191,9 +202,11 @@ SELECT (SELECT id FROM post WHERE slug = 'your-post-slug'), id
 FROM tag WHERE name IN ('Tag1', 'Tag2');
 ```
 
-### Option 2: Admin UI (Coming Soon)
+### Option 2: Admin Dashboard
 
-A CMS-like admin interface for managing posts is planned for future releases.
+A comprehensive admin interface is available at `/admin` for managing posts, series, tags, and authors.
+- **Login required**: Access is protected via a secure token system.
+- **Features**: Create drafts, update existing content, manage visibility, and organize collections.
 
 ### Post Schema
 

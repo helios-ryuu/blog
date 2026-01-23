@@ -7,7 +7,7 @@ import { toPng } from "html-to-image";
 import Image from "next/image";
 
 import { FadeText, TagList } from "@/components/ui";
-import StatColumns from "./StatColumns";
+import StatColumns from "../card/StatColumns";
 import type { Level, PostType } from "@/types/post";
 
 interface ShareQRPopupProps {

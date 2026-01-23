@@ -5,7 +5,7 @@ import Image from "next/image";
 import { FadeText, TagList } from "@/components/ui";
 import StatColumns from "./StatColumns";
 import PostCardContextMenu from "./PostCardContextMenu";
-import ShareQRPopup from "./ShareQRPopup";
+import ShareQRPopup from "../share/ShareQRPopup";
 import type { Level, PostType } from "@/types/post";
 
 interface PostCardProps {

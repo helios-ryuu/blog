@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getAllPostsMeta, getAllTags } from "@/lib/posts";
-import PostListClient from "@/components/features/post/PostListClient";
+import { PostListClient } from "@/components/features/post";
 import MobileSearchBar from "@/components/layout/MobileSearchBar";
 import type { Level } from "@/types/post";
 import { unstable_cache } from "next/cache";

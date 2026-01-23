@@ -1,6 +1,5 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -11,21 +10,13 @@ import { useSidebar } from "@/contexts/SidebarContext";
 import { usePathname } from "next/navigation";
 import MobileDropdown from "@/components/layout/MobileDropdown";
 import SearchBar from "@/components/layout/Header/SearchBar";
+import { useMounted } from "@/hooks";
 
 interface HeaderProps {
     noBorder?: boolean;
     showMobileMenu?: boolean;
     transparent?: boolean;
     isHomePage?: boolean;
-}
-
-// Custom hook for mounted state without setState in useEffect
-function useMounted() {
-    return useSyncExternalStore(
-        () => () => { },
-        () => true,
-        () => false
-    );
 }
 
 export default function Header({ noBorder = false, showMobileMenu = true, transparent = false, isHomePage = false }: HeaderProps) {

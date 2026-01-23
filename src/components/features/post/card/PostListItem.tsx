@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { TagList } from "@/components/ui";
 import PostCardContextMenu from "./PostCardContextMenu";
-import ShareQRPopup from "./ShareQRPopup";
+import ShareQRPopup from "../share/ShareQRPopup";
 import type { Level, PostType } from "@/types/post";
 
 interface PostListItemProps {
