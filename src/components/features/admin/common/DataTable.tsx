@@ -51,7 +51,7 @@ export default function DataTable({ title, columns, data, isLoading }: DataTable
         <div className="border border-(--border-color) rounded-lg overflow-hidden bg-(--post-card)">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between px-4 py-2 hover:bg-foreground/5 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-foreground/5 transition-colors cursor-pointer"
             >
                 <div className="flex items-center gap-3">
                     <h3 className="font-semibold text-foreground">{title}</h3>
@@ -75,7 +75,7 @@ export default function DataTable({ title, columns, data, isLoading }: DataTable
                                             <th
                                                 key={col.key}
                                                 onClick={() => handleSort(col.key)}
-                                                className="px-4 py-3 text-left font-medium text-foreground/70 cursor-pointer hover:text-foreground whitespace-nowrap"
+                                                className="px-3 py-2 text-left font-medium text-foreground/70 cursor-pointer hover:text-foreground whitespace-nowrap"
                                             >
                                                 <div className="flex items-center gap-1">
                                                     {col.label}
@@ -93,7 +93,7 @@ export default function DataTable({ title, columns, data, isLoading }: DataTable
                                     {sortedData.map((row, rowIndex) => (
                                         <tr key={rowIndex} className="hover:bg-foreground/5">
                                             {columns.map((col) => (
-                                                <td key={col.key} className="px-4 py-3 text-foreground/80">
+                                                <td key={col.key} className="px-3 py-2 text-foreground/80">
                                                     {col.render
                                                         ? col.render(row[col.key], row)
                                                         : formatValue(row[col.key])}

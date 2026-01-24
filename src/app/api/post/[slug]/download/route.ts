@@ -26,6 +26,7 @@ ${post.authorTitle ? `authorTitle: "${post.authorTitle}"` : ''}
 ${post.image ? `image: "${post.image}"` : ''}
 ${post.level ? `level: "${post.level}"` : ''}
 ${post.type ? `type: "${post.type}"` : ''}
+${post.readingTime ? `readingTime: ${post.readingTime}` : ''}
 ${post.tags?.length ? `tags: [${post.tags.map(t => `"${t}"`).join(', ')}]` : ''}
 ${post.seriesId ? `seriesId: "${post.seriesId}"` : ''}
 ${post.seriesOrder ? `seriesOrder: ${post.seriesOrder}` : ''}

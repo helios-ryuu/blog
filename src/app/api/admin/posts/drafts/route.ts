@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidateTag } from "next/cache";
 import sql from "@/lib/db";
 
 // Cached function to fetch draft posts
@@ -48,7 +48,10 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "true";
 
     try {
-        const drafts = refresh 
+        if (refresh) {
+            revalidateTag("admin-drafts", "max");
+        }
+        const drafts = refresh
             ? await fetchDraftPostsDirect()
             : await fetchDraftPosts();
 

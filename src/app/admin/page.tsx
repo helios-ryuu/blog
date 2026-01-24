@@ -8,6 +8,7 @@ import AddPostForm from "@/components/features/admin/forms/AddPostForm";
 import PostPreview from "@/components/features/admin/sections/PostPreview";
 import EditPostForm from "@/components/features/admin/forms/EditPostForm";
 import EditAuthorForm from "@/components/features/admin/forms/EditAuthorForm";
+import EditSeriesForm from "@/components/features/admin/forms/EditSeriesForm";
 import AddAuthorForm from "@/components/features/admin/forms/AddAuthorForm";
 import BucketManager from "@/components/features/admin/tabs/BucketManager";
 import DatabaseTab from "@/components/features/admin/tabs/DatabaseTab";
@@ -60,9 +61,10 @@ interface DraftPost {
 }
 
 interface DeleteConfirmData {
-    type: "post" | "tag" | "author";
+    type: "post" | "tag" | "author" | "series";
     id: number;
     name: string;
+    relatedPostsCount?: number;
 }
 
 export default function AdminPage() {
@@ -93,9 +95,11 @@ function AdminPageContent() {
     const [previewPostId, setPreviewPostId] = useState<number | null>(null);
     const [editDraftId, setEditDraftId] = useState<number | null>(null);
     const [editAuthorId, setEditAuthorId] = useState<number | null>(null);
+    const [editSeriesId, setEditSeriesId] = useState<number | null>(null);
     const [draftPosts, setDraftPosts] = useState<DraftPost[]>([]);
     const [draftsLoading, setDraftsLoading] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmData | null>(null);
+    const [importPostData, setImportPostData] = useState<{ title?: string; description?: string; content?: string; image_url?: string; level?: string; type?: string; author_name?: string; tags?: string[] } | null>(null);
 
     const fetchTableData = useCallback(async (refresh = false) => {
         setDataLoading(true);
@@ -211,13 +215,19 @@ function AdminPageContent() {
                 ? `/api/admin/posts/${deleteConfirm.id}`
                 : deleteConfirm.type === "tag"
                     ? `/api/admin/tags/${deleteConfirm.id}`
-                    : `/api/admin/authors/${deleteConfirm.id}`;
+                    : deleteConfirm.type === "series"
+                        ? `/api/admin/series/${deleteConfirm.id}`
+                        : `/api/admin/authors/${deleteConfirm.id}`;
 
         const res = await fetch(endpoint, { method: "DELETE" });
         if (res.ok) {
-            showToast("success", `${deleteConfirm.type.charAt(0).toUpperCase() + deleteConfirm.type.slice(1)} deleted successfully`);
+            const typeLabel = deleteConfirm.type.charAt(0).toUpperCase() + deleteConfirm.type.slice(1);
+            const message = deleteConfirm.type === "series" && deleteConfirm.relatedPostsCount
+                ? `Series and ${deleteConfirm.relatedPostsCount} related posts deleted successfully`
+                : `${typeLabel} deleted successfully`;
+            showToast("success", message);
             fetchTableData(true);
-            if (deleteConfirm.type === "post") {
+            if (deleteConfirm.type === "post" || deleteConfirm.type === "series") {
                 fetchDraftPosts(true);
             }
             // Reset the corresponding select
@@ -226,7 +236,9 @@ function AdminPageContent() {
                     ? "deletePostSelect"
                     : deleteConfirm.type === "tag"
                         ? "deleteTagSelect"
-                        : "deleteAuthorSelect";
+                        : deleteConfirm.type === "series"
+                            ? "deleteSeriesSelect"
+                            : "deleteAuthorSelect";
             const select = document.getElementById(selectId) as HTMLSelectElement;
             if (select) select.value = "";
         }
@@ -265,7 +277,13 @@ function AdminPageContent() {
             {showAddPost && (
                 <AddPostForm
                     onSuccess={handlePostCreated}
-                    onClose={() => setShowAddPost(false)}
+                    onClose={() => {
+                        setShowAddPost(false);
+                        setImportPostData(null);
+                    }}
+                    initialData={importPostData || undefined}
+                    onShowToast={showToast}
+                    existingTitles={tableData.post.map((p) => p.title)}
                 />
             )}
 
@@ -310,12 +328,27 @@ function AdminPageContent() {
                 />
             )}
 
+            {editSeriesId && (
+                <EditSeriesForm
+                    seriesId={editSeriesId}
+                    onClose={() => setEditSeriesId(null)}
+                    onSuccess={() => {
+                        setEditSeriesId(null);
+                        fetchTableData(true);
+                        showToast("success", "Series updated successfully");
+                    }}
+                />
+            )}
+
             {deleteConfirm && (
                 <ConfirmPopup
                     variant="danger"
                     title={`Delete ${deleteConfirm.type.charAt(0).toUpperCase() + deleteConfirm.type.slice(1)}`}
                     message={`Are you sure you want to delete this ${deleteConfirm.type}?${deleteConfirm.type === "author" ? " Posts by this author will be orphaned." :
-                        deleteConfirm.type === "tag" ? " All post associations will be removed." : ""
+                        deleteConfirm.type === "tag" ? " All post associations will be removed." :
+                            deleteConfirm.type === "series" && deleteConfirm.relatedPostsCount
+                                ? ` This will also delete ${deleteConfirm.relatedPostsCount} related post${deleteConfirm.relatedPostsCount !== 1 ? "s" : ""}.`
+                                : ""
                         }`}
                     itemName={deleteConfirm.name}
                     confirmText={`Delete ${deleteConfirm.type.charAt(0).toUpperCase() + deleteConfirm.type.slice(1)}`}
@@ -327,7 +360,7 @@ function AdminPageContent() {
             {/* Main Content */}
             {isAuthenticated ? (
                 <div className="w-full py-8 px-4 md:px-10">
-                    <div className="max-w-7xl mx-auto mb-50">
+                    <div className="md:mx-6 mx-4 mb-50">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-8">
                             <h1 className="text-xl font-bold text-accent tracking-widest">ADMIN WORKSPACE</h1>
@@ -392,8 +425,9 @@ function AdminPageContent() {
                         {activeTab === "management" && (
                             <ManagementTab
                                 posts={tableData.post}
-                                tags={tableData.tag}
-                                authors={tableData.author}
+                                tags={tableData.tag as { id: number; name: string; slug?: string; created_at?: string }[]}
+                                authors={tableData.author as { id: number; name: string; title?: string; avatar_url?: string; created_at?: string }[]}
+                                series={tableData.series as { id: number; name: string; slug: string; description?: string; created_at?: string }[]}
                                 draftPosts={draftPosts}
                                 draftsLoading={draftsLoading}
                                 isLoading={dataLoading}
@@ -405,9 +439,15 @@ function AdminPageContent() {
                                 onAddPost={() => setShowAddPost(true)}
                                 onAddTag={() => setShowAddTag(true)}
                                 onAddAuthor={() => setShowAddAuthor(true)}
+                                onImportPost={(data) => {
+                                    setImportPostData(data);
+                                    setShowAddPost(true);
+                                }}
+                                onShowToast={showToast}
                                 onEditDraft={setEditDraftId}
                                 onEditPost={setEditDraftId}
                                 onEditAuthor={setEditAuthorId}
+                                onEditSeries={setEditSeriesId}
                                 onDeleteConfirm={setDeleteConfirm}
                             />
                         )}

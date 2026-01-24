@@ -1,10 +1,10 @@
 "use client";
 
-import { X, FileText, Tag, Users, AlertTriangle } from "lucide-react";
+import { X, FileText, Tag, Users, Library, AlertTriangle } from "lucide-react";
 import { Button } from "./Button";
 
 interface DeletePreviewData {
-    type: "post" | "tag" | "author";
+    type: "post" | "tag" | "author" | "series";
     id: number;
     name: string;
     // Extra info for preview
@@ -14,6 +14,7 @@ interface DeletePreviewData {
     published?: boolean;
     authorName?: string;
     tags?: string[];
+    relatedPostsCount?: number;
 }
 
 interface DeletePreviewPopupProps {
@@ -27,6 +28,7 @@ export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: 
         post: FileText,
         tag: Tag,
         author: Users,
+        series: Library,
     };
 
     const getTypeLabel = () => {
@@ -34,6 +36,7 @@ export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: 
             case "post": return "Post";
             case "tag": return "Tag";
             case "author": return "Author";
+            case "series": return "Series";
         }
     };
 
@@ -70,7 +73,11 @@ export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: 
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
                     <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
                     <p className="text-sm text-red-400">
-                        You are about to delete this {data.type}. This action cannot be undone.
+                        {data.type === "series" && data.relatedPostsCount && data.relatedPostsCount > 0 ? (
+                            <>This will permanently delete the series and <strong>{data.relatedPostsCount} related post{data.relatedPostsCount !== 1 ? "s" : ""}</strong>. This action cannot be undone.</>
+                        ) : (
+                            <>You are about to delete this {data.type}. This action cannot be undone.</>
+                        )}
                     </p>
                 </div>
 
@@ -130,6 +137,23 @@ export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: 
                                             </span>
                                         ))}
                                     </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {data.type === "series" && (
+                        <>
+                            {data.slug && (
+                                <div className="p-3 rounded-lg bg-foreground/5 border border-(--border-color)">
+                                    <p className="text-sm text-foreground/50 mb-1">Slug</p>
+                                    <p className="text-sm text-foreground font-mono">{data.slug}</p>
+                                </div>
+                            )}
+                            {data.relatedPostsCount !== undefined && (
+                                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30">
+                                    <p className="text-xs text-red-400 mb-1">Posts to be deleted</p>
+                                    <p className="text-lg font-bold text-red-500">{data.relatedPostsCount}</p>
                                 </div>
                             )}
                         </>

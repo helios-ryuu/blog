@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import sql from "@/lib/db";
 
 interface RouteParams {
@@ -34,8 +35,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         } = body;
 
         // Format reading time if it's a number
-        const formattedReadingTime = typeof reading_time === "number" 
-            ? `${reading_time} min read` 
+        const formattedReadingTime = typeof reading_time === "number"
+            ? `${reading_time} min read`
             : reading_time;
 
         // Update the post
@@ -66,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
         // Update tags - delete existing and insert new
         await sql`DELETE FROM post_tags WHERE post_id = ${postId}`;
-        
+
         if (tag_ids && tag_ids.length > 0) {
             for (const tagId of tag_ids) {
                 await sql`
@@ -76,6 +77,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                 `;
             }
         }
+
+        // Revalidate cache
+        revalidateTag("posts", "max");
+        revalidateTag("admin-data", "max");
+        revalidateTag("admin-drafts", "max");
+        if (result[0].slug) {
+            revalidateTag(`post-${result[0].slug}`, "max");
+            revalidatePath(`/post/${result[0].slug}`);
+        }
+        revalidatePath("/");
+        revalidatePath("/blog");
 
         return NextResponse.json({
             success: true,
@@ -122,6 +134,17 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                 );
             }
 
+            // Revalidate cache
+            revalidateTag("posts", "max");
+            revalidateTag("admin-data", "max");
+            revalidateTag("admin-drafts", "max");
+            if (result[0].slug) {
+                revalidateTag(`post-${result[0].slug}`, "max");
+                revalidatePath(`/post/${result[0].slug}`);
+            }
+            revalidatePath("/");
+            revalidatePath("/blog");
+
             return NextResponse.json({
                 success: true,
                 message: "Post published successfully",
@@ -143,6 +166,17 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                     { status: 404 }
                 );
             }
+
+            // Revalidate cache
+            revalidateTag("posts", "max");
+            revalidateTag("admin-data", "max");
+            revalidateTag("admin-drafts", "max");
+            if (result[0].slug) {
+                revalidateTag(`post-${result[0].slug}`, "max");
+                revalidatePath(`/post/${result[0].slug}`);
+            }
+            revalidatePath("/");
+            revalidatePath("/blog");
 
             return NextResponse.json({
                 success: true,
@@ -234,7 +268,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
         // Delete the post
         const result = await sql`
             DELETE FROM post WHERE id = ${postId}
-            RETURNING id
+            RETURNING id, slug
         `;
 
         if (result.length === 0) {
@@ -243,6 +277,16 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
                 { status: 404 }
             );
         }
+
+        // Revalidate cache
+        revalidateTag("posts", "max");
+        revalidateTag("admin-data", "max");
+        revalidateTag("admin-drafts", "max");
+        if (result[0].slug) {
+            revalidateTag(`post-${result[0].slug}`, "max");
+        }
+        revalidatePath("/");
+        revalidatePath("/blog");
 
         return NextResponse.json({
             success: true,

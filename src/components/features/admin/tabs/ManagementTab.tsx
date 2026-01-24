@@ -1,7 +1,7 @@
 "use client";
 
 import { RefreshCw } from "lucide-react";
-import CreateSection from "../sections/CreateSection";
+import CreateSection, { ImportedPostData } from "../sections/CreateSection";
 import DraftPostsSection from "../sections/DraftPostsSection";
 import EditSection from "../sections/EditSection";
 import DeleteSection from "../sections/DeleteSection";
@@ -36,15 +36,17 @@ interface Post {
 }
 
 interface DeleteConfirmData {
-    type: "post" | "tag" | "author";
+    type: "post" | "tag" | "author" | "series";
     id: number;
     name: string;
+    relatedPostsCount?: number;
 }
 
 interface ManagementTabProps {
     posts: Post[];
-    tags: { id: number; name: string }[];
-    authors: Record<string, unknown>[];
+    tags: { id: number; name: string; slug?: string; created_at?: string }[];
+    authors: { id: number; name: string; title?: string; avatar_url?: string; created_at?: string }[];
+    series: { id: number; name: string; slug: string; description?: string; created_at?: string }[];
     draftPosts: DraftPost[];
     draftsLoading: boolean;
     isLoading?: boolean;
@@ -52,9 +54,12 @@ interface ManagementTabProps {
     onAddPost: () => void;
     onAddTag: () => void;
     onAddAuthor: () => void;
+    onImportPost?: (data: ImportedPostData) => void;
+    onShowToast?: (type: "success" | "error" | "info" | "warning", message: string) => void;
     onEditDraft: (id: number) => void;
     onEditPost: (id: number) => void;
     onEditAuthor: (id: number) => void;
+    onEditSeries?: (id: number) => void;
     onDeleteConfirm: (data: DeleteConfirmData) => void;
 }
 
@@ -62,6 +67,7 @@ export default function ManagementTab({
     posts,
     tags,
     authors,
+    series,
     draftPosts,
     draftsLoading,
     isLoading,
@@ -69,9 +75,12 @@ export default function ManagementTab({
     onAddPost,
     onAddTag,
     onAddAuthor,
+    onImportPost,
+    onShowToast,
     onEditDraft,
     onEditPost,
     onEditAuthor,
+    onEditSeries,
     onDeleteConfirm,
 }: ManagementTabProps) {
     return (
@@ -96,6 +105,8 @@ export default function ManagementTab({
                 onAddPost={onAddPost}
                 onAddTag={onAddTag}
                 onAddAuthor={onAddAuthor}
+                onImportPost={onImportPost}
+                onShowToast={onShowToast}
             />
 
             <DraftPostsSection
@@ -108,14 +119,17 @@ export default function ManagementTab({
                 posts={posts}
                 tags={tags}
                 authors={authors}
+                series={series}
                 onEditPost={onEditPost}
                 onEditAuthor={onEditAuthor}
+                onEditSeries={onEditSeries}
             />
 
             <DeleteSection
                 posts={posts}
                 tags={tags}
                 authors={authors}
+                series={series}
                 onDeleteConfirm={onDeleteConfirm}
             />
         </div>

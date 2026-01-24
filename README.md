@@ -4,7 +4,7 @@
 
 <h1 align="center">Helios Blog</h1>
 <p align="center">
-  <strong>Version 1.1.1</strong>
+  <strong>Version 1.2.0</strong>
 </p>
 <p align="center">
   <strong>A modern, high-performance personal blog built with Next.js 16, React 19, and Supabase.</strong>

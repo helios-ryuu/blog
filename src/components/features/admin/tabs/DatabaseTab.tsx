@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Download } from "lucide-react";
 import DataTable from "../common/DataTable";
 import { Button } from "../common/Button";
 
@@ -75,6 +75,23 @@ export default function DatabaseTab({ tableData, isLoading, onRefresh }: Databas
                     { key: "published", label: "Published" },
                     { key: "published_at", label: "Published At" },
                     { key: "created_at", label: "Created At" },
+                    {
+                        key: "actions",
+                        label: "Actions",
+                        render: (_, row) => {
+                            if (!row.slug) return null;
+                            return (
+                                <a
+                                    href={`/api/post/${row.slug}/download?format=md`}
+                                    download={`${row.slug}.md`}
+                                    className="text-accent hover:text-accent/80 transition-colors p-1 rounded-md hover:bg-accent/10 inline-flex"
+                                    title="Download Markdown"
+                                >
+                                    <Download size={16} />
+                                </a>
+                            );
+                        },
+                    },
                 ]}
                 data={tableData.post}
                 isLoading={isLoading}

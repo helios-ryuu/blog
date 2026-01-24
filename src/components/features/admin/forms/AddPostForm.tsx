@@ -26,15 +26,30 @@ interface Series {
     description: string | null;
 }
 
+export interface AddPostInitialData {
+    title?: string;
+    description?: string;
+    content?: string;
+    image_url?: string;
+    level?: string;
+    type?: string;
+    reading_time?: string;
+    author_name?: string;
+    tags?: string[];
+}
+
 interface AddPostFormProps {
     onSuccess: (postId: number, slug: string) => void;
     onClose: () => void;
+    initialData?: AddPostInitialData;
+    onShowToast?: (type: "success" | "error" | "info" | "warning", message: string) => void;
+    existingTitles?: string[];
 }
 
 const LEVELS = ["beginner", "intermediate", "advanced"];
 const TYPES = ["standalone", "series"];
 
-export default function AddPostForm({ onSuccess, onClose }: AddPostFormProps) {
+export default function AddPostForm({ onSuccess, onClose, initialData, onShowToast, existingTitles = [] }: AddPostFormProps) {
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -83,6 +98,10 @@ export default function AddPostForm({ onSuccess, onClose }: AddPostFormProps) {
             errors.description = `Description exceeds ${CHAR_LIMITS.description} characters`;
         }
 
+        if (existingTitles.some(t => t.toLowerCase() === formData.title.trim().toLowerCase())) {
+            errors.title = "This title already exists. Please choose another one.";
+        }
+
         return errors;
     };
 
@@ -126,6 +145,53 @@ export default function AddPostForm({ onSuccess, onClose }: AddPostFormProps) {
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Pre-fill form with imported data
+    // Pre-fill form with imported data
+    useEffect(() => {
+        if (initialData) {
+            setFormData((prev) => {
+                let readingTime = prev.reading_time;
+                if (initialData.reading_time) {
+                    const parsed = parseInt(initialData.reading_time);
+                    if (!isNaN(parsed)) {
+                        readingTime = parsed.toString();
+                    }
+                }
+
+                return {
+                    ...prev,
+                    title: initialData.title || prev.title,
+                    description: initialData.description || prev.description,
+                    content: initialData.content || prev.content,
+                    image_url: initialData.image_url || prev.image_url,
+                    level: LEVELS.includes(initialData.level || "") ? initialData.level! : prev.level,
+                    type: TYPES.includes(initialData.type || "") ? initialData.type! : prev.type,
+                    reading_time: readingTime,
+                };
+            });
+
+            // Map author name to ID
+            if (initialData.author_name && authors.length > 0) {
+                const matchedAuthor = authors.find(
+                    (a) => a.name.toLowerCase() === initialData.author_name?.toLowerCase()
+                );
+                if (matchedAuthor) {
+                    setFormData((prev) => ({ ...prev, author_id: matchedAuthor.id.toString() }));
+                }
+            }
+
+            // Map tags to IDs
+            if (initialData.tags && initialData.tags.length > 0 && tags.length > 0) {
+                const matchedTagIds = tags
+                    .filter((t) =>
+                        initialData.tags?.some((it) => it.toLowerCase() === t.name.toLowerCase())
+                    )
+                    .map((t) => t.id);
+                setSelectedTags(matchedTagIds);
+            }
+        }
+    }, [initialData, authors, tags]);
 
     // Fetch series order info when series is selected
     useEffect(() => {
@@ -213,12 +279,13 @@ export default function AddPostForm({ onSuccess, onClose }: AddPostFormProps) {
         setError("");
 
         if (hasValidationErrors) {
-            setError("Please fix validation errors before creating");
+            const errorMessages = Object.values(validationErrors).join(", ");
+            onShowToast?.("error", errorMessages || "Please fix validation errors before creating");
             return;
         }
 
         if (orderError) {
-            setError(orderError);
+            onShowToast?.("error", orderError);
             return;
         }
 

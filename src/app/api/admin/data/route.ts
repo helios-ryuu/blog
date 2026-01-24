@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidateTag } from "next/cache";
 import sql from "@/lib/db";
 
 // Cached function to fetch table data
@@ -94,7 +94,10 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const data = refresh 
+        if (refresh) {
+            revalidateTag("admin-data", "max");
+        }
+        const data = refresh
             ? await fetchTableDataDirect(table)
             : await fetchTableData(table);
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 const SUPABASE_URL = "https://zqvzvpgvzvpvbbrlhnzs.supabase.co";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -68,7 +68,8 @@ export async function GET(request: NextRequest) {
         let filesWithUrls;
 
         if (refresh) {
-            // Bypass cache - fetch directly
+            // Invalidate cache and fetch directly
+            revalidateTag("bucket", "max");
             const response = await fetch(
                 `${SUPABASE_URL}/storage/v1/object/list/${BUCKET_NAME}`,
                 {

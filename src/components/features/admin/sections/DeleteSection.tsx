@@ -1,19 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, FileText, Tag, Users } from "lucide-react";
+import { Trash2, FileText, Tag, Users, Library } from "lucide-react";
 import { SectionCard } from "../common/SectionCard";
 import { AdvancedPostSelector } from "../common/AdvancedPostSelector";
+import { AdvancedSeriesSelector } from "../common/AdvancedSeriesSelector";
+import { AdvancedTagSelector } from "../common/AdvancedTagSelector";
+import { AdvancedAuthorSelector } from "../common/AdvancedAuthorSelector";
 import DeletePreviewPopup from "../common/DeletePreviewPopup";
 
 interface DeleteConfirmData {
-    type: "post" | "tag" | "author";
+    type: "post" | "tag" | "author" | "series";
     id: number;
     name: string;
+    relatedPostsCount?: number;
 }
 
 interface DeletePreviewData {
-    type: "post" | "tag" | "author";
+    type: "post" | "tag" | "author" | "series";
     id: number;
     name: string;
     slug?: string;
@@ -22,6 +26,7 @@ interface DeletePreviewData {
     published?: boolean;
     authorName?: string;
     tags?: string[];
+    relatedPostsCount?: number;
 }
 
 interface Post {
@@ -33,19 +38,23 @@ interface Post {
     type?: string;
     author_name?: string | null;
     tags?: string[];
-    created_at?: string;
+    series_id?: number;
     [key: string]: unknown;
 }
 
 interface DeleteSectionProps {
     posts: Post[];
-    tags: { id: number; name: string }[];
-    authors: Record<string, unknown>[];
+    tags: { id: number; name: string; slug?: string; created_at?: string }[];
+    authors: { id: number; name: string; title?: string; avatar_url?: string; created_at?: string }[];
+    series: { id: number; name: string; slug: string; description?: string; created_at?: string }[];
     onDeleteConfirm: (data: DeleteConfirmData) => void;
 }
 
-export default function DeleteSection({ posts, tags, authors, onDeleteConfirm }: DeleteSectionProps) {
-    const [showAdvancedSelector, setShowAdvancedSelector] = useState(false);
+export default function DeleteSection({ posts, tags, authors, series, onDeleteConfirm }: DeleteSectionProps) {
+    const [showAdvancedPostSelector, setShowAdvancedPostSelector] = useState(false);
+    const [showAdvancedSeriesSelector, setShowAdvancedSeriesSelector] = useState(false);
+    const [showAdvancedTagSelector, setShowAdvancedTagSelector] = useState(false);
+    const [showAdvancedAuthorSelector, setShowAdvancedAuthorSelector] = useState(false);
     const [previewData, setPreviewData] = useState<DeletePreviewData | null>(null);
 
     const handlePostSelect = (postId: string) => {
@@ -66,8 +75,8 @@ export default function DeleteSection({ posts, tags, authors, onDeleteConfirm }:
         }
     };
 
-    const handleAdvancedSelect = (postId: number) => {
-        setShowAdvancedSelector(false);
+    const handleAdvancedPostSelect = (postId: number) => {
+        setShowAdvancedPostSelector(false);
         const post = posts.find((p) => p.id === postId);
         if (post) {
             setPreviewData({
@@ -80,6 +89,37 @@ export default function DeleteSection({ posts, tags, authors, onDeleteConfirm }:
                 published: post.published,
                 authorName: post.author_name || undefined,
                 tags: post.tags,
+            });
+        }
+    };
+
+    const handleSeriesSelect = async (seriesId: string) => {
+        if (!seriesId) return;
+        const selectedSeries = series.find((s) => String(s.id) === seriesId);
+        if (selectedSeries) {
+            // Get related posts count
+            const relatedPosts = posts.filter((p) => p.series_id === selectedSeries.id);
+            setPreviewData({
+                type: "series",
+                id: selectedSeries.id,
+                name: selectedSeries.name,
+                slug: selectedSeries.slug,
+                relatedPostsCount: relatedPosts.length,
+            });
+        }
+    };
+
+    const handleAdvancedSeriesSelect = (seriesId: number) => {
+        setShowAdvancedSeriesSelector(false);
+        const selectedSeries = series.find((s) => s.id === seriesId);
+        if (selectedSeries) {
+            const relatedPosts = posts.filter((p) => p.series_id === selectedSeries.id);
+            setPreviewData({
+                type: "series",
+                id: selectedSeries.id,
+                name: selectedSeries.name,
+                slug: selectedSeries.slug,
+                relatedPostsCount: relatedPosts.length,
             });
         }
     };
@@ -114,6 +154,7 @@ export default function DeleteSection({ posts, tags, authors, onDeleteConfirm }:
                 type: previewData.type,
                 id: previewData.id,
                 name: previewData.name,
+                relatedPostsCount: previewData.relatedPostsCount,
             });
             setPreviewData(null);
         }
@@ -134,6 +175,11 @@ export default function DeleteSection({ posts, tags, authors, onDeleteConfirm }:
         label: author.name as string,
     }));
 
+    const seriesOptions = series.map((s) => ({
+        value: s.id,
+        label: s.name,
+    }));
+
     return (
         <>
             <div className="bg-red-500/5 p-6 rounded-lg border border-red-500/70">
@@ -142,47 +188,116 @@ export default function DeleteSection({ posts, tags, authors, onDeleteConfirm }:
                     Delete
                 </h2>
                 <div className="grid gap-4 grid-cols-4 auto-rows-fr">
+                    {/* Row 1: Post 3/4 + Author 1/4 */}
                     <SectionCard
                         title="Delete Post"
                         description="Select a post to delete"
-                        className="col-span-4 md:col-span-2"
+                        className="col-span-4 md:col-span-3"
                         colorVariant="red"
                         icon={FileText}
                         selectPlaceholder="Select a post..."
                         selectOptions={postOptions}
                         onSelectChange={handlePostSelect}
-                        onSecondaryButtonClick={() => setShowAdvancedSelector(true)}
-                    />
-                    <SectionCard
-                        title="Delete Tag"
-                        description="Select a tag to delete"
-                        className="col-span-2 md:col-span-1"
-                        colorVariant="red"
-                        icon={Tag}
-                        selectPlaceholder="Select a tag..."
-                        selectOptions={tagOptions}
-                        onSelectChange={handleTagSelect}
+                        onSecondaryButtonClick={() => setShowAdvancedPostSelector(true)}
                     />
                     <SectionCard
                         title="Delete Author"
                         description="Select an author to delete"
-                        className="col-span-2 md:col-span-1"
+                        className="col-span-4 md:col-span-1"
                         colorVariant="red"
                         icon={Users}
                         selectPlaceholder="Select an author..."
                         selectOptions={authorOptions}
                         onSelectChange={handleAuthorSelect}
+                        onSecondaryButtonClick={() => setShowAdvancedAuthorSelector(true)}
+                    />
+                    {/* Row 2: Series 3/4 + Tag 1/4 */}
+                    <SectionCard
+                        title="Delete Series"
+                        description="Delete series and all related posts"
+                        className="col-span-4 md:col-span-3"
+                        colorVariant="red"
+                        icon={Library}
+                        selectPlaceholder="Select a series..."
+                        selectOptions={seriesOptions}
+                        onSelectChange={handleSeriesSelect}
+                        onSecondaryButtonClick={() => setShowAdvancedSeriesSelector(true)}
+                    />
+                    <SectionCard
+                        title="Delete Tag"
+                        description="Select a tag to delete"
+                        className="col-span-4 md:col-span-1"
+                        colorVariant="red"
+                        icon={Tag}
+                        selectPlaceholder="Select a tag..."
+                        selectOptions={tagOptions}
+                        onSelectChange={handleTagSelect}
+                        onSecondaryButtonClick={() => setShowAdvancedTagSelector(true)}
                     />
                 </div>
             </div>
-            
-            {showAdvancedSelector && (
+
+            {showAdvancedPostSelector && (
                 <AdvancedPostSelector
                     posts={posts}
                     tags={tags}
                     title="Select Post to Delete"
-                    onSelect={handleAdvancedSelect}
-                    onClose={() => setShowAdvancedSelector(false)}
+                    onSelect={handleAdvancedPostSelect}
+                    onClose={() => setShowAdvancedPostSelector(false)}
+                />
+            )}
+
+            {showAdvancedSeriesSelector && (
+                <AdvancedSeriesSelector
+                    series={series}
+                    title="Select Series to Delete"
+                    onSelect={(seriesId) => {
+                        setShowAdvancedSeriesSelector(false);
+                        const selectedSeries = series.find((s) => s.id === seriesId);
+                        if (selectedSeries) {
+                            const relatedPosts = posts.filter((p) => p.series_id === selectedSeries.id);
+                            setPreviewData({
+                                type: "series",
+                                id: selectedSeries.id,
+                                name: selectedSeries.name,
+                                slug: selectedSeries.slug,
+                                relatedPostsCount: relatedPosts.length,
+                            });
+                        }
+                    }}
+                    onClose={() => setShowAdvancedSeriesSelector(false)}
+                />
+            )}
+
+            {showAdvancedTagSelector && (
+                <AdvancedTagSelector
+                    tags={tags}
+                    title="Select Tag to Delete"
+                    onSelect={(tagId, tagName) => {
+                        setShowAdvancedTagSelector(false);
+                        setPreviewData({
+                            type: "tag",
+                            id: tagId,
+                            name: tagName,
+                        });
+                    }}
+                    onClose={() => setShowAdvancedTagSelector(false)}
+                />
+            )}
+
+            {showAdvancedAuthorSelector && (
+                <AdvancedAuthorSelector
+                    authors={authors}
+                    title="Select Author to Delete"
+                    onSelect={(authorId, authorName) => {
+                        setShowAdvancedAuthorSelector(false);
+                        setPreviewData({
+                            type: "author",
+                            id: authorId,
+                            name: authorName,
+                        });
+                    }}
+                    onClose={() => setShowAdvancedAuthorSelector(false)}
                 />
             )}
 
