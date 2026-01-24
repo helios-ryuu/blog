@@ -94,11 +94,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 ) : (
                     <>
                         {icon && iconPosition === "left" && (
-                            <span className="flex-shrink-0">{icon}</span>
+                            <span className="shrink-0">{icon}</span>
                         )}
                         {children}
                         {icon && iconPosition === "right" && (
-                            <span className="flex-shrink-0">{icon}</span>
+                            <span className="shrink-0">{icon}</span>
                         )}
                     </>
                 )}

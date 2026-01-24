@@ -6,12 +6,7 @@ export async function POST(request: NextRequest) {
         const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
         const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
 
-        console.log("ENV check:", { 
-            hasUsername: !!ADMIN_USERNAME, 
-            hasPassword: !!ADMIN_PASSWORD,
-            hasSecretKey: !!ADMIN_SECRET_KEY,
-            allEnvKeys: Object.keys(process.env).filter(k => k.includes("ADMIN"))
-        });
+
 
         // Check if credentials are configured
         if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !ADMIN_SECRET_KEY) {

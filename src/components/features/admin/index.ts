@@ -8,7 +8,7 @@ export { FormField, FormInput, FormTextarea, FormSelect, FormSelectDropdown, For
 export { TagSelector } from "./common/TagSelector";
 export { SeriesFields } from "./common/SeriesFields";
 export { PostPreviewPanel } from "./common/PostPreviewPanel";
-export { ToastProvider, useToast } from "./common/Toast";
+export { ToastProvider, useToast } from "../../ui/Toast";
 export { Button } from "./common/Button";
 
 // Tab components

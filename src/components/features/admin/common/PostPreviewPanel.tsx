@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye } from "lucide-react";
+import Image from "next/image";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/../mdx-components";
 
@@ -97,10 +98,14 @@ export function PostPreviewPanel({
                 {/* Featured Image */}
                 {imageUrl && (
                     <div className="mb-6 rounded-lg overflow-hidden border border-(--border-color)">
-                        <img
+                        <Image
                             src={imageUrl}
                             alt={title}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
                             className="w-full h-auto object-cover"
+                            unoptimized
                         />
                     </div>
                 )}

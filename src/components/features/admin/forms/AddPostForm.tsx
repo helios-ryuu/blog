@@ -153,6 +153,7 @@ export default function AddPostForm({ onSuccess, onClose }: AddPostFormProps) {
             }
         };
         fetchSeriesOrders();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.series_id, useNewSeries]);
 
     // Validate series order

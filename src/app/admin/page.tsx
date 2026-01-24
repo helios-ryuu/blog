@@ -14,7 +14,7 @@ import DatabaseTab from "@/components/features/admin/tabs/DatabaseTab";
 import ManagementTab from "@/components/features/admin/tabs/ManagementTab";
 import ConfirmPopup from "@/components/features/admin/common/ConfirmPopup";
 import { Button } from "@/components/features/admin/common/Button";
-import { ToastProvider, useToast } from "@/components/features/admin/common/Toast";
+import { ToastProvider, useToast } from "@/components/ui/Toast";
 
 type TabType = "database" | "bucket" | "management";
 
@@ -103,8 +103,8 @@ function AdminPageContent() {
             const tables = ["author", "post", "tag", "series", "post_tags"];
             const results = await Promise.all(
                 tables.map(async (table) => {
-                    const url = refresh 
-                        ? `/api/admin/data?table=${table}&refresh=true` 
+                    const url = refresh
+                        ? `/api/admin/data?table=${table}&refresh=true`
                         : `/api/admin/data?table=${table}`;
                     const res = await fetch(url);
                     const data = await res.json();
@@ -210,8 +210,8 @@ function AdminPageContent() {
             deleteConfirm.type === "post"
                 ? `/api/admin/posts/${deleteConfirm.id}`
                 : deleteConfirm.type === "tag"
-                ? `/api/admin/tags/${deleteConfirm.id}`
-                : `/api/admin/authors/${deleteConfirm.id}`;
+                    ? `/api/admin/tags/${deleteConfirm.id}`
+                    : `/api/admin/authors/${deleteConfirm.id}`;
 
         const res = await fetch(endpoint, { method: "DELETE" });
         if (res.ok) {
@@ -225,8 +225,8 @@ function AdminPageContent() {
                 deleteConfirm.type === "post"
                     ? "deletePostSelect"
                     : deleteConfirm.type === "tag"
-                    ? "deleteTagSelect"
-                    : "deleteAuthorSelect";
+                        ? "deleteTagSelect"
+                        : "deleteAuthorSelect";
             const select = document.getElementById(selectId) as HTMLSelectElement;
             if (select) select.value = "";
         }
@@ -314,10 +314,9 @@ function AdminPageContent() {
                 <ConfirmPopup
                     variant="danger"
                     title={`Delete ${deleteConfirm.type.charAt(0).toUpperCase() + deleteConfirm.type.slice(1)}`}
-                    message={`Are you sure you want to delete this ${deleteConfirm.type}?${
-                        deleteConfirm.type === "author" ? " Posts by this author will be orphaned." :
+                    message={`Are you sure you want to delete this ${deleteConfirm.type}?${deleteConfirm.type === "author" ? " Posts by this author will be orphaned." :
                         deleteConfirm.type === "tag" ? " All post associations will be removed." : ""
-                    }`}
+                        }`}
                     itemName={deleteConfirm.name}
                     confirmText={`Delete ${deleteConfirm.type.charAt(0).toUpperCase() + deleteConfirm.type.slice(1)}`}
                     onConfirm={handleDelete}
@@ -346,33 +345,30 @@ function AdminPageContent() {
                         <div className="flex gap-1 mb-4 border-b border-(--border-color)">
                             <button
                                 onClick={() => setActiveTab("database")}
-                                className={`flex items-center gap-2 px-3 py-2 border-b-2 transition-colors cursor-pointer text-sm ${
-                                    activeTab === "database"
-                                        ? "border-accent text-accent"
-                                        : "border-transparent text-foreground/50 hover:text-foreground"
-                                }`}
+                                className={`flex items-center gap-2 px-3 py-2 border-b-2 transition-colors cursor-pointer text-sm ${activeTab === "database"
+                                    ? "border-accent text-accent"
+                                    : "border-transparent text-foreground/50 hover:text-foreground"
+                                    }`}
                             >
                                 <Database size={18} />
                                 Database
                             </button>
                             <button
                                 onClick={() => setActiveTab("bucket")}
-                                className={`flex items-center gap-2 px-3 py-2 border-b-2 transition-colors cursor-pointer text-sm ${
-                                    activeTab === "bucket"
-                                        ? "border-accent text-accent"
-                                        : "border-transparent text-foreground/50 hover:text-foreground"
-                                }`}
+                                className={`flex items-center gap-2 px-3 py-2 border-b-2 transition-colors cursor-pointer text-sm ${activeTab === "bucket"
+                                    ? "border-accent text-accent"
+                                    : "border-transparent text-foreground/50 hover:text-foreground"
+                                    }`}
                             >
                                 <FolderOpen size={18} />
                                 Bucket
                             </button>
                             <button
                                 onClick={() => setActiveTab("management")}
-                                className={`flex items-center gap-2 px-3 py-2 border-b-2 transition-colors cursor-pointer text-sm ${
-                                    activeTab === "management"
-                                        ? "border-accent text-accent"
-                                        : "border-transparent text-foreground/50 hover:text-foreground"
-                                }`}
+                                className={`flex items-center gap-2 px-3 py-2 border-b-2 transition-colors cursor-pointer text-sm ${activeTab === "management"
+                                    ? "border-accent text-accent"
+                                    : "border-transparent text-foreground/50 hover:text-foreground"
+                                    }`}
                             >
                                 <FileText size={18} />
                                 Management
@@ -423,7 +419,7 @@ function AdminPageContent() {
                         <h1 className="text-xl font-bold text-foreground/70 mb-4">Admin Access Required</h1>
                         <button
                             onClick={() => setShowLogin(true)}
-                            className="px-6 py-2 bg-accent text-white rounded-md hover:bg-accent/90 transition-colors"
+                            className="px-6 py-2 bg-accent text-white rounded-md hover:bg-accent/90 transition-colors cursor-pointer"
                         >
                             Login
                         </button>

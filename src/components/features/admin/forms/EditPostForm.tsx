@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 import { X, Send, Edit3, Eye } from "lucide-react";
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
@@ -13,7 +12,7 @@ import { TagSelector } from "../common/TagSelector";
 import { SeriesFields } from "../common/SeriesFields";
 import { PostPreviewPanel } from "../common/PostPreviewPanel";
 import { Button } from "../common/Button";
-import { useToast } from "../common/Toast";
+import { useToast } from "../../../ui/Toast";
 
 interface Tag {
     id: number;
@@ -44,7 +43,6 @@ const LEVELS = ["beginner", "intermediate", "advanced"];
 const TYPES = ["standalone", "series"];
 
 export default function EditPostForm({ postId, onClose, onUpdate }: EditPostFormProps) {
-    const router = useRouter();
     const { showToast } = useToast();
     const [formData, setFormData] = useState({
         title: "",
@@ -76,9 +74,6 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
         nextOrder: number;
     } | null>(null);
     const [orderError, setOrderError] = useState("");
-    const [originalSeriesId, setOriginalSeriesId] = useState<number | null>(null);
-    const [originalSeriesOrder, setOriginalSeriesOrder] = useState<number | null>(null);
-    const [postSlug, setPostSlug] = useState("");
     const [showPublishConfirm, setShowPublishConfirm] = useState(false);
     const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
     const [imageUrlValid, setImageUrlValid] = useState(true);
@@ -142,9 +137,64 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
         img.src = formData.image_url;
     }, [formData.image_url]);
 
+    const fetchData = useCallback(async () => {
+        try {
+            const [postRes, tagsRes, authorsRes, seriesRes] = await Promise.all([
+                fetch(`/api/admin/posts/${postId}`),
+                fetch("/api/admin/tags"),
+                fetch("/api/admin/authors"),
+                fetch("/api/admin/series"),
+            ]);
+
+            const [postData, tagsData, authorsData, seriesData] = await Promise.all([
+                postRes.json(),
+                tagsRes.json(),
+                authorsRes.json(),
+                seriesRes.json(),
+            ]);
+
+            if (tagsData.success) setTags(tagsData.data);
+            if (authorsData.success) setAuthors(authorsData.data);
+            if (seriesData.success) setSeriesList(seriesData.data);
+
+            if (postData.success) {
+                const post = postData.data;
+                // Parse reading time to get just the number
+                const readingTimeMatch = post.reading_time?.match(/(\d+)/);
+                const readingTimeNum = readingTimeMatch ? readingTimeMatch[1] : "";
+
+                // Set original values FIRST before setting formData
+                // This ensures the useEffect for series orders has correct original values
+                // Removed unused state setters
+
+                // Handle boolean or truthy values (database may return string or boolean)
+                setIsPublished(post.published === true || post.published === "true");
+                setSelectedTags(post.tags?.map((t: Tag) => t.id) || []);
+
+                setFormData({
+                    title: post.title || "",
+                    description: post.description || "",
+                    content: post.content || "",
+                    image_url: post.image_url || "",
+                    level: post.level || "beginner",
+                    type: post.type || "standalone",
+                    series_id: post.series_id ? post.series_id.toString() : "",
+                    series_order: post.series_order ? post.series_order.toString() : "",
+                    author_id: post.author_id ? post.author_id.toString() : "",
+                    reading_time: readingTimeNum,
+                });
+            }
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            setError("Failed to load post data");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [postId]);
+
     useEffect(() => {
         fetchData();
-    }, [postId]);
+    }, [fetchData]);
 
     // Fetch series order info when series is selected
     useEffect(() => {
@@ -185,61 +235,7 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
         }
     }, [formData.series_order, seriesOrderInfo]);
 
-    const fetchData = async () => {
-        try {
-            const [postRes, tagsRes, authorsRes, seriesRes] = await Promise.all([
-                fetch(`/api/admin/posts/${postId}`),
-                fetch("/api/admin/tags"),
-                fetch("/api/admin/authors"),
-                fetch("/api/admin/series"),
-            ]);
 
-            const [postData, tagsData, authorsData, seriesData] = await Promise.all([
-                postRes.json(),
-                tagsRes.json(),
-                authorsRes.json(),
-                seriesRes.json(),
-            ]);
-
-            if (tagsData.success) setTags(tagsData.data);
-            if (authorsData.success) setAuthors(authorsData.data);
-            if (seriesData.success) setSeriesList(seriesData.data);
-
-            if (postData.success) {
-                const post = postData.data;
-                // Parse reading time to get just the number
-                const readingTimeMatch = post.reading_time?.match(/(\d+)/);
-                const readingTimeNum = readingTimeMatch ? readingTimeMatch[1] : "";
-
-                // Set original values FIRST before setting formData
-                // This ensures the useEffect for series orders has correct original values
-                setOriginalSeriesId(post.series_id);
-                setOriginalSeriesOrder(post.series_order);
-                setPostSlug(post.slug);
-                // Handle boolean or truthy values (database may return string or boolean)
-                setIsPublished(post.published === true || post.published === "true");
-                setSelectedTags(post.tags?.map((t: Tag) => t.id) || []);
-
-                setFormData({
-                    title: post.title || "",
-                    description: post.description || "",
-                    content: post.content || "",
-                    image_url: post.image_url || "",
-                    level: post.level || "beginner",
-                    type: post.type || "standalone",
-                    series_id: post.series_id ? post.series_id.toString() : "",
-                    series_order: post.series_order ? post.series_order.toString() : "",
-                    author_id: post.author_id ? post.author_id.toString() : "",
-                    reading_time: readingTimeNum,
-                });
-            }
-        } catch (err) {
-            console.error("Error fetching data:", err);
-            setError("Failed to load post data");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

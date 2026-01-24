@@ -23,12 +23,10 @@ interface DeletePreviewPopupProps {
 }
 
 export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: DeletePreviewPopupProps) {
-    const getIcon = () => {
-        switch (data.type) {
-            case "post": return FileText;
-            case "tag": return Tag;
-            case "author": return Users;
-        }
+    const icons = {
+        post: FileText,
+        tag: Tag,
+        author: Users,
     };
 
     const getTypeLabel = () => {
@@ -39,14 +37,14 @@ export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: 
         }
     };
 
-    const Icon = getIcon();
+    const Icon = icons[data.type];
 
     return (
-        <div 
+        <div
             className="fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm"
             onClick={onCancel}
         >
-            <div 
+            <div
                 className="relative w-full max-w-md mx-4 p-6 rounded-xl border border-red-500/30 bg-background shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -60,7 +58,7 @@ export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: 
                             Delete {getTypeLabel()}
                         </h3>
                     </div>
-                    <button 
+                    <button
                         onClick={onCancel}
                         className="p-1 text-foreground/50 hover:text-foreground transition-colors cursor-pointer"
                     >
@@ -124,8 +122,8 @@ export default function DeletePreviewPopup({ data, onCancel, onConfirmDelete }: 
                                     <p className="text-xs text-foreground/50 mb-1">Tags</p>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {data.tags.map((tag) => (
-                                            <span 
-                                                key={tag} 
+                                            <span
+                                                key={tag}
                                                 className="px-2 py-0.5 text-xs rounded-full bg-accent/20 text-accent"
                                             >
                                                 {tag}

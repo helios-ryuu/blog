@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Upload, Trash2, Copy, Check, Image, File, RefreshCw, ExternalLink, Pencil, X } from "lucide-react";
+import { Upload, Trash2, Copy, Check, FileImage, File, RefreshCw, ExternalLink, Pencil, X, Search, ArrowUpDown, ArrowDownAz, ArrowUpAz } from "lucide-react";
+import Image from "next/image";
 import { Button } from "../common/Button";
-import { useToast } from "../common/Toast";
+import { SelectDropdown } from "../common/SelectDropdown";
+import { useToast } from "../../../ui/Toast";
 
 interface BucketFile {
     name: string;
@@ -26,6 +28,9 @@ export default function BucketManager() {
     const [selectedFile, setSelectedFile] = useState<BucketFile | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [renameFile, setRenameFile] = useState<{ name: string; newName: string } | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [sortBy, setSortBy] = useState<"date" | "name" | "size">("date");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchFiles = useCallback(async (refresh = false) => {
@@ -171,34 +176,105 @@ export default function BucketManager() {
         return imageExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
     };
 
+    const filteredAndSortedFiles = files
+        .filter((file) => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        .sort((a, b) => {
+            let comparison = 0;
+            switch (sortBy) {
+                case "name":
+                    comparison = a.name.localeCompare(b.name);
+                    break;
+                case "size":
+                    comparison = (a.metadata?.size || 0) - (b.metadata?.size || 0);
+                    break;
+                case "date":
+                default:
+                    comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                    break;
+            }
+            return sortOrder === "asc" ? comparison : -comparison;
+        });
+
     return (
         <div className="space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground">Storage Bucket</h2>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="utility"
-                        size="sm"
-                        onClick={handleRefresh}
-                        disabled={isLoading}
-                        icon={<RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />}
-                    >
-                        Refresh
-                    </Button>
-                    <label className="inline-flex items-center justify-center font-medium rounded-md transition-colors px-3 py-1.5 text-sm gap-1.5 bg-accent text-white hover:bg-accent/90 cursor-pointer">
-                        <Upload size={14} />
-                        {isUploading ? "Uploading..." : "Upload"}
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            onChange={handleUpload}
-                            disabled={isUploading}
-                            className="hidden"
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-foreground">Storage Bucket</h2>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="utility"
+                            size="sm"
+                            onClick={handleRefresh}
+                            disabled={isLoading}
+                            icon={<RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />}
+                        >
+                            Refresh
+                        </Button>
+                        <label className="inline-flex items-center justify-center font-medium rounded-md transition-colors px-3 py-1.5 text-sm gap-1.5 bg-accent text-white hover:bg-accent/90 cursor-pointer">
+                            <Upload size={14} />
+                            {isUploading ? "Uploading..." : "Upload"}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={handleUpload}
+                                disabled={isUploading}
+                                className="hidden"
+                            />
+                        </label>
+                    </div>
+                </div>
+
+                {/* Search & Sort Controls */}
+                <div className="flex items-center gap-3">
+                    <div className="relative flex-1">
+                        <Search
+                            size={16}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40"
                         />
-                    </label>
+                        <input
+                            type="text"
+                            placeholder="Search files..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-9 pr-3 py-2 text-sm rounded-md border border-(--border-color) bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <SelectDropdown
+                            options={[
+                                { value: "date", label: "Date" },
+                                { value: "name", label: "Name" },
+                                { value: "size", label: "Size" },
+                            ]}
+                            value={sortBy}
+                            onChange={(val) => setSortBy(val as "date" | "name" | "size")}
+                            className="w-[140px]"
+                        />
+
+                        <button
+                            onClick={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
+                            className="p-2 rounded-md border border-(--border-color) bg-background text-foreground/70 hover:bg-foreground/5 transition-colors cursor-pointer"
+                            title={sortOrder === "asc" ? "Ascending" : "Descending"}
+                        >
+                            {sortBy === "name" ? (
+                                sortOrder === "asc" ? <ArrowDownAz size={18} /> : <ArrowUpAz size={18} />
+                            ) : (
+                                <ArrowUpDown size={18} className={sortOrder === "asc" ? "rotate-180" : ""} />
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -207,66 +283,76 @@ export default function BucketManager() {
                 <div className="p-8 text-center text-foreground/50">Loading files...</div>
             ) : files.length === 0 ? (
                 <div className="p-8 rounded-lg border border-(--border-color) bg-(--post-card) text-center">
-                    <Image size={48} className="mx-auto mb-4 text-foreground/30" />
+                    <FileImage size={48} className="mx-auto mb-4 text-foreground/30" />
                     <p className="text-foreground/50">No files in bucket</p>
                     <p className="text-sm text-foreground/30 mt-2">Upload images to get started</p>
                 </div>
             ) : (
                 <div className="rounded-lg border border-(--border-color) bg-(--post-card) divide-y divide-(--border-color)">
-                    {files.map((file) => (
-                        <div
-                            key={file.id || file.name}
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => setSelectedFile(file)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
-                                    setSelectedFile(file);
-                                }
-                            }}
-                            className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 transition-colors text-left cursor-pointer"
-                        >
-                            {/* Thumbnail */}
-                            <div className="w-12 h-12 rounded-md overflow-hidden bg-foreground/5 flex-shrink-0 flex items-center justify-center">
-                                {isImage(file) ? (
-                                    <img
-                                        src={file.publicUrl}
-                                        alt={file.name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <File size={20} className="text-foreground/30" />
-                                )}
-                            </div>
-                            
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">
-                                    {file.name}
-                                </p>
-                                <p className="text-xs text-foreground/50">
-                                    {formatFileSize(file.metadata?.size)}
-                                </p>
-                            </div>
-                            
-                            {/* Quick copy button */}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    copyToClipboard(file.publicUrl);
-                                }}
-                                className="p-2 rounded-md hover:bg-foreground/10 transition-colors text-foreground/50 hover:text-foreground cursor-pointer"
-                                title="Copy URL"
-                            >
-                                {copiedUrl === file.publicUrl ? (
-                                    <Check size={16} className="text-green-500" />
-                                ) : (
-                                    <Copy size={16} />
-                                )}
-                            </button>
+                    {filteredAndSortedFiles.length === 0 ? (
+                        <div className="p-8 text-center text-foreground/50">
+                            <p>No files match your search.</p>
                         </div>
-                    ))}
+                    ) : (
+                        filteredAndSortedFiles.map((file) => (
+                            <div
+                                key={file.id || file.name}
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => setSelectedFile(file)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        setSelectedFile(file);
+                                    }
+                                }}
+                                className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 transition-colors text-left cursor-pointer"
+                            >
+                                {/* Thumbnail */}
+                                <div className="w-12 h-12 rounded-md overflow-hidden bg-foreground/5 shrink-0 flex items-center justify-center relative">
+                                    {isImage(file) ? (
+                                        <Image
+                                            src={file.publicUrl}
+                                            alt={file.name}
+                                            fill
+                                            className="object-cover"
+                                            unoptimized
+                                        />
+                                    ) : (
+                                        <File size={20} className="text-foreground/30" />
+                                    )}
+                                </div>
+
+                                {/* Info */}
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-foreground truncate">
+                                        {file.name}
+                                    </p>
+                                    <div className="flex items-center gap-3 text-xs text-foreground/50">
+                                        <span>{formatFileSize(file.metadata?.size)}</span>
+                                        <span>•</span>
+                                        <span>{new Date(file.created_at).toLocaleString()}</span>
+                                    </div>
+                                </div>
+
+                                {/* Quick copy button */}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyToClipboard(file.publicUrl);
+                                    }}
+                                    className="p-2 rounded-md hover:bg-foreground/10 transition-colors text-foreground/50 hover:text-foreground cursor-pointer"
+                                    title="Copy URL"
+                                >
+                                    {copiedUrl === file.publicUrl ? (
+                                        <Check size={16} className="text-green-500" />
+                                    ) : (
+                                        <Copy size={16} />
+                                    )}
+                                </button>
+                            </div>
+                        ))
+                    )}
                 </div>
             )}
 
@@ -302,12 +388,14 @@ export default function BucketManager() {
                         </div>
 
                         {/* Preview */}
-                        <div className="aspect-video bg-foreground/5 rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+                        <div className="aspect-video bg-foreground/5 rounded-lg overflow-hidden mb-4 flex items-center justify-center relative">
                             {isImage(selectedFile) ? (
-                                <img
+                                <Image
                                     src={selectedFile.publicUrl}
                                     alt={selectedFile.name}
-                                    className="max-w-full max-h-full object-contain"
+                                    fill
+                                    className="object-contain"
+                                    unoptimized
                                 />
                             ) : (
                                 <File size={64} className="text-foreground/30" />

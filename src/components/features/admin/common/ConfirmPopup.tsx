@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { X, AlertTriangle, Info, Trash2 } from "lucide-react";
 import { Button } from "./Button";
-import type { ButtonVariant } from "./Button"; // Assuming Button exports this or I can use the string literals
+
+import { LucideIcon } from "lucide-react";
+import { ButtonVariant } from "./Button";
 
 type ConfirmVariant = "info" | "warning" | "danger";
 
@@ -19,10 +21,10 @@ interface ConfirmPopupProps {
 }
 
 const variantConfig: Record<ConfirmVariant, {
-    icon: any;
+    icon: LucideIcon;
     iconBg: string;
     iconColor: string;
-    buttonVariant: "info" | "unpublish" | "danger";
+    buttonVariant: ButtonVariant;
     borderColor: string;
 }> = {
     info: {
@@ -159,7 +161,7 @@ export default function ConfirmPopup({
                         {cancelText}
                     </Button>
                     <Button
-                        variant={config.buttonVariant as any} // Cast because buttonVariant string type might not perfectly match exported type without explicit import
+                        variant={config.buttonVariant}
                         onClick={handleConfirm}
                         disabled={isLoading || !inputMatches}
                         isLoading={isLoading}

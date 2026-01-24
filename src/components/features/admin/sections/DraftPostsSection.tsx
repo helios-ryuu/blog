@@ -1,6 +1,7 @@
 "use client";
 
 import { Edit3, Clock } from "lucide-react";
+import Image from "next/image";
 
 interface DraftPost {
     id: number;
@@ -44,12 +45,14 @@ export default function DraftPostsSection({ draftPosts, isLoading, onEditDraft }
                             onClick={() => onEditDraft(draft.id)}
                             className="p-4 rounded-lg border border-(--border-color) bg-(--post-card) hover:border-accent transition-colors text-left flex items-start gap-4"
                         >
-                            <div className="w-16 h-16 rounded-md overflow-hidden bg-foreground/10 flex-shrink-0">
+                            <div className="w-16 h-16 rounded-md overflow-hidden bg-foreground/10 shrink-0 relative">
                                 {draft.image_url && (
-                                    <img
+                                    <Image
                                         src={draft.image_url}
                                         alt={draft.title}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
+                                        unoptimized
                                     />
                                 )}
                             </div>
@@ -69,11 +72,10 @@ export default function DraftPostsSection({ draftPosts, isLoading, onEditDraft }
                                             {draft.series_name} #{draft.series_order}
                                         </span>
                                     )}
-                                    <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase ${
-                                        draft.level === "beginner" ? "bg-green-500/20 text-green-400" :
+                                    <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase ${draft.level === "beginner" ? "bg-green-500/20 text-green-400" :
                                         draft.level === "intermediate" ? "bg-yellow-500/20 text-yellow-400" :
-                                        "bg-red-500/20 text-red-400"
-                                    }`}>
+                                            "bg-red-500/20 text-red-400"
+                                        }`}>
                                         {draft.level}
                                     </span>
                                 </div>

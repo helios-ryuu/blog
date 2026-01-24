@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { X, Eye, Send } from "lucide-react";
+import Image from "next/image";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
@@ -39,33 +40,33 @@ export default function PostPreview({ postId, onClose }: PostPreviewProps) {
     const [error, setError] = useState("");
 
     useEffect(() => {
+        const fetchPost = async () => {
+            try {
+                const response = await fetch(`/api/admin/posts/${postId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    setPost(data.data);
+                    // Serialize MDX content
+                    const mdx = await serialize(data.data.content, {
+                        mdxOptions: {
+                            remarkPlugins: [remarkGfm],
+                        },
+                    });
+                    setMdxSource(mdx);
+                } else {
+                    setError(data.message || "Failed to load post");
+                }
+            } catch (err) {
+                console.error("Error fetching post:", err);
+                setError("Failed to load post");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         fetchPost();
     }, [postId]);
-
-    const fetchPost = async () => {
-        try {
-            const response = await fetch(`/api/admin/posts/${postId}`);
-            const data = await response.json();
-
-            if (data.success) {
-                setPost(data.data);
-                // Serialize MDX content
-                const mdx = await serialize(data.data.content, {
-                    mdxOptions: {
-                        remarkPlugins: [remarkGfm],
-                    },
-                });
-                setMdxSource(mdx);
-            } else {
-                setError(data.message || "Failed to load post");
-            }
-        } catch (err) {
-            console.error("Error fetching post:", err);
-            setError("Failed to load post");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const handlePublish = async () => {
         if (!post) return;
@@ -199,10 +200,14 @@ export default function PostPreview({ postId, onClose }: PostPreviewProps) {
                     {/* Featured Image */}
                     {post.image_url && (
                         <div className="mb-6 rounded-lg overflow-hidden border border-(--border-color)">
-                            <img
+                            <Image
                                 src={post.image_url}
                                 alt={post.title}
+                                width={0}
+                                height={0}
+                                sizes="100vw"
                                 className="w-full h-auto object-cover"
+                                unoptimized
                             />
                         </div>
                     )}
