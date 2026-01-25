@@ -252,12 +252,7 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
         }
     };
 
-    const handlePreview = async () => {
-        if (showPreview) {
-            setShowPreview(false);
-            return;
-        }
-
+    const generatePreview = useCallback(async () => {
         try {
             const mdx = await serialize(formData.content, {
                 mdxOptions: {
@@ -265,11 +260,21 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
                 },
             });
             setMdxSource(mdx);
-            setShowPreview(true);
+            showToast("success", "Preview updated");
         } catch (err) {
             console.error("Error serializing MDX:", err);
             setError("Failed to generate preview");
         }
+    }, [formData.content]);
+
+    const handlePreview = async () => {
+        if (showPreview) {
+            setShowPreview(false);
+            return;
+        }
+
+        await generatePreview();
+        setShowPreview(true);
     };
 
     const handleSave = async () => {
@@ -714,6 +719,7 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
                             selectedTags={selectedTags}
                             tags={tags}
                             mdxSource={mdxSource}
+                            onRender={generatePreview}
                         />
                     )}
                 </div>

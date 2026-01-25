@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getAllPostsMeta, getAllTags } from "@/lib/posts";
+import { getAllPostsMeta, getAllTags, getAllLevels } from "@/lib/posts";
 import { PostListClient } from "@/components/features/post";
 import MobileSearchBar from "@/components/layout/MobileSearchBar";
 import type { Level } from "@/types/post";
@@ -8,15 +8,14 @@ import { unstable_cache } from "next/cache";
 // Cache post list data
 const getCachedPostsData = unstable_cache(
     async () => {
-        const [posts, allTags] = await Promise.all([
+        const [posts, allTags, allLevelsRaw] = await Promise.all([
             getAllPostsMeta(),
-            getAllTags()
+            getAllTags(),
+            getAllLevels()
         ]);
-        
-        const allLevels = Array.from(
-            new Set(posts.map((post) => post.level).filter(Boolean))
-        ) as Level[];
-        
+
+        const allLevels = allLevelsRaw as Level[];
+
         return { posts, allTags, allLevels };
     },
     ["post-list"],

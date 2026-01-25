@@ -7,6 +7,7 @@ import { toPng } from "html-to-image";
 import Image from "next/image";
 
 import { FadeText, TagList } from "@/components/ui";
+import { useToast } from "@/components/ui/Toast";
 import StatColumns from "../card/StatColumns";
 import type { Level, PostType } from "@/types/post";
 
@@ -44,14 +45,23 @@ export default function ShareQRPopup({
     const cardRef = useRef<HTMLDivElement>(null);
     const [copied, setCopied] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    const { showToast } = useToast();
+
+    const toastShownRef = useRef(false);
 
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose();
         };
         document.addEventListener("keydown", handleEscape);
+
+        if (!toastShownRef.current) {
+            showToast("info", "QR Code ready to share");
+            toastShownRef.current = true;
+        }
+
         return () => document.removeEventListener("keydown", handleEscape);
-    }, [onClose]);
+    }, [onClose, showToast]);
     // Helper to wait for all images to load
     const waitForImages = async (element: HTMLElement): Promise<void> => {
         const images = element.querySelectorAll('img');
@@ -82,8 +92,10 @@ export default function ShareQRPopup({
             link.download = `${title.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-share.png`;
             link.href = dataUrl;
             link.click();
+            showToast("success", "Image downloaded successfully");
         } catch (err) {
             console.error("Failed to generate image:", err);
+            showToast("error", "Failed to download image");
         } finally {
             setDownloading(false);
         }
@@ -104,9 +116,11 @@ export default function ShareQRPopup({
                 new ClipboardItem({ "image/png": blob }),
             ]);
             setCopied(true);
+            showToast("success", "Image copied to clipboard");
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
             console.error("Failed to copy image:", err);
+            showToast("error", "Failed to copy image");
         }
     };
 

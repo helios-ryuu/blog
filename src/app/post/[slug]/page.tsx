@@ -4,7 +4,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "../../../../mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
-import { PostMeta, TableOfContents, RelatedPosts, MobileTocBar, SeriesNavigation, PostShareActions } from "@/components/features/post";
+import { PostMeta, RelatedPosts, MobileTocBar, SeriesNavigation, PostShareActions } from "@/components/features/post";
+import PostSidebarInjector from "@/components/layout/PostSidebarInjector";
 import { TagList } from "@/components/ui";
 import { Metadata } from "next";
 import { unstable_cache } from "next/cache";
@@ -106,14 +107,11 @@ export default async function BlogPostPage({ params }: Props) {
                 <MobileTocBar title={post.title} content={post.content} />
             </div>
 
-            <div className="flex gap-2 px-4 md:px-6 max-w-dvw mx-auto w-full lg:flex-1 lg:min-h-0">
-                {/* Left Sidebar - Table of Contents */}
-                <aside className="hidden lg:block w-62 flex-none h-full overflow-y-auto pt-6 pb-10">
-                    <TableOfContents content={post.content} />
-                </aside>
+            <div className="flex gap-2 px-4 md:px-0 max-w-dvw mx-auto w-full lg:flex-1 lg:min-h-0">
+                <PostSidebarInjector content={post.content} />
 
                 {/* Main Content */}
-                <article className="flex-1 min-w-0 mx-auto lg:h-full lg:overflow-y-auto py-6 md:py-4 md:px-2">
+                <article className="flex-1 min-w-0 mx-auto lg:h-full lg:overflow-y-auto py-6 md:py-4 md:px-6">
                     <header className="mb-8">
                         <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
                         <p className="text-sm mt-2 text-foreground/70">{post.description}</p>

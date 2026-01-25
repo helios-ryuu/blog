@@ -81,30 +81,32 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
     if (headings.length === 0) return null;
 
     return (
-        <nav>
-            <h4 className="text-sm font-semibold text-foreground/70 mb-3 uppercase tracking-wider">
+        <div className="flex flex-col h-full">
+            <h4 className="px-4 text-xs font-semibold text-foreground/70 uppercase tracking-wider border-b border-border/50 py-2 whitespace-nowrap overflow-hidden">
                 On this page
             </h4>
-            <ul className="space-y-2 mr-2">
-                {headings.map(({ id, text, level }) => (
-                    <li key={id}>
-                        <a
-                            href={`#${id}`}
-                            onClick={(e) => handleClick(e, id)}
-                            className={`
-                                block text-xs border-l-2 transition-colors
-                                ${level === 3 ? "pl-6" : "pl-2"}
-                                ${activeId === id
-                                    ? "border-accent text-accent"
-                                    : "border-transparent text-foreground/50 hover:text-foreground hover:border-foreground/30"
-                                }
-                            `}
-                        >
-                            {text}
-                        </a>
-                    </li>
-                ))}
-            </ul>
-        </nav>
+            <nav className="pl-4 overflow-y-auto custom-scrollbar flex-1">
+                <ul className="space-y-1 mr-2 mb-10 mt-2">
+                    {headings.map(({ id, text, level }) => (
+                        <li key={id}>
+                            <a
+                                href={`#${id}`}
+                                onClick={(e) => handleClick(e, id)}
+                                className={`
+                                    block text-xs border-l-2 transition-colors py-0.5
+                                    ${level === 3 ? "pl-7" : "pl-2"}
+                                    ${activeId === id
+                                        ? "border-accent text-accent"
+                                        : "border-transparent text-foreground/50 hover:text-foreground hover:border-foreground/30"
+                                    }
+                                `}
+                            >
+                                {text}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </div>
     );
 }

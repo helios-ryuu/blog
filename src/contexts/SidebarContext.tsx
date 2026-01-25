@@ -7,16 +7,19 @@ interface SidebarContextType {
     setIsPinned: (value: boolean) => void;
     isMobileOpen: boolean;
     setIsMobileOpen: (value: boolean) => void;
+    postContent: string | null;
+    setPostContent: (content: string | null) => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-    const [isPinned, setIsPinned] = useState(false);
+    const [isPinned, setIsPinned] = useState(true);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [postContent, setPostContent] = useState<string | null>(null);
 
     return (
-        <SidebarContext.Provider value={{ isPinned, setIsPinned, isMobileOpen, setIsMobileOpen }}>
+        <SidebarContext.Provider value={{ isPinned, setIsPinned, isMobileOpen, setIsMobileOpen, postContent, setPostContent }}>
             {children}
         </SidebarContext.Provider>
     );

@@ -71,15 +71,15 @@ export async function getPostBySlugFromDb(slug: string): Promise<Post | null> {
 
     const postWithRelations: DbPostWithRelations = {
         ...post,
-        author: post.author_name ? { 
-            id: post.author_id!, 
-            name: post.author_name, 
-            title: post.author_title 
+        author: post.author_name ? {
+            id: post.author_id!,
+            name: post.author_name,
+            title: post.author_title
         } as DbAuthor : null,
-        series: post.series_slug ? { 
-            id: post.series_id!, 
-            slug: post.series_slug, 
-            name: post.series_name! 
+        series: post.series_slug ? {
+            id: post.series_id!,
+            slug: post.series_slug,
+            name: post.series_name!
         } as DbSeries : null,
         tags,
     };
@@ -137,15 +137,15 @@ export async function getAllPostsMetaFromDb(): Promise<PostMeta[]> {
     return postsWithRelations.map(post => {
         const postWithRelations: DbPostWithRelations = {
             ...post,
-            author: post.author_name ? { 
-                id: post.author_id!, 
-                name: post.author_name, 
-                title: post.author_title 
+            author: post.author_name ? {
+                id: post.author_id!,
+                name: post.author_name,
+                title: post.author_title
             } as DbAuthor : null,
-            series: post.series_slug ? { 
-                id: post.series_id!, 
-                slug: post.series_slug, 
-                name: post.series_name! 
+            series: post.series_slug ? {
+                id: post.series_id!,
+                slug: post.series_slug,
+                name: post.series_name!
             } as DbSeries : null,
             tags: (tagsByPostId.get(post.id) || []).map(name => ({ name } as DbTag)),
         };
@@ -165,6 +165,18 @@ export async function getAllTagsFromDb(): Promise<string[]> {
         ORDER BY t.name ASC
     `;
     return tags.map((t) => t.name);
+}
+
+/**
+ * Fetch all unique levels from database
+ */
+export async function getAllLevelsFromDb(): Promise<string[]> {
+    const levels = await sql<{ level: string }[]>`
+        SELECT DISTINCT level FROM post 
+        WHERE published = true 
+        ORDER BY level ASC
+    `;
+    return levels.map((l) => l.level).filter(Boolean);
 }
 
 /**

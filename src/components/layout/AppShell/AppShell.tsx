@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import Banner from "@/components/layout/Banner";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import { ThemeProvider } from "next-themes";
+import { ToastProvider } from "@/components/ui/Toast";
 import { Button } from "@/components/ui";
 import DotGrid from "@/components/ui/DotGrid";
 
@@ -92,7 +93,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return (
         <ThemeProvider attribute="class" defaultTheme="dark" storageKey="helios-blog-theme" enableSystem={false}>
             <SidebarProvider>
-                <AppShellContent>{children}</AppShellContent>
+                <ToastProvider>
+                    <AppShellContent>{children}</AppShellContent>
+                </ToastProvider>
             </SidebarProvider>
         </ThemeProvider>
     );

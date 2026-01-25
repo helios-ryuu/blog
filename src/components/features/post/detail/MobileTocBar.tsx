@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { Menu, X, Slash } from "lucide-react";
+import { Menu, X, Slash, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
 interface TocItem {
@@ -82,24 +82,31 @@ export default function MobileTocBar({ title, content }: MobileTocBarProps) {
     return (
         <div className="z-40 bg-background border-b border-(--border-color)">
             {/* Bar */}
-            <div className="flex items-center px-3.5 gap-2">
+            <div className="flex items-center md:px-2 px-3.5 gap-2">
                 {/* TOC Button - Mobile only */}
                 <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
                     onTouchStart={(e) => e.stopPropagation()}
-                    className="lg:hidden relative z-50 ml-0.5 mr-2 rounded hover:bg-background-hover"
+                    className="lg:hidden relative z-50 ml-0.5 mr-1 rounded hover:bg-background-hover"
                 >
                     {isOpen ? <X strokeWidth={2.5} className="w-5 h-5" /> : <Menu strokeWidth={2.5} className="w-5 h-5 text-(--foreground-dim)" />}
                 </button>
 
                 {/* Breadcrumb - All screens */}
-                <div className="flex items-center gap-1 md:pl-2 text-sm md:text-xs overflow-hidden py-2">
-                    <Link href="/post" className="text-foreground/50 hover:text-foreground shrink-0">
-                        Posts
+                <div className="flex items-center gap-1 text-sm md:text-xs overflow-hidden py-1 text-foreground/50">
+                    <Link
+                        href="/post"
+                        className="flex items-center justify-center rounded-sm w-6 h-6 hover:bg-foreground/10 hover:text-foreground transition-colors shrink-0"
+                        title="Back to Posts"
+                    >
+                        <ChevronLeft className="w-4 h-4" strokeWidth={3} />
+                    </Link>
+                    <Link href="/post" className="hover:text-foreground shrink-0 pl-1">
+                        Post
                     </Link>
                     <Slash className="w-3 h-3 text-foreground/30 shrink-0" />
-                    <span className="text-foreground truncate md:whitespace-normal md:overflow-visible">{title}</span>
+                    <span className="text-foreground truncate md:whitespace-normal md:overflow-visible font-medium">{title}</span>
                 </div>
             </div>
 

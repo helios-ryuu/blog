@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="relative flex-1 flex flex-col items-center justify-center md:pt-35 md:pb-10 py-60 px-6">
+    <div className="relative flex-1 flex flex-col items-center justify-center md:pt-35 md:pb-10 py-40 px-6">
       {/* Content */}
       <div className="relative z-10 max-w-3xl text-center border border-accent/20 rounded-2xl bg-accent/5 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-8 md:px-12 md:py-8">
         {/* Greeting */}

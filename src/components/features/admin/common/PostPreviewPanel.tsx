@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye } from "lucide-react";
+import { Eye, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/../mdx-components";
@@ -26,6 +26,7 @@ interface PostPreviewPanelProps {
     selectedTags: number[];
     tags: Tag[];
     mdxSource: MDXRemoteSerializeResult | null;
+    onRender?: () => void;
 }
 
 export function PostPreviewPanel({
@@ -39,6 +40,7 @@ export function PostPreviewPanel({
     selectedTags,
     tags,
     mdxSource,
+    onRender,
 }: PostPreviewPanelProps) {
     const authorName = authors.find((a) => a.id.toString() === authorId)?.name || "Unknown Author";
 
@@ -50,9 +52,19 @@ export function PostPreviewPanel({
 
     return (
         <div className="w-1/2 h-full flex flex-col bg-background">
-            <div className="flex items-center h-14 gap-2 p-4 border-b border-(--border-color) text-foreground/70">
+            <div className="flex items-center gap-2 py-2 px-6 border-b border-(--border-color) text-foreground/70">
                 <Eye size={20} />
-                <span className="font-medium">Preview</span>
+                <span className="font-medium text-xs">Preview</span>
+                {onRender && (
+                    <button
+                        onClick={onRender}
+                        className="ml-auto flex items-center gap-2 px-3 py-1.5 text-xs font-medium border border-(--border-color) rounded-md text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-all cursor-pointer"
+                        title="Refresh Preview"
+                    >
+                        <RefreshCw size={14} />
+                        Render
+                    </button>
+                )}
             </div>
             <div className="flex-1 overflow-y-auto p-6">
                 {/* Post Header - matching actual post page */}
@@ -115,9 +127,18 @@ export function PostPreviewPanel({
                     {mdxSource ? (
                         <MDXRemote {...mdxSource} components={mdxComponents} />
                     ) : (
-                        <p className="text-foreground/40 italic">
-                            Click &quot;Preview&quot; to render content
-                        </p>
+                        <div className="flex flex-col items-center justify-center p-8 text-foreground/40 italic gap-2">
+                            <p>Click &quot;Preview&quot; to render content</p>
+                            {onRender && (
+                                <button
+                                    onClick={onRender}
+                                    className="flex items-center gap-2 px-3 py-1.5 mt-2 text-sm border border-(--border-color) rounded-md hover:bg-foreground/5 hover:text-foreground transition-colors cursor-pointer not-italic"
+                                >
+                                    <RefreshCw size={14} />
+                                    Render Preview
+                                </button>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

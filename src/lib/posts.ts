@@ -35,6 +35,14 @@ export async function getAllTags(): Promise<string[]> {
 }
 
 /**
+ * Get all unique levels
+ */
+export async function getAllLevels(): Promise<string[]> {
+    const { getAllLevelsFromDb } = await import("./posts-db");
+    return getAllLevelsFromDb();
+}
+
+/**
  * Get posts by tag
  */
 export async function getPostsByTag(tag: string): Promise<PostMeta[]> {

@@ -300,6 +300,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         YouTube,
         Video,
         ...components,
+        // TODO: Add graph element using react-flow-renderer
     };
 }
 
