@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath, revalidateTag } from "next/cache";
 import sql from "@/lib/db";
+import { parseIdParam, errorResponse, successResponse, successMessage, revalidatePostCache } from "@/lib/api-helpers";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -9,29 +9,14 @@ interface RouteParams {
 // PUT - Update a post
 export async function PUT(request: NextRequest, { params }: RouteParams) {
     try {
-        const { id } = await params;
-        const postId = parseInt(id, 10);
-
-        if (isNaN(postId)) {
-            return NextResponse.json(
-                { success: false, message: "Invalid post ID" },
-                { status: 400 }
-            );
-        }
+        const postId = await parseIdParam(params, "post ID");
+        if (postId instanceof NextResponse) return postId;
 
         const body = await request.json();
         const {
-            title,
-            description,
-            content,
-            image_url,
-            level,
-            type,
-            series_id,
-            series_order,
-            author_id,
-            reading_time,
-            tag_ids,
+            title, description, content, image_url,
+            level, type, series_id, series_order,
+            author_id, reading_time, tag_ids,
         } = body;
 
         // Format reading time if it's a number
@@ -39,7 +24,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             ? `${reading_time} min read`
             : reading_time;
 
-        // Update the post
         const result = await sql`
             UPDATE post
             SET 
@@ -58,16 +42,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             RETURNING *
         `;
 
-        if (result.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Post not found" },
-                { status: 404 }
-            );
-        }
+        if (result.length === 0) return errorResponse("Post not found", 404);
 
-        // Update tags - delete existing and insert new
+        // Update tags
         await sql`DELETE FROM post_tags WHERE post_id = ${postId}`;
-
         if (tag_ids && tag_ids.length > 0) {
             for (const tagId of tag_ids) {
                 await sql`
@@ -78,46 +56,22 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             }
         }
 
-        // Revalidate cache
-        revalidateTag("posts", "max");
-        revalidateTag("admin-data", "max");
-        revalidateTag("admin-drafts", "max");
-        if (result[0].slug) {
-            revalidateTag(`post-${result[0].slug}`, "max");
-            revalidatePath(`/post/${result[0].slug}`);
-        }
-        revalidatePath("/");
-        revalidatePath("/blog");
+        revalidatePostCache(result[0].slug);
 
-        return NextResponse.json({
-            success: true,
-            message: "Post updated successfully",
-            data: result[0],
-        });
+        return successResponse(result[0], "Post updated successfully");
     } catch (error) {
         console.error("Error updating post:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to update post" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to update post");
     }
 }
 
-// PATCH - Publish a post
+// PATCH - Publish/unpublish a post
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
     try {
-        const { id } = await params;
-        const postId = parseInt(id, 10);
+        const postId = await parseIdParam(params, "post ID");
+        if (postId instanceof NextResponse) return postId;
 
-        if (isNaN(postId)) {
-            return NextResponse.json(
-                { success: false, message: "Invalid post ID" },
-                { status: 400 }
-            );
-        }
-
-        const body = await request.json();
-        const { action } = body;
+        const { action } = await request.json();
 
         if (action === "publish") {
             const result = await sql`
@@ -126,30 +80,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                 WHERE id = ${postId}
                 RETURNING *
             `;
-
-            if (result.length === 0) {
-                return NextResponse.json(
-                    { success: false, message: "Post not found" },
-                    { status: 404 }
-                );
-            }
-
-            // Revalidate cache
-            revalidateTag("posts", "max");
-            revalidateTag("admin-data", "max");
-            revalidateTag("admin-drafts", "max");
-            if (result[0].slug) {
-                revalidateTag(`post-${result[0].slug}`, "max");
-                revalidatePath(`/post/${result[0].slug}`);
-            }
-            revalidatePath("/");
-            revalidatePath("/blog");
-
-            return NextResponse.json({
-                success: true,
-                message: "Post published successfully",
-                data: result[0],
-            });
+            if (result.length === 0) return errorResponse("Post not found", 404);
+            revalidatePostCache(result[0].slug);
+            return successResponse(result[0], "Post published successfully");
         }
 
         if (action === "unpublish") {
@@ -159,57 +92,23 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                 WHERE id = ${postId}
                 RETURNING *
             `;
-
-            if (result.length === 0) {
-                return NextResponse.json(
-                    { success: false, message: "Post not found" },
-                    { status: 404 }
-                );
-            }
-
-            // Revalidate cache
-            revalidateTag("posts", "max");
-            revalidateTag("admin-data", "max");
-            revalidateTag("admin-drafts", "max");
-            if (result[0].slug) {
-                revalidateTag(`post-${result[0].slug}`, "max");
-                revalidatePath(`/post/${result[0].slug}`);
-            }
-            revalidatePath("/");
-            revalidatePath("/blog");
-
-            return NextResponse.json({
-                success: true,
-                message: "Post unpublished successfully",
-                data: result[0],
-            });
+            if (result.length === 0) return errorResponse("Post not found", 404);
+            revalidatePostCache(result[0].slug);
+            return successResponse(result[0], "Post unpublished successfully");
         }
 
-        return NextResponse.json(
-            { success: false, message: "Invalid action" },
-            { status: 400 }
-        );
+        return errorResponse("Invalid action", 400);
     } catch (error) {
         console.error("Error updating post:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to update post" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to update post");
     }
 }
 
 // GET - Fetch a single post by ID
 export async function GET(_request: NextRequest, { params }: RouteParams) {
     try {
-        const { id } = await params;
-        const postId = parseInt(id, 10);
-
-        if (isNaN(postId)) {
-            return NextResponse.json(
-                { success: false, message: "Invalid post ID" },
-                { status: 400 }
-            );
-        }
+        const postId = await parseIdParam(params, "post ID");
+        if (postId instanceof NextResponse) return postId;
 
         const posts = await sql`
             SELECT p.*, a.name as author_name, s.name as series_name
@@ -219,16 +118,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
             WHERE p.id = ${postId}
         `;
 
-        if (posts.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Post not found" },
-                { status: 404 }
-            );
-        }
+        if (posts.length === 0) return errorResponse("Post not found", 404);
 
-        const post = posts[0];
-
-        // Fetch tags
         const tags = await sql`
             SELECT t.id, t.name, t.slug
             FROM tag t
@@ -236,67 +127,33 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
             WHERE pt.post_id = ${postId}
         `;
 
-        return NextResponse.json({
-            success: true,
-            data: { ...post, tags },
-        });
+        return successResponse({ ...posts[0], tags });
     } catch (error) {
         console.error("Error fetching post:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to fetch post" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to fetch post");
     }
 }
 
 // DELETE - Delete a post
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     try {
-        const { id } = await params;
-        const postId = parseInt(id, 10);
+        const postId = await parseIdParam(params, "post ID");
+        if (postId instanceof NextResponse) return postId;
 
-        if (isNaN(postId)) {
-            return NextResponse.json(
-                { success: false, message: "Invalid post ID" },
-                { status: 400 }
-            );
-        }
-
-        // Delete post tags first
         await sql`DELETE FROM post_tags WHERE post_id = ${postId}`;
 
-        // Delete the post
         const result = await sql`
             DELETE FROM post WHERE id = ${postId}
             RETURNING id, slug
         `;
 
-        if (result.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Post not found" },
-                { status: 404 }
-            );
-        }
+        if (result.length === 0) return errorResponse("Post not found", 404);
 
-        // Revalidate cache
-        revalidateTag("posts", "max");
-        revalidateTag("admin-data", "max");
-        revalidateTag("admin-drafts", "max");
-        if (result[0].slug) {
-            revalidateTag(`post-${result[0].slug}`, "max");
-        }
-        revalidatePath("/");
-        revalidatePath("/blog");
+        revalidatePostCache(result[0].slug);
 
-        return NextResponse.json({
-            success: true,
-            message: "Post deleted successfully",
-        });
+        return successMessage("Post deleted successfully");
     } catch (error) {
         console.error("Error deleting post:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to delete post" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to delete post");
     }
 }

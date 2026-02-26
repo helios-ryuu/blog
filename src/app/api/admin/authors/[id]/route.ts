@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { parseIdParam, errorResponse, successResponse, successMessage } from "@/lib/api-helpers";
 
 // GET - Get an author by ID
 export async function GET(
@@ -7,38 +8,20 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params;
-        const authorId = parseInt(id);
-
-        if (isNaN(authorId)) {
-            return NextResponse.json(
-                { success: false, message: "Invalid author ID" },
-                { status: 400 }
-            );
-        }
+        const authorId = await parseIdParam(params, "author ID");
+        if (authorId instanceof NextResponse) return authorId;
 
         const authors = await sql`
             SELECT id, name, title, avatar_url, github_url, linkedin_url
             FROM author WHERE id = ${authorId}
         `;
 
-        if (authors.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Author not found" },
-                { status: 404 }
-            );
-        }
+        if (authors.length === 0) return errorResponse("Author not found", 404);
 
-        return NextResponse.json({
-            success: true,
-            data: authors[0],
-        });
+        return successResponse(authors[0]);
     } catch (error) {
         console.error("Error fetching author:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to fetch author" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to fetch author");
     }
 }
 
@@ -48,32 +31,13 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params;
-        const authorId = parseInt(id);
+        const authorId = await parseIdParam(params, "author ID");
+        if (authorId instanceof NextResponse) return authorId;
 
-        if (isNaN(authorId)) {
-            return NextResponse.json(
-                { success: false, message: "Invalid author ID" },
-                { status: 400 }
-            );
-        }
+        const { name, title, avatar_url, github_url, linkedin_url } = await request.json();
 
-        const body = await request.json();
-        const { name, title, avatar_url, github_url, linkedin_url } = body;
-
-        if (!name?.trim()) {
-            return NextResponse.json(
-                { success: false, message: "Name is required" },
-                { status: 400 }
-            );
-        }
-
-        if (!title?.trim()) {
-            return NextResponse.json(
-                { success: false, message: "Title is required" },
-                { status: 400 }
-            );
-        }
+        if (!name?.trim()) return errorResponse("Name is required", 400);
+        if (!title?.trim()) return errorResponse("Title is required", 400);
 
         const result = await sql`
             UPDATE author SET
@@ -86,24 +50,12 @@ export async function PUT(
             RETURNING id, name, title
         `;
 
-        if (result.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Author not found" },
-                { status: 404 }
-            );
-        }
+        if (result.length === 0) return errorResponse("Author not found", 404);
 
-        return NextResponse.json({
-            success: true,
-            message: "Author updated successfully",
-            data: result[0],
-        });
+        return successResponse(result[0], "Author updated successfully");
     } catch (error) {
         console.error("Error updating author:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to update author" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to update author");
     }
 }
 
@@ -113,50 +65,20 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params;
-        const authorId = parseInt(id);
+        const authorId = await parseIdParam(params, "author ID");
+        if (authorId instanceof NextResponse) return authorId;
 
-        if (isNaN(authorId)) {
-            return NextResponse.json(
-                { success: false, message: "Invalid author ID" },
-                { status: 400 }
-            );
-        }
-
-        // Check if author has posts
-        const posts = await sql`
-            SELECT id FROM post WHERE author_id = ${authorId} LIMIT 1
-        `;
-
+        const posts = await sql`SELECT id FROM post WHERE author_id = ${authorId} LIMIT 1`;
         if (posts.length > 0) {
-            return NextResponse.json(
-                { success: false, message: "Cannot delete author with existing posts. Please reassign or delete posts first." },
-                { status: 400 }
-            );
+            return errorResponse("Cannot delete author with existing posts. Please reassign or delete posts first.", 400);
         }
 
-        // Delete the author
-        const result = await sql`
-            DELETE FROM author WHERE id = ${authorId}
-            RETURNING id
-        `;
+        const result = await sql`DELETE FROM author WHERE id = ${authorId} RETURNING id`;
+        if (result.length === 0) return errorResponse("Author not found", 404);
 
-        if (result.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Author not found" },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: "Author deleted successfully",
-        });
+        return successMessage("Author deleted successfully");
     } catch (error) {
         console.error("Error deleting author:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to delete author" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to delete author");
     }
 }

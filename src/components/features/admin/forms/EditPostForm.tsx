@@ -13,25 +13,9 @@ import { SeriesFields } from "../common/SeriesFields";
 import { PostPreviewPanel } from "../common/PostPreviewPanel";
 import { Button } from "../common/Button";
 import { useToast } from "../../../ui/Toast";
-
-interface Tag {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Author {
-    id: number;
-    name: string;
-    title: string;
-}
-
-interface Series {
-    id: number;
-    name: string;
-    slug: string;
-    description: string | null;
-}
+import type { AdminTag, AdminAuthor, AdminSeries } from "@/types/admin";
+import { LEVELS, TYPES, CHAR_LIMITS } from "@/types/admin";
+import { usePostFormValidation, type PostFormData } from "@/hooks/usePostFormValidation";
 
 interface EditPostFormProps {
     postId: number;
@@ -39,12 +23,9 @@ interface EditPostFormProps {
     onUpdate: () => void;
 }
 
-const LEVELS = ["beginner", "intermediate", "advanced"];
-const TYPES = ["standalone", "series"];
-
 export default function EditPostForm({ postId, onClose, onUpdate }: EditPostFormProps) {
     const { showToast } = useToast();
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<PostFormData>({
         title: "",
         description: "",
         content: "",
@@ -57,9 +38,9 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
         reading_time: "",
     });
     const [selectedTags, setSelectedTags] = useState<number[]>([]);
-    const [tags, setTags] = useState<Tag[]>([]);
-    const [authors, setAuthors] = useState<Author[]>([]);
-    const [seriesList, setSeriesList] = useState<Series[]>([]);
+    const [tags, setTags] = useState<AdminTag[]>([]);
+    const [authors, setAuthors] = useState<AdminAuthor[]>([]);
+    const [seriesList, setSeriesList] = useState<AdminSeries[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isPublishing, setIsPublishing] = useState(false);
@@ -76,66 +57,11 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
     const [orderError, setOrderError] = useState("");
     const [showPublishConfirm, setShowPublishConfirm] = useState(false);
     const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
-    const [imageUrlValid, setImageUrlValid] = useState(true);
 
-    // Character limits
-    const CHAR_LIMITS = {
-        title: 60,
-        description: 200,
-        content: 20000,
-    };
+    const { validationErrors, validationWarnings, hasValidationErrors, imageUrlValid } =
+        usePostFormValidation(formData);
 
-    // Hard errors (block submit)
-    const getValidationErrors = () => {
-        const errors: Record<string, string> = {};
 
-        if (formData.title.length > CHAR_LIMITS.title) {
-            errors.title = `Title exceeds ${CHAR_LIMITS.title} characters`;
-        }
-
-        if (formData.description.length > CHAR_LIMITS.description) {
-            errors.description = `Description exceeds ${CHAR_LIMITS.description} characters`;
-        }
-
-        return errors;
-    };
-
-    // Soft warnings (can proceed)
-    const getValidationWarnings = () => {
-        const warnings: Record<string, string> = {};
-
-        if (formData.content.length > CHAR_LIMITS.content) {
-            warnings.content = `Content exceeds ${CHAR_LIMITS.content} characters`;
-        }
-
-        const readingTime = parseInt(formData.reading_time);
-        if (readingTime > 30) {
-            warnings.reading_time = "Consider splitting into series or reducing content length";
-        }
-
-        if (!imageUrlValid && formData.image_url) {
-            warnings.image_url = "Image URL may be invalid or inaccessible";
-        }
-
-        return warnings;
-    };
-
-    const validationErrors = getValidationErrors();
-    const validationWarnings = getValidationWarnings();
-    const hasValidationErrors = Object.keys(validationErrors).length > 0;
-
-    // Check image URL validity
-    useEffect(() => {
-        if (!formData.image_url) {
-            setImageUrlValid(true);
-            return;
-        }
-
-        const img = new Image();
-        img.onload = () => setImageUrlValid(true);
-        img.onerror = () => setImageUrlValid(false);
-        img.src = formData.image_url;
-    }, [formData.image_url]);
 
     const fetchData = useCallback(async () => {
         try {
@@ -169,7 +95,7 @@ export default function EditPostForm({ postId, onClose, onUpdate }: EditPostForm
 
                 // Handle boolean or truthy values (database may return string or boolean)
                 setIsPublished(post.published === true || post.published === "true");
-                setSelectedTags(post.tags?.map((t: Tag) => t.id) || []);
+                setSelectedTags(post.tags?.map((t: AdminTag) => t.id) || []);
 
                 setFormData({
                     title: post.title || "",

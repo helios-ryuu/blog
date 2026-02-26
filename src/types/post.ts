@@ -25,3 +25,21 @@ export interface PostMeta extends PostFrontmatter {
     slug: string;
     readingTime: string;
 }
+
+/** Shared props for PostCard and PostListItem */
+export interface PostItemProps {
+    slug: string;
+    image?: string;
+    author?: string;
+    authorTitle?: string;
+    title: string;
+    description: string;
+    date?: string;
+    readingTime?: string;
+    level?: Level;
+    tags?: string[];
+    type?: PostType;
+    seriesOrder?: number;
+    onClick?: () => void;
+    className?: string;
+}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, AlertTriangle, Info, Trash2 } from "lucide-react";
 import { Button } from "./Button";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 import { LucideIcon } from "lucide-react";
 import { ButtonVariant } from "./Button";
@@ -16,8 +17,10 @@ interface ConfirmPopupProps {
     itemName?: string; // For danger variant - user must type this to confirm
     confirmText?: string;
     cancelText?: string;
+    icon?: LucideIcon; // Override default variant icon
     onConfirm: () => Promise<void> | void;
     onCancel: () => void;
+    children?: React.ReactNode; // Custom content between message and confirmation input
 }
 
 const variantConfig: Record<ConfirmVariant, {
@@ -57,27 +60,23 @@ export default function ConfirmPopup({
     itemName,
     confirmText = "Confirm",
     cancelText = "Cancel",
+    icon: CustomIcon,
     onConfirm,
     onCancel,
+    children,
 }: ConfirmPopupProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [confirmInput, setConfirmInput] = useState("");
 
     const config = variantConfig[variant];
-    const Icon = config.icon;
+    const Icon = CustomIcon || config.icon;
 
     // For danger variant, require typing the item name
     const requiresInput = variant === "danger" && itemName;
     const inputMatches = !requiresInput || confirmInput === itemName;
 
-    // Close on Escape key
-    useEffect(() => {
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && !isLoading) onCancel();
-        };
-        document.addEventListener("keydown", handleEscape);
-        return () => document.removeEventListener("keydown", handleEscape);
-    }, [onCancel, isLoading]);
+    // Close on Escape key (disabled during loading)
+    useEscapeKey(onCancel, !isLoading);
 
     const handleConfirm = async () => {
         if (!inputMatches) return;
@@ -124,6 +123,9 @@ export default function ConfirmPopup({
                         {itemName}
                     </p>
                 )}
+
+                {/* Custom preview content */}
+                {children && <div className="mb-4">{children}</div>}
 
                 {/* Danger confirmation input */}
                 {requiresInput && (

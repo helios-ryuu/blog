@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { Trash2, FileText, Tag, Users, Library } from "lucide-react";
 import { SectionCard } from "../common/SectionCard";
-import { AdvancedPostSelector } from "../common/AdvancedPostSelector";
-import { AdvancedSeriesSelector } from "../common/AdvancedSeriesSelector";
-import { AdvancedTagSelector } from "../common/AdvancedTagSelector";
-import { AdvancedAuthorSelector } from "../common/AdvancedAuthorSelector";
+import { AdvancedSelector } from "../common/AdvancedSelector";
 import DeletePreviewPopup from "../common/DeletePreviewPopup";
+import type { AdminPost, AdminTag, AdminAuthor, AdminSeries } from "@/types/admin";
+import { LEVELS, TYPES, STATUSES } from "@/types/admin";
 
 interface DeleteConfirmData {
     type: "post" | "tag" | "author" | "series";
@@ -29,123 +28,41 @@ interface DeletePreviewData {
     relatedPostsCount?: number;
 }
 
-interface Post {
-    id: number;
-    title: string;
-    slug?: string;
-    published?: boolean;
-    level?: string;
-    type?: string;
-    author_name?: string | null;
-    tags?: string[];
-    series_id?: number;
-    [key: string]: unknown;
-}
-
 interface DeleteSectionProps {
-    posts: Post[];
-    tags: { id: number; name: string; slug?: string; created_at?: string }[];
-    authors: { id: number; name: string; title?: string; avatar_url?: string; created_at?: string }[];
-    series: { id: number; name: string; slug: string; description?: string; created_at?: string }[];
+    posts: AdminPost[];
+    tags: AdminTag[];
+    authors: AdminAuthor[];
+    series: AdminSeries[];
     onDeleteConfirm: (data: DeleteConfirmData) => void;
 }
 
 export default function DeleteSection({ posts, tags, authors, series, onDeleteConfirm }: DeleteSectionProps) {
-    const [showAdvancedPostSelector, setShowAdvancedPostSelector] = useState(false);
-    const [showAdvancedSeriesSelector, setShowAdvancedSeriesSelector] = useState(false);
-    const [showAdvancedTagSelector, setShowAdvancedTagSelector] = useState(false);
-    const [showAdvancedAuthorSelector, setShowAdvancedAuthorSelector] = useState(false);
+    const [activeSelector, setActiveSelector] = useState<"post" | "series" | "tag" | "author" | null>(null);
     const [previewData, setPreviewData] = useState<DeletePreviewData | null>(null);
 
-    const handlePostSelect = (postId: string) => {
-        if (!postId) return;
-        const post = posts.find((p) => String(p.id) === postId);
-        if (post) {
-            setPreviewData({
-                type: "post",
-                id: post.id,
-                name: post.title,
-                slug: post.slug,
-                level: post.level,
-                postType: post.type,
-                published: post.published,
-                authorName: post.author_name || undefined,
-                tags: post.tags,
-            });
-        }
+    const previewPost = (post: AdminPost) => {
+        setPreviewData({
+            type: "post",
+            id: post.id,
+            name: post.title,
+            slug: post.slug,
+            level: post.level,
+            postType: post.type,
+            published: post.published,
+            authorName: post.author_name || undefined,
+            tags: post.tags,
+        });
     };
 
-    const handleAdvancedPostSelect = (postId: number) => {
-        setShowAdvancedPostSelector(false);
-        const post = posts.find((p) => p.id === postId);
-        if (post) {
-            setPreviewData({
-                type: "post",
-                id: post.id,
-                name: post.title,
-                slug: post.slug,
-                level: post.level,
-                postType: post.type,
-                published: post.published,
-                authorName: post.author_name || undefined,
-                tags: post.tags,
-            });
-        }
-    };
-
-    const handleSeriesSelect = async (seriesId: string) => {
-        if (!seriesId) return;
-        const selectedSeries = series.find((s) => String(s.id) === seriesId);
-        if (selectedSeries) {
-            // Get related posts count
-            const relatedPosts = posts.filter((p) => p.series_id === selectedSeries.id);
-            setPreviewData({
-                type: "series",
-                id: selectedSeries.id,
-                name: selectedSeries.name,
-                slug: selectedSeries.slug,
-                relatedPostsCount: relatedPosts.length,
-            });
-        }
-    };
-
-    const handleAdvancedSeriesSelect = (seriesId: number) => {
-        setShowAdvancedSeriesSelector(false);
-        const selectedSeries = series.find((s) => s.id === seriesId);
-        if (selectedSeries) {
-            const relatedPosts = posts.filter((p) => p.series_id === selectedSeries.id);
-            setPreviewData({
-                type: "series",
-                id: selectedSeries.id,
-                name: selectedSeries.name,
-                slug: selectedSeries.slug,
-                relatedPostsCount: relatedPosts.length,
-            });
-        }
-    };
-
-    const handleTagSelect = (tagId: string) => {
-        if (!tagId) return;
-        const tag = tags.find((t) => String(t.id) === tagId);
-        if (tag) {
-            setPreviewData({
-                type: "tag",
-                id: tag.id,
-                name: tag.name,
-            });
-        }
-    };
-
-    const handleAuthorSelect = (authorId: string) => {
-        if (!authorId) return;
-        const author = authors.find((a) => String(a.id) === authorId);
-        if (author) {
-            setPreviewData({
-                type: "author",
-                id: author.id as number,
-                name: author.name as string,
-            });
-        }
+    const previewSeries = (s: AdminSeries) => {
+        const relatedPosts = posts.filter((p) => p.series_id === s.id);
+        setPreviewData({
+            type: "series",
+            id: s.id,
+            name: s.name,
+            slug: s.slug,
+            relatedPostsCount: relatedPosts.length,
+        });
     };
 
     const handleConfirmDelete = () => {
@@ -160,25 +77,10 @@ export default function DeleteSection({ posts, tags, authors, series, onDeleteCo
         }
     };
 
-    const postOptions = posts.map((post) => ({
-        value: post.id as number,
-        label: post.title as string,
-    }));
-
-    const tagOptions = tags.map((tag) => ({
-        value: tag.id as number,
-        label: tag.name as string,
-    }));
-
-    const authorOptions = authors.map((author) => ({
-        value: author.id as number,
-        label: author.name as string,
-    }));
-
-    const seriesOptions = series.map((s) => ({
-        value: s.id,
-        label: s.name,
-    }));
+    const postOptions = posts.map((post) => ({ value: post.id as number, label: post.title as string }));
+    const tagOptions = tags.map((tag) => ({ value: tag.id as number, label: tag.name as string }));
+    const authorOptions = authors.map((author) => ({ value: author.id as number, label: author.name as string }));
+    const seriesOptions = series.map((s) => ({ value: s.id, label: s.name }));
 
     return (
         <>
@@ -188,7 +90,6 @@ export default function DeleteSection({ posts, tags, authors, series, onDeleteCo
                     Delete
                 </h2>
                 <div className="grid gap-4 grid-cols-4 auto-rows-fr">
-                    {/* Row 1: Post 3/4 + Author 1/4 */}
                     <SectionCard
                         title="Delete Post"
                         description="Select a post to delete"
@@ -197,8 +98,11 @@ export default function DeleteSection({ posts, tags, authors, series, onDeleteCo
                         icon={FileText}
                         selectPlaceholder="Select a post..."
                         selectOptions={postOptions}
-                        onSelectChange={handlePostSelect}
-                        onSecondaryButtonClick={() => setShowAdvancedPostSelector(true)}
+                        onSelectChange={(postId) => {
+                            const post = posts.find((p) => String(p.id) === postId);
+                            if (post) previewPost(post);
+                        }}
+                        onSecondaryButtonClick={() => setActiveSelector("post")}
                     />
                     <SectionCard
                         title="Delete Author"
@@ -208,10 +112,12 @@ export default function DeleteSection({ posts, tags, authors, series, onDeleteCo
                         icon={Users}
                         selectPlaceholder="Select an author..."
                         selectOptions={authorOptions}
-                        onSelectChange={handleAuthorSelect}
-                        onSecondaryButtonClick={() => setShowAdvancedAuthorSelector(true)}
+                        onSelectChange={(authorId) => {
+                            const author = authors.find((a) => String(a.id) === authorId);
+                            if (author) setPreviewData({ type: "author", id: author.id, name: author.name });
+                        }}
+                        onSecondaryButtonClick={() => setActiveSelector("author")}
                     />
-                    {/* Row 2: Series 3/4 + Tag 1/4 */}
                     <SectionCard
                         title="Delete Series"
                         description="Delete series and all related posts"
@@ -220,8 +126,11 @@ export default function DeleteSection({ posts, tags, authors, series, onDeleteCo
                         icon={Library}
                         selectPlaceholder="Select a series..."
                         selectOptions={seriesOptions}
-                        onSelectChange={handleSeriesSelect}
-                        onSecondaryButtonClick={() => setShowAdvancedSeriesSelector(true)}
+                        onSelectChange={(seriesId) => {
+                            const s = series.find((x) => String(x.id) === seriesId);
+                            if (s) previewSeries(s);
+                        }}
+                        onSecondaryButtonClick={() => setActiveSelector("series")}
                     />
                     <SectionCard
                         title="Delete Tag"
@@ -231,73 +140,107 @@ export default function DeleteSection({ posts, tags, authors, series, onDeleteCo
                         icon={Tag}
                         selectPlaceholder="Select a tag..."
                         selectOptions={tagOptions}
-                        onSelectChange={handleTagSelect}
-                        onSecondaryButtonClick={() => setShowAdvancedTagSelector(true)}
+                        onSelectChange={(tagId) => {
+                            const tag = tags.find((t) => String(t.id) === tagId);
+                            if (tag) setPreviewData({ type: "tag", id: tag.id, name: tag.name });
+                        }}
+                        onSecondaryButtonClick={() => setActiveSelector("tag")}
                     />
                 </div>
             </div>
 
-            {showAdvancedPostSelector && (
-                <AdvancedPostSelector
-                    posts={posts}
-                    tags={tags}
+            {/* Generic AdvancedSelector modals */}
+            {activeSelector === "post" && (
+                <AdvancedSelector<AdminPost>
+                    items={posts}
                     title="Select Post to Delete"
-                    onSelect={handleAdvancedPostSelect}
-                    onClose={() => setShowAdvancedPostSelector(false)}
-                />
-            )}
-
-            {showAdvancedSeriesSelector && (
-                <AdvancedSeriesSelector
-                    series={series}
-                    title="Select Series to Delete"
-                    onSelect={(seriesId) => {
-                        setShowAdvancedSeriesSelector(false);
-                        const selectedSeries = series.find((s) => s.id === seriesId);
-                        if (selectedSeries) {
-                            const relatedPosts = posts.filter((p) => p.series_id === selectedSeries.id);
-                            setPreviewData({
-                                type: "series",
-                                id: selectedSeries.id,
-                                name: selectedSeries.name,
-                                slug: selectedSeries.slug,
-                                relatedPostsCount: relatedPosts.length,
-                            });
+                    icon={FileText}
+                    getKey={(p) => p.id}
+                    searchFn={(p, q) => p.title.toLowerCase().includes(q.toLowerCase())}
+                    getDate={(p) => p.created_at}
+                    filters={[
+                        { key: "level", placeholder: "Level", options: [{ value: "", label: "All Levels" }, ...LEVELS.map((l) => ({ value: l, label: l.charAt(0).toUpperCase() + l.slice(1) }))] },
+                        { key: "type", placeholder: "Type", options: [{ value: "", label: "All Types" }, ...TYPES.map((t) => ({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) }))] },
+                        { key: "status", placeholder: "Status", options: STATUSES.map((s) => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) })) },
+                        { key: "tag", placeholder: "Tag", options: [{ value: "", label: "All Tags" }, ...tags.map((t) => ({ value: t.name, label: t.name }))] },
+                    ]}
+                    filterFn={(p, fv) => {
+                        if (fv.level && p.level !== fv.level) return false;
+                        if (fv.type && p.type !== fv.type) return false;
+                        if (fv.status && fv.status !== "all") {
+                            if (fv.status === "published" && !p.published) return false;
+                            if (fv.status === "draft" && p.published) return false;
                         }
+                        if (fv.tag && !p.tags?.includes(fv.tag)) return false;
+                        return true;
                     }}
-                    onClose={() => setShowAdvancedSeriesSelector(false)}
+                    renderItem={(p) => (
+                        <div className="flex items-center gap-3">
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${p.published ? "bg-green-500/20 text-green-500" : "bg-yellow-500/20 text-yellow-500"}`}>
+                                {p.published ? "PUB" : "DFT"}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
+                                <p className="text-xs text-foreground/50 capitalize">{p.level} • {p.type}</p>
+                            </div>
+                        </div>
+                    )}
+                    onSelect={(p) => { setActiveSelector(null); previewPost(p); }}
+                    onClose={() => setActiveSelector(null)}
                 />
             )}
 
-            {showAdvancedTagSelector && (
-                <AdvancedTagSelector
-                    tags={tags}
+            {activeSelector === "series" && (
+                <AdvancedSelector<AdminSeries>
+                    items={series}
+                    title="Select Series to Delete"
+                    icon={Library}
+                    getKey={(s) => s.id}
+                    searchFn={(s, q) => s.name.toLowerCase().includes(q.toLowerCase())}
+                    getDate={(s) => s.created_at}
+                    renderItem={(s) => (
+                        <div>
+                            <p className="text-sm font-medium text-foreground">{s.name}</p>
+                            <p className="text-xs text-foreground/50 font-mono">{s.slug}</p>
+                        </div>
+                    )}
+                    onSelect={(s) => { setActiveSelector(null); previewSeries(s); }}
+                    onClose={() => setActiveSelector(null)}
+                />
+            )}
+
+            {activeSelector === "tag" && (
+                <AdvancedSelector<AdminTag>
+                    items={tags}
                     title="Select Tag to Delete"
-                    onSelect={(tagId, tagName) => {
-                        setShowAdvancedTagSelector(false);
-                        setPreviewData({
-                            type: "tag",
-                            id: tagId,
-                            name: tagName,
-                        });
-                    }}
-                    onClose={() => setShowAdvancedTagSelector(false)}
+                    icon={Tag}
+                    getKey={(t) => t.id}
+                    searchFn={(t, q) => t.name.toLowerCase().includes(q.toLowerCase())}
+                    getDate={(t) => t.created_at}
+                    renderItem={(t) => (
+                        <p className="text-sm font-medium text-foreground">{t.name}</p>
+                    )}
+                    onSelect={(t) => { setActiveSelector(null); setPreviewData({ type: "tag", id: t.id, name: t.name }); }}
+                    onClose={() => setActiveSelector(null)}
                 />
             )}
 
-            {showAdvancedAuthorSelector && (
-                <AdvancedAuthorSelector
-                    authors={authors}
+            {activeSelector === "author" && (
+                <AdvancedSelector<AdminAuthor>
+                    items={authors}
                     title="Select Author to Delete"
-                    onSelect={(authorId, authorName) => {
-                        setShowAdvancedAuthorSelector(false);
-                        setPreviewData({
-                            type: "author",
-                            id: authorId,
-                            name: authorName,
-                        });
-                    }}
-                    onClose={() => setShowAdvancedAuthorSelector(false)}
+                    icon={Users}
+                    getKey={(a) => a.id}
+                    searchFn={(a, q) => a.name.toLowerCase().includes(q.toLowerCase())}
+                    getDate={(a) => a.created_at}
+                    renderItem={(a) => (
+                        <div>
+                            <p className="text-sm font-medium text-foreground">{a.name}</p>
+                            {a.title && <p className="text-xs text-foreground/50">{a.title}</p>}
+                        </div>
+                    )}
+                    onSelect={(a) => { setActiveSelector(null); setPreviewData({ type: "author", id: a.id, name: a.name }); }}
+                    onClose={() => setActiveSelector(null)}
                 />
             )}
 

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Upload, Trash2, Copy, Check, FileImage, File, RefreshCw, ExternalLink, Pencil, X, Search, ArrowUpDown, ArrowDownAz, ArrowUpAz } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../common/Button";
-import { SelectDropdown } from "../common/SelectDropdown";
+import { FormSelectDropdown } from "../common/FormFields";
 import { useToast } from "../../../ui/Toast";
 
 interface BucketFile {
@@ -252,14 +252,14 @@ export default function BucketManager() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <SelectDropdown
+                        <FormSelectDropdown
                             options={[
                                 { value: "date", label: "Date" },
                                 { value: "name", label: "Name" },
                                 { value: "size", label: "Size" },
                             ]}
                             value={sortBy}
-                            onChange={(val) => setSortBy(val as "date" | "name" | "size")}
+                            onChange={(val: string) => setSortBy(val as "date" | "name" | "size")}
                             className="w-[140px]"
                         />
 

@@ -1,28 +1,12 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { TagList } from "@/components/ui";
 import PostCardContextMenu from "./PostCardContextMenu";
-import ShareQRPopup from "../share/ShareQRPopup";
-import type { Level, PostType } from "@/types/post";
-
-interface PostListItemProps {
-    slug: string;
-    image?: string;
-    author?: string;
-    authorTitle?: string;
-    title: string;
-    description: string;
-    date?: string;
-    readingTime?: string;
-    level?: Level;
-    tags?: string[];
-    type?: PostType;
-    seriesOrder?: number;
-    onClick?: () => void;
-    className?: string;
-}
+import ShareQRPopup from "../share/PostShareQRPopup";
+import { usePostShareInteractions } from "@/hooks/usePostShareInteractions";
+import type { PostItemProps } from "@/types/post";
 
 export default function PostListItem({
     slug,
@@ -39,100 +23,13 @@ export default function PostListItem({
     seriesOrder,
     onClick,
     className = ""
-}: PostListItemProps) {
+}: PostItemProps) {
     const router = useRouter();
-    const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
-    const [showQRPopup, setShowQRPopup] = useState(false);
-    const [linkCopied, setLinkCopied] = useState(false);
-    const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-    const touchMoved = useRef(false);
-
-    const postUrl = typeof window !== "undefined"
-        ? `${window.location.origin}/post/${slug}`
-        : `/post/${slug}`;
-
-    const handleContextMenu = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setContextMenu({ x: e.clientX, y: e.clientY });
-    }, []);
-
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        touchMoved.current = false;
-        longPressTimer.current = setTimeout(() => {
-            if (!touchMoved.current) {
-                const touch = e.touches[0];
-                setContextMenu({ x: touch.clientX, y: touch.clientY });
-            }
-        }, 500);
-    }, []);
-
-    const handleTouchMove = useCallback(() => {
-        touchMoved.current = true;
-        if (longPressTimer.current) {
-            clearTimeout(longPressTimer.current);
-        }
-    }, []);
-
-    const handleTouchEnd = useCallback(() => {
-        if (longPressTimer.current) {
-            clearTimeout(longPressTimer.current);
-        }
-    }, []);
-
-    const handleCloseMenu = useCallback(() => {
-        setContextMenu(null);
-        setLinkCopied(false);
-    }, []);
-
-    const handleCopyLink = useCallback(async () => {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(postUrl);
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = postUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.left = '-9999px';
-                textarea.style.top = '-9999px';
-                textarea.style.opacity = '0';
-                textarea.style.pointerEvents = 'none';
-                textarea.style.fontSize = '16px';
-                textarea.setAttribute('readonly', '');
-                document.body.appendChild(textarea);
-                textarea.select();
-                textarea.setSelectionRange(0, textarea.value.length);
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-            }
-
-            setLinkCopied(true);
-            setTimeout(() => {
-                setContextMenu(null);
-                setLinkCopied(false);
-            }, 1000);
-        } catch (err) {
-            console.error("Failed to copy link:", err);
-        }
-    }, [postUrl]);
-
-    const handleOpenQRPopup = useCallback(() => {
-        setContextMenu(null);
-        setShowQRPopup(true);
-    }, []);
-
-    const handleDownloadMarkdown = useCallback(() => {
-        const downloadUrl = `/api/post/${slug}/download?format=md`;
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.download = `${slug}.md`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setContextMenu(null);
-    }, [slug]);
-
-
+    const {
+        contextMenu, showQRPopup, linkCopied, postUrl,
+        handleContextMenu, handleTouchStart, handleTouchMove, handleTouchEnd,
+        handleCloseMenu, handleCopyLink, handleOpenQRPopup, handleCloseQRPopup, handleDownloadMarkdown,
+    } = usePostShareInteractions(slug);
 
     const handleClick = useCallback(() => {
         if (!contextMenu) {
@@ -216,7 +113,7 @@ export default function PostListItem({
                     type={type}
                     seriesOrder={seriesOrder}
                     postUrl={postUrl}
-                    onClose={() => setShowQRPopup(false)}
+                    onClose={handleCloseQRPopup}
                 />
             )}
         </>

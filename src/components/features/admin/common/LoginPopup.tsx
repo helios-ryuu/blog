@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { FormMessage } from "./FormFields";
 import { Button } from "./Button";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface LoginPopupProps {
     onSuccess: () => void;
@@ -60,13 +61,7 @@ export default function LoginPopup({ onSuccess, onClose }: LoginPopupProps) {
     }, [refreshCaptcha]);
 
     // Close on Escape key
-    useEffect(() => {
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-        };
-        document.addEventListener("keydown", handleEscape);
-        return () => document.removeEventListener("keydown", handleEscape);
-    }, [onClose]);
+    useEscapeKey(onClose);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

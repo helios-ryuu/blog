@@ -3,7 +3,7 @@
 import { Filter } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { SelectDropdown } from "./SelectDropdown";
+import { FormSelectDropdown } from "./FormFields";
 
 interface SelectOption {
     value: string | number;
@@ -14,33 +14,33 @@ interface SectionCardProps {
     // Required
     title: string;
     description: string;
-    
+
     // Optional - className for custom styling (e.g., col-span)
     className?: string;
-    
+
     // Optional - color variant for card background
     colorVariant?: "accent" | "blue" | "red";
-    
+
     // Optional - clickable card (for Create section)
     onClick?: () => void;
     icon?: LucideIcon;
-    
+
     // Optional - select dropdown
     selectKey?: number;
     selectValue?: string;
     selectPlaceholder?: string;
     selectOptions?: SelectOption[];
     onSelectChange?: (value: string) => void;
-    
+
     // Optional - button
     buttonText?: string;
     buttonVariant?: "default" | "danger";
     buttonDisabled?: boolean;
     onButtonClick?: () => void;
-    
+
     // Optional - advanced select icon button (shown next to dropdown)
     onSecondaryButtonClick?: () => void;
-    
+
     // Optional - legend/footer text
     legend?: ReactNode;
 }
@@ -97,16 +97,14 @@ export function SectionCard({
 
     // Standard card with select/button
     const buttonClasses = buttonVariant === "danger"
-        ? `w-full px-3 py-2 text-sm rounded-md transition-colors bg-red-700/20 text-red-700 border border-red-700/30 ${
-            buttonDisabled 
-                ? "cursor-not-allowed" 
-                : "hover:border-red-700/80 cursor-pointer"
-          }`
-        : `w-full px-3 py-2 text-white text-sm rounded-md transition-colors ${
-            buttonDisabled 
-                ? "bg-accent/50 cursor-not-allowed" 
-                : "bg-accent hover:bg-accent/90 cursor-pointer"
-          }`;
+        ? `w-full px-3 py-2 text-sm rounded-md transition-colors bg-red-700/20 text-red-700 border border-red-700/30 ${buttonDisabled
+            ? "cursor-not-allowed"
+            : "hover:border-red-700/80 cursor-pointer"
+        }`
+        : `w-full px-3 py-2 text-white text-sm rounded-md transition-colors ${buttonDisabled
+            ? "bg-accent/50 cursor-not-allowed"
+            : "bg-accent hover:bg-accent/90 cursor-pointer"
+        }`;
 
     return (
         <div className={`p-4 rounded-lg border transition-colors ${colorClasses[colorVariant]} ${className}`}>
@@ -121,10 +119,10 @@ export function SectionCard({
                 <h3 className="font-medium text-foreground mb-2">{title}</h3>
             )}
             <p className="text-sm text-foreground/60 mb-3">{description}</p>
-            
+
             {selectOptions && (
                 <div className={`flex gap-2 ${buttonText ? "mb-2" : ""}`}>
-                    <SelectDropdown
+                    <FormSelectDropdown
                         key={selectKey}
                         className="flex-1"
                         value={selectValue}
@@ -133,7 +131,7 @@ export function SectionCard({
                         onChange={onSelectChange}
                     />
                     {onSecondaryButtonClick && (
-                        <button 
+                        <button
                             onClick={onSecondaryButtonClick}
                             className="px-3 py-2 rounded-md bg-accent/20 text-accent hover:bg-accent/40 transition-colors cursor-pointer flex items-center justify-center"
                             title="Advanced Select"
@@ -143,17 +141,17 @@ export function SectionCard({
                     )}
                 </div>
             )}
-            
+
             {buttonText && onButtonClick && (
-                <button 
-                    onClick={onButtonClick} 
+                <button
+                    onClick={onButtonClick}
                     disabled={buttonDisabled}
                     className={buttonClasses}
                 >
                     {buttonText}
                 </button>
             )}
-            
+
             {legend && (
                 <p className="text-xs text-foreground/40 mt-2">{legend}</p>
             )}

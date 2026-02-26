@@ -5,11 +5,10 @@ import { Database, FolderOpen, FileText, LogOut } from "lucide-react";
 import LoginPopup from "@/components/features/admin/common/LoginPopup";
 import AddTagForm from "@/components/features/admin/forms/AddTagForm";
 import AddPostForm from "@/components/features/admin/forms/AddPostForm";
-import PostPreview from "@/components/features/admin/sections/PostPreview";
+import PreviewSection from "@/components/features/admin/sections/PreviewSection";
 import EditPostForm from "@/components/features/admin/forms/EditPostForm";
-import EditAuthorForm from "@/components/features/admin/forms/EditAuthorForm";
+import AuthorForm from "@/components/features/admin/forms/AuthorForm";
 import EditSeriesForm from "@/components/features/admin/forms/EditSeriesForm";
-import AddAuthorForm from "@/components/features/admin/forms/AddAuthorForm";
 import BucketManager from "@/components/features/admin/tabs/BucketManager";
 import DatabaseTab from "@/components/features/admin/tabs/DatabaseTab";
 import ManagementTab from "@/components/features/admin/tabs/ManagementTab";
@@ -288,7 +287,7 @@ function AdminPageContent() {
             )}
 
             {showAddAuthor && (
-                <AddAuthorForm
+                <AuthorForm
                     onSuccess={() => {
                         setShowAddAuthor(false);
                         fetchTableData(true);
@@ -299,7 +298,7 @@ function AdminPageContent() {
             )}
 
             {previewPostId && (
-                <PostPreview
+                <PreviewSection
                     postId={previewPostId}
                     onClose={() => setPreviewPostId(null)}
                 />
@@ -317,7 +316,7 @@ function AdminPageContent() {
             )}
 
             {editAuthorId && (
-                <EditAuthorForm
+                <AuthorForm
                     authorId={editAuthorId}
                     onClose={() => setEditAuthorId(null)}
                     onSuccess={() => {

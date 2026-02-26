@@ -6,25 +6,9 @@ import AddTagForm from "./AddTagForm";
 import { FormField, FormInput, FormTextarea, FormSelectDropdown, FormMessage } from "../common/FormFields";
 import { TagSelector } from "../common/TagSelector";
 import { Button } from "../common/Button";
-
-interface Tag {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Author {
-    id: number;
-    name: string;
-    title: string;
-}
-
-interface Series {
-    id: number;
-    name: string;
-    slug: string;
-    description: string | null;
-}
+import type { AdminTag, AdminAuthor, AdminSeries } from "@/types/admin";
+import { LEVELS, TYPES, CHAR_LIMITS } from "@/types/admin";
+import { usePostFormValidation, handlePostFormChange, type PostFormData, INITIAL_POST_FORM_DATA } from "@/hooks/usePostFormValidation";
 
 export interface AddPostInitialData {
     title?: string;
@@ -46,28 +30,12 @@ interface AddPostFormProps {
     existingTitles?: string[];
 }
 
-const LEVELS = ["beginner", "intermediate", "advanced"];
-const TYPES = ["standalone", "series"];
-
 export default function AddPostForm({ onSuccess, onClose, initialData, onShowToast, existingTitles = [] }: AddPostFormProps) {
-    const [formData, setFormData] = useState({
-        title: "",
-        description: "",
-        content: "",
-        image_url: "",
-        level: "beginner",
-        type: "standalone",
-        series_id: "",
-        series_order: "",
-        series_name: "",
-        series_description: "",
-        author_id: "",
-        reading_time: "",
-    });
+    const [formData, setFormData] = useState<PostFormData>(INITIAL_POST_FORM_DATA);
     const [selectedTags, setSelectedTags] = useState<number[]>([]);
-    const [tags, setTags] = useState<Tag[]>([]);
-    const [authors, setAuthors] = useState<Author[]>([]);
-    const [seriesList, setSeriesList] = useState<Series[]>([]);
+    const [tags, setTags] = useState<AdminTag[]>([]);
+    const [authors, setAuthors] = useState<AdminAuthor[]>([]);
+    const [seriesList, setSeriesList] = useState<AdminSeries[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [showAddTag, setShowAddTag] = useState(false);
@@ -77,70 +45,11 @@ export default function AddPostForm({ onSuccess, onClose, initialData, onShowToa
         nextOrder: number;
     } | null>(null);
     const [orderError, setOrderError] = useState("");
-    const [imageUrlValid, setImageUrlValid] = useState(true);
 
-    // Character limits
-    const CHAR_LIMITS = {
-        title: 60,
-        description: 200,
-        content: 20000,
-    };
+    const { validationErrors, validationWarnings, hasValidationErrors, imageUrlValid } =
+        usePostFormValidation(formData, { existingTitles });
 
-    // Hard errors (block submit)
-    const getValidationErrors = () => {
-        const errors: Record<string, string> = {};
 
-        if (formData.title.length > CHAR_LIMITS.title) {
-            errors.title = `Title exceeds ${CHAR_LIMITS.title} characters`;
-        }
-
-        if (formData.description.length > CHAR_LIMITS.description) {
-            errors.description = `Description exceeds ${CHAR_LIMITS.description} characters`;
-        }
-
-        if (existingTitles.some(t => t.toLowerCase() === formData.title.trim().toLowerCase())) {
-            errors.title = "This title already exists. Please choose another one.";
-        }
-
-        return errors;
-    };
-
-    // Soft warnings (can proceed)
-    const getValidationWarnings = () => {
-        const warnings: Record<string, string> = {};
-
-        if (formData.content.length > CHAR_LIMITS.content) {
-            warnings.content = `Content exceeds ${CHAR_LIMITS.content} characters`;
-        }
-
-        const readingTime = parseInt(formData.reading_time);
-        if (readingTime > 30) {
-            warnings.reading_time = "Consider splitting into series or reducing content length";
-        }
-
-        if (!imageUrlValid && formData.image_url) {
-            warnings.image_url = "Image URL may be invalid or inaccessible";
-        }
-
-        return warnings;
-    };
-
-    const validationErrors = getValidationErrors();
-    const validationWarnings = getValidationWarnings();
-    const hasValidationErrors = Object.keys(validationErrors).length > 0;
-
-    // Check image URL validity
-    useEffect(() => {
-        if (!formData.image_url) {
-            setImageUrlValid(true);
-            return;
-        }
-
-        const img = new Image();
-        img.onload = () => setImageUrlValid(true);
-        img.onerror = () => setImageUrlValid(false);
-        img.src = formData.image_url;
-    }, [formData.image_url]);
 
     useEffect(() => {
         fetchData();

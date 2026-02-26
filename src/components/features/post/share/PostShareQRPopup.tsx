@@ -8,7 +8,8 @@ import Image from "next/image";
 
 import { FadeText, TagList } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
-import StatColumns from "../card/StatColumns";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import StatColumns from "../card/PostStatColumns";
 import type { Level, PostType } from "@/types/post";
 
 interface ShareQRPopupProps {
@@ -49,19 +50,14 @@ export default function ShareQRPopup({
 
     const toastShownRef = useRef(false);
 
-    useEffect(() => {
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-        };
-        document.addEventListener("keydown", handleEscape);
+    useEscapeKey(onClose);
 
+    useEffect(() => {
         if (!toastShownRef.current) {
             showToast("info", "QR Code ready to share");
             toastShownRef.current = true;
         }
-
-        return () => document.removeEventListener("keydown", handleEscape);
-    }, [onClose, showToast]);
+    }, [showToast]);
     // Helper to wait for all images to load
     const waitForImages = async (element: HTMLElement): Promise<void> => {
         const images = element.querySelectorAll('img');

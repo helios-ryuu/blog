@@ -4,16 +4,7 @@ import { Eye, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/../mdx-components";
-
-interface Tag {
-    id: number;
-    name: string;
-}
-
-interface Author {
-    id: number;
-    name: string;
-}
+import type { AdminTag, AdminAuthor } from "@/types/admin";
 
 interface PostPreviewPanelProps {
     title: string;
@@ -22,9 +13,9 @@ interface PostPreviewPanelProps {
     level: string;
     readingTime: string;
     authorId: string;
-    authors: Author[];
+    authors: AdminAuthor[];
     selectedTags: number[];
-    tags: Tag[];
+    tags: AdminTag[];
     mdxSource: MDXRemoteSerializeResult | null;
     onRender?: () => void;
 }

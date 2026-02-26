@@ -1,71 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import sql from "@/lib/db";
+import { generateSlug } from "@/lib/utils";
+import { errorResponse, successResponse } from "@/lib/api-helpers";
 
 // POST - Create a new tag
 export async function POST(request: NextRequest) {
     try {
         const { name } = await request.json();
 
-        if (!name || typeof name !== "string") {
-            return NextResponse.json(
-                { success: false, message: "Tag name is required" },
-                { status: 400 }
-            );
-        }
+        if (!name || typeof name !== "string") return errorResponse("Tag name is required", 400);
 
         const trimmedName = name.trim();
+        if (trimmedName.length === 0) return errorResponse("Tag name cannot be empty", 400);
+        if (trimmedName.length > 15) return errorResponse("Tag name must be 15 characters or less", 400);
 
-        if (trimmedName.length === 0) {
-            return NextResponse.json(
-                { success: false, message: "Tag name cannot be empty" },
-                { status: 400 }
-            );
-        }
+        const slug = generateSlug(trimmedName);
 
-        if (trimmedName.length > 15) {
-            return NextResponse.json(
-                { success: false, message: "Tag name must be 15 characters or less" },
-                { status: 400 }
-            );
-        }
+        const existing = await sql`SELECT id FROM tag WHERE name = ${trimmedName} OR slug = ${slug}`;
+        if (existing.length > 0) return errorResponse("Tag already exists", 409);
 
-        // Generate slug from name
-        const slug = trimmedName
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-");
-
-        // Check if tag already exists
-        const existing = await sql`
-            SELECT id FROM tag WHERE name = ${trimmedName} OR slug = ${slug}
-        `;
-
-        if (existing.length > 0) {
-            return NextResponse.json(
-                { success: false, message: "Tag already exists" },
-                { status: 409 }
-            );
-        }
-
-        // Insert new tag
         const result = await sql`
             INSERT INTO tag (name, slug)
             VALUES (${trimmedName}, ${slug})
             RETURNING *
         `;
 
-        return NextResponse.json({
-            success: true,
-            message: "Tag created successfully",
-            data: result[0],
-        });
+        return successResponse(result[0], "Tag created successfully");
     } catch (error) {
         console.error("Error creating tag:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to create tag" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to create tag");
     }
 }
 
@@ -73,12 +36,9 @@ export async function POST(request: NextRequest) {
 export async function GET() {
     try {
         const tags = await sql`SELECT * FROM tag ORDER BY name ASC`;
-        return NextResponse.json({ success: true, data: tags });
+        return successResponse(tags);
     } catch (error) {
         console.error("Error fetching tags:", error);
-        return NextResponse.json(
-            { success: false, message: "Failed to fetch tags" },
-            { status: 500 }
-        );
+        return errorResponse("Failed to fetch tags");
     }
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { Share2 } from "lucide-react";
 import PostCardContextMenu from "../card/PostCardContextMenu";
-import ShareQRPopup from "./ShareQRPopup";
+import ShareQRPopup from "./PostShareQRPopup";
+import { usePostShareInteractions } from "@/hooks/usePostShareInteractions";
 import type { Post } from "@/types/post";
 
 interface PostShareActionsProps {
@@ -11,77 +11,16 @@ interface PostShareActionsProps {
 }
 
 export default function PostShareActions({ post }: PostShareActionsProps) {
-    const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
-    const [showQRPopup, setShowQRPopup] = useState(false);
-    const [linkCopied, setLinkCopied] = useState(false);
-
-    const postUrl = typeof window !== "undefined"
-        ? `${window.location.origin}/post/${post.slug}`
-        : `/post/${post.slug}`;
-
-    const handleShareClick = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setContextMenu({ x: e.clientX, y: e.clientY });
-    }, []);
-
-    const handleCloseMenu = useCallback(() => {
-        setContextMenu(null);
-        setLinkCopied(false);
-    }, []);
-
-    const handleCopyLink = useCallback(async () => {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(postUrl);
-            } else {
-                // Fallback: create temporary textarea and copy
-                const textarea = document.createElement('textarea');
-                textarea.value = postUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.left = '-9999px';
-                textarea.style.top = '-9999px';
-                textarea.style.opacity = '0';
-                textarea.style.pointerEvents = 'none';
-                textarea.style.fontSize = '16px'; // Prevent iOS zoom
-                textarea.setAttribute('readonly', ''); // Prevent keyboard on iOS
-                document.body.appendChild(textarea);
-                textarea.select();
-                textarea.setSelectionRange(0, textarea.value.length); // For iOS
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-            }
-
-            setLinkCopied(true);
-            setTimeout(() => {
-                setContextMenu(null);
-                setLinkCopied(false);
-            }, 1000);
-        } catch (err) {
-            console.error("Failed to copy link:", err);
-        }
-    }, [postUrl]);
-
-    const handleOpenQRPopup = useCallback(() => {
-        setContextMenu(null);
-        setShowQRPopup(true);
-    }, []);
-
-    const handleDownloadMarkdown = useCallback(() => {
-        const downloadUrl = `/api/post/${post.slug}/download?format=md`;
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.download = `${post.slug}.md`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setContextMenu(null);
-    }, [post.slug]);
+    const {
+        contextMenu, showQRPopup, linkCopied, postUrl,
+        handleContextMenu, handleCloseMenu, handleCopyLink,
+        handleOpenQRPopup, handleCloseQRPopup, handleDownloadMarkdown,
+    } = usePostShareInteractions(post.slug);
 
     return (
         <div className="mt-6 flex justify-center">
             <button
-                onClick={handleShareClick}
+                onClick={handleContextMenu}
                 className={`
                     flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-colors
                     ${contextMenu
@@ -123,7 +62,7 @@ export default function PostShareActions({ post }: PostShareActionsProps) {
                     type={post.type}
                     seriesOrder={post.seriesOrder}
                     postUrl={postUrl}
-                    onClose={() => setShowQRPopup(false)}
+                    onClose={handleCloseQRPopup}
                 />
             )}
         </div>

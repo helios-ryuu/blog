@@ -2,7 +2,7 @@
 export { default as PostCard } from "./card/PostCard";
 export { default as PostCardContextMenu } from "./card/PostCardContextMenu";
 export { default as PostListItem } from "./card/PostListItem";
-export { default as StatColumns } from "./card/StatColumns";
+export { default as PostStatColumns } from "./card/PostStatColumns";
 
 // List components
 export { default as PostListClient } from "./list/PostListClient";
@@ -16,4 +16,4 @@ export { default as TableOfContents } from "./detail/TableOfContents";
 
 // Share components
 export { default as PostShareActions } from "./share/PostShareActions";
-export { default as ShareQRPopup } from "./share/ShareQRPopup";
+export { default as PostShareQRPopup } from "./share/PostShareQRPopup";

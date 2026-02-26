@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { FormField, FormInput, FormMessage } from "../common/FormFields";
 import { Button } from "../common/Button";
+import { generateSlug } from "@/lib/utils";
 
 interface EditSeriesFormProps {
     seriesId: number;
@@ -16,21 +17,8 @@ interface SeriesData {
     description: string;
 }
 
-// Generate slug from name
-function generateSlug(name: string): string {
-    return name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-        .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .trim();
-}
-
 export default function EditSeriesForm({ seriesId, onSuccess, onClose }: EditSeriesFormProps) {
+
     const [formData, setFormData] = useState<SeriesData>({
         name: "",
         description: "",
