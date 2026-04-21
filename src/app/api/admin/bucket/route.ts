@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache, revalidateTag } from "next/cache";
 
 const SUPABASE_URL = "https://zqvzvpgvzvpvbbrlhnzs.supabase.co";
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SECRET_KEY;
 const BUCKET_NAME = "post-images";
 
 interface StorageFile {
